@@ -40,6 +40,20 @@ class Locale extends Model
     ];
 
     /**
+     * Scope a query to only include locales available in API.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  array  $args
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeAvailableInApi($query, array $args = [])
+    {
+        $availableInApi = isset($args['available_in_api']) ? ! empty($args['available_in_api']) : true;
+
+        return $query->where('available_in_api', '=', $availableInApi);
+    }
+
+    /**
      * Locale fallback relationship.
      *
      * @return \Illuminate\Database\Eloquent\Relationships\BelongsTo
