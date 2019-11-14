@@ -1,14 +1,14 @@
 extend type Query {
     "Fetch all locales"
-    locales: [Locale!]! @all
+    locales: [Locale!]! @all(model: "BBS\\Nova\\Translation\\Models\\Locale")
     "Locale by ID"
     localeById(
         "Locale ID"
         id: ID! @eq
-    ): Locale @find
+    ): Locale @find(model: "BBS\\Nova\\Translation\\Models\\Locale")
     "Locale by ISO"
     localeByIso(
         "Locale ISO"
         iso: String! @eq
-    ): Locale @find
+    ): Locale @find(model: "BBS\\Nova\\Translation\\Models\\Locale")
 }
