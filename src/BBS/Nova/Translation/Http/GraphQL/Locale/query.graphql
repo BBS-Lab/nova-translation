@@ -1,0 +1,14 @@
+extend type Query {
+    "Fetch all locales"
+    locales: [Locale!]! @all
+    "Locale by ID"
+    localeById(
+        "Locale ID"
+        id: ID! @eq
+    ): Locale @find
+    "Locale by ISO"
+    localeByIso(
+        "Locale ISO"
+        iso: String! @eq
+    ): Locale @find
+}

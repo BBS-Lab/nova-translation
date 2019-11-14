@@ -1,0 +1,19 @@
+"Nova Translation Locale type."
+type Locale {
+    "Locale ID"
+    id: ID!
+    "Locale ISO"
+    iso: String!
+    "Locale label"
+    title: String!
+    "Locale fallback ID"
+    fallbackId: ID @rename(attribute: "fallback_id")
+    "Locale fallback"
+    fallback: Locale
+    "Locale is available in API?"
+    isAvailableInApi: Boolean! @rename(attribute: "available_in_api")
+    "Creation datetime"
+    createdAt: DateTime! @rename(attribute: "created_at")
+    "Last update datetime"
+    updatedAt: DateTime! @rename(attribute: "updated_at")
+}
