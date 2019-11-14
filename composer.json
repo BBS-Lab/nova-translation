@@ -13,7 +13,7 @@
       "src/database/factories"
     ],
     "psr-4": {
-      "BBS\\Nova\\Translation": "src/BBS/Nova/Translation"
+      "BBS\\Nova\\Translation\\": "src/BBS/Nova/Translation"
     }
   },
   "config": {
