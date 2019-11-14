@@ -5,7 +5,7 @@ type Locale {
     "Locale ISO"
     iso: String!
     "Locale label"
-    title: String!
+    label: String!
     "Locale fallback ID"
     fallbackId: ID @rename(attribute: "fallback_id")
     "Locale fallback"
