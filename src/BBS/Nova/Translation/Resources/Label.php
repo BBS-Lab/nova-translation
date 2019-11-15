@@ -3,32 +3,32 @@
 namespace BBS\Nova\Translation\Resources;
 
 use App\Nova\Resource;
+use BBS\Nova\Translation\Models\Label as Model;
 use Illuminate\Http\Request;
-use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Textarea;
 
-class Locale extends Resource
+class Label extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = 'BBS\\Nova\\Translation\\Models\\Locale';
+    public static $model = 'BBS\\Nova\\Translation\\Models\\Label';
 
     /**
      * {@inheritdoc}
      */
-    public static $title = 'label';
+    public static $title = 'key';
 
     /**
      * {@inheritdoc}
      */
     public static $search = [
-        'iso',
-        'label',
+        'key',
+        'value',
     ];
 
     /**
@@ -44,23 +44,16 @@ class Locale extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make('ISO')
-                ->sortable()
-                ->rules('required', 'max:255')
-                ->creationRules('unique:locales,iso')
-                ->updateRules('unique:locales,iso,{{resourceId}}'),
-
-            Text::make('Label')
-                ->sortable()
-                ->rules('required', 'max:255'),
-
-            Select::make('Fallback', 'fallback_id')
-                ->options($this->model()->query()->select('id', 'label')->orderBy('label', 'asc')->get()->pluck('label', 'id')->toArray())
-                ->nullable()
+            ID::make('Translatable ID', 'translatable_id')
                 ->hideFromIndex()
-                ->displayUsingLabels(),
+                ->rules('required'),
 
-            Boolean::make('Is available in API?', 'available_in_api'),
+            Text::make('Key')
+                ->sortable()
+                ->rules('required'),
+
+            Textarea::make('Value')
+                ->hideFromIndex(),
         ];
     }
 

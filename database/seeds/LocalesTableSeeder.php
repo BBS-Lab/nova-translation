@@ -15,13 +15,13 @@ class LocalesTableSeeder extends Seeder
     public function run()
     {
         $locales = ['en' => 'English', 'fr' => 'Français'];
-        $defaultLocale = array_keys($locales)[0];
+        $defaultIso = array_keys($locales)[0];
 
         foreach ($locales as $iso => $label) {
             Locale::query()->create([
                 'iso' => $iso,
                 'label' => $label,
-                'fallback_id' => ($iso === $defaultLocale) ? null : 1,
+                'fallback_id' => ($iso === $defaultIso) ? null : 1,
                 'available_in_api' => true,
             ]);
         }
