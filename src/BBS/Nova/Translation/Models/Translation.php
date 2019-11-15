@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property int $locale_id
+ * @property int $translation_id
  * @property int $translatable_id
  * @property string $translatable_type
  */
@@ -36,6 +37,7 @@ class Translation extends Model
      */
     protected $fillable = [
         'locale_id',
+        'translation_id',
         'translatable_id',
         'translatable_type',
     ];
@@ -45,11 +47,7 @@ class Translation extends Model
      */
     protected $casts = [
         'locale_id' => 'integer',
+        'translation_id' => 'integer',
         'translatable_id' => 'integer',
     ];
-    
-    public function translatable()
-    {
-        
-    }
 }

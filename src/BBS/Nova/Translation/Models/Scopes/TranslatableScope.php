@@ -18,8 +18,6 @@ class TranslatableScope implements Scope
      */
     public function apply(Builder $builder, Model $model)
     {
-        $tablePrefix = $model->getTable() . '.';
-
         $currentLocaleId = config('current_locale_id');
         if (empty($currentLocaleId)) {
             /** @var \BBS\Nova\Translation\Models\Locale $currentLocale */
@@ -28,8 +26,11 @@ class TranslatableScope implements Scope
             config(['current_locale_id' => $currentLocaleId]);
         }
 
-        $builder
-            ->join('translations', $tablePrefix . $model->translatableIdField(), '=', 'translations.translatable_id')
-            ->where('translations.locale_id', '=', $currentLocaleId);
+        $builder->join('translations', function ($join) use ($model, $currentLocaleId) {
+            $join
+                ->where('translations.locale_id', '=', $currentLocaleId)
+                ->where('translations.translatable_type', '=', get_class($model))
+                ->where($model->getTable() . '.' . $model->translationIdField(), '=', 'translations.translation_id');
+        });
     }
 }

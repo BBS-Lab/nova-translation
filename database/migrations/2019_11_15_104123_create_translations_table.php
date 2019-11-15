@@ -15,10 +15,12 @@ class CreateTranslationsTable extends Migration
     {
         Schema::create('translations', function (Blueprint $table) {
             $table->unsignedInteger('locale_id');
+            $table->unsignedInteger('translation_id');
             $table->unsignedInteger('translatable_id');
             $table->string('translatable_type');
 
-            $table->primary(['locale_id', 'translatable_id', 'translatable_type'], 'translations_pk');
+            $table->primary(['locale_id', 'translation_id', 'translatable_id', 'translatable_type'], 'translations_pk');
+            $table->foreign('locale_id', 'locale_idx')->references('id')->on('locales')->onDelete('cascade');
         });
     }
 

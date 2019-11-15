@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property int $id
- * @property int $translatable_id
+ * @property int $translation_id
  * @property string $key
  * @property string $value
  * @property \Illuminate\Support\Carbon $created_at
@@ -25,7 +25,7 @@ class Label extends Model
      * {@inheritdoc}
      */
     protected $fillable = [
-        'translatable_id',
+        'translation_id',
         'key',
         'value',
     ];
@@ -34,6 +34,6 @@ class Label extends Model
      * {@inheritdoc}
      */
     protected $casts = [
-        'translatable_id' => 'integer',
+        'translation_id' => 'integer',
     ];
 }

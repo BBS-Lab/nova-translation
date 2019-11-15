@@ -5,7 +5,6 @@ namespace BBS\Nova\Translation;
 use BBS\Nova\Translation\Http\Middleware\Authorize;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-use Laravel\Nova\Nova;
 
 class ServiceProvider extends BaseServiceProvider
 {
@@ -25,9 +24,13 @@ class ServiceProvider extends BaseServiceProvider
     {
         $this->bootPackage();
 
-        $this->app->booted(function () {
-            $this->bootRoutes();
-        });
+        if ($this->isNovaInstalled()) {
+            $this->app->booted(function () {
+                $this->bootRoutes();
+            });
+
+            $this->loadNovaTranslations();
+        }
     }
 
     /**
@@ -39,13 +42,21 @@ class ServiceProvider extends BaseServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../../../../config/config.php', static::PACKAGE_ID);
         $this->loadMigrationsFrom(__DIR__ . '/../../../../database/migrations');
-
-        $this->loadNovaTranslations();
         $this->loadTranslationsFrom(__DIR__ . '/../../../../resources/lang', static::PACKAGE_ID);
 
         $this->publishes([
             __DIR__ . '/../../../../config/config.php' => base_path('config/' . static::PACKAGE_ID . '.php'),
         ]);
+    }
+
+    /**
+     * Check if Laravel Nova is installed.
+     *
+     * @return bool
+     */
+    protected function isNovaInstalled()
+    {
+        return class_exists('Laravel\Nova\Nova');
     }
 
     /**
@@ -81,6 +92,6 @@ class ServiceProvider extends BaseServiceProvider
             return [static::PACKAGE_ID . '::' . $key => $value];
         })->toArray();
 
-        Nova::translations($translations);
+        \Laravel\Nova\Nova::translations($translations);
     }
 }

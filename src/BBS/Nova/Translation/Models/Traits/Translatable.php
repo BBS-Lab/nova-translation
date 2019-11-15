@@ -17,35 +17,35 @@ trait Translatable
     }
 
     /**
-     * Return next fresh translatable ID.
+     * Return next fresh translation ID.
      *
      * @return int
      */
-    public function freshTranslatableId()
+    public function freshTranslationId()
     {
-        $translatableIdField = $this->translatableIdField();
-        $lastTranslatable = static::query()->select($translatableIdField)->orderBy($translatableIdField, 'desc')->first();
+        $translationIdField = $this->translationIdField();
+        $lastTranslation = static::query()->select($translationIdField)->orderBy($translationIdField, 'desc')->first();
 
-        return ! empty($lastTranslatable) ? ($lastTranslatable->getAttribute($translatableIdField) + 1) : 1;
+        return ! empty($lastTranslation) ? ($lastTranslation->getAttribute($translationIdField) + 1) : 1;
     }
 
     /**
-     * Return translatable ID value.
+     * Return translation ID value.
      *
      * @return int
      */
-    public function translatableId()
+    public function translationId()
     {
-        return $this->getAttribute($this->translatableIdField());
+        return $this->getAttribute($this->translationIdField());
     }
 
     /**
-     * Define translatable ID field.
+     * Define translation ID field name.
      *
      * @return string
      */
-    public function translatableIdField()
+    public function translationIdField()
     {
-        return 'translatable_id';
+        return 'translation_id';
     }
 }
