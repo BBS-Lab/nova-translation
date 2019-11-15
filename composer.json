@@ -9,8 +9,8 @@
   },
   "autoload": {
     "classmap": [
-      "src/database/seeds",
-      "src/database/factories"
+      "database/seeds",
+      "database/factories"
     ],
     "psr-4": {
       "BBS\\Nova\\Translation\\": "src/BBS/Nova/Translation"
