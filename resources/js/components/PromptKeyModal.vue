@@ -26,11 +26,11 @@
 </template>
 
 <script>
-  import Trans from '../mixins/Trans'
+  import I18n from '../mixins/I18n'
 
   export default {
     mixins: [
-      Trans
+      I18n
     ],
 
     data() {

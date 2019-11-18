@@ -19,10 +19,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr class="p-3" v-for="(keyI18n, key) in matrix" :key="key" :id="'tr_' + key">
+            <tr class="p-3" v-for="(keyI18n, key) in matrix" :key="key" :id="`tr__${key}`">
               <td>{{ key }}</td>
-              <td v-for="locale in locales" :key="key + '__' + locale.id">
-                <textarea class="w-full form-control form-input form-input-bordered py-3 h-auto" :id="key + '__' + locale.id" rows="1">{{ keyI18n[locale.id] ? keyI18n[locale.id] : '' }}</textarea>
+              <td v-for="locale in locales" :key="`${key}__${locale.id}`">
+                <textarea class="w-full form-control form-input form-input-bordered py-3 h-auto" @input="updateLabel(key, locale.id, $event.target.value)" rows="1">{{ keyI18n[locale.id] ? keyI18n[locale.id] : '' }}</textarea>
               </td>
             </tr>
           </tbody>
@@ -42,12 +42,12 @@
 </template>
 
 <script>
-  import Trans from '../mixins/Trans'
+  import I18n from '../mixins/I18n'
   import animateScrollTo from 'animated-scroll-to'
 
   export default {
     mixins: [
-      Trans
+      I18n
     ],
 
     components: {
@@ -64,7 +64,6 @@
     },
 
     mounted() {
-      console.log('Nova Translation Matrix mounted!')
       this.hydrate()
     },
 
@@ -86,7 +85,7 @@
           this.addI18nKey(key)
         } else {
           this.$toasted.show(this.trans('The key you try to add already exists!'), { type: 'error' })
-          animateScrollTo(document.querySelector(`#tr_${key}`), {
+          animateScrollTo(document.querySelector(`#tr__${key}`), {
             speed: 500
           })
         }
@@ -105,11 +104,19 @@
       addI18nKey(key) {
         for (let i = 0 ; i < this.locales.length ; i++) {
           this.labels.push({
-            id: null,
             key: key,
             value: '',
             locale_id: this.locales[i].id
           })
+        }
+      },
+
+      updateLabel(key, localeId, value) {
+        for (let i = 0 ; i < this.labels.length ; i++) {
+          if ((this.labels[i].key === key) && (this.labels[i].locale_id === localeId)) {
+            this.labels[i].value = value
+            break
+          }
         }
       },
 
@@ -119,14 +126,6 @@
         }).catch((error) => {
           this.$toasted.show(this.trans('An error occurred while saving the translations!'), { type: 'error' })
         })
-      },
-
-      setError(error) {
-        this.errors[error] = true
-
-        setTimeout(() => {
-          this.errors[error] = false
-        }, 5000)
       }
     },
 

@@ -21,10 +21,16 @@ trait Translatable
      *
      * @return int
      */
-    public function freshTranslationId()
+    public static function freshTranslationId()
     {
-        $translationIdField = $this->translationIdField();
-        $lastTranslation = static::query()->select($translationIdField)->orderBy($translationIdField, 'desc')->first();
+        $instance = new static;
+        $translationIdField = $instance->translationIdField();
+
+        $lastTranslation = static::query()
+            ->withoutGlobalScope(TranslatableScope::class)
+            ->select($instance->getTable() . '.'. $translationIdField)
+            ->orderBy($translationIdField, 'desc')
+            ->first();
 
         return ! empty($lastTranslation) ? ($lastTranslation->getAttribute($translationIdField) + 1) : 1;
     }
