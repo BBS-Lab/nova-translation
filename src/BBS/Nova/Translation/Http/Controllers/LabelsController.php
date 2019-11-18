@@ -4,6 +4,7 @@ namespace BBS\Nova\Translation\Http\Controllers;
 
 use BBS\Nova\Translation\Models\Label;
 use BBS\Nova\Translation\Models\Locale;
+use BBS\Nova\Translation\Models\Scopes\TranslatableScope;
 use BBS\Nova\Translation\Models\Translation;
 
 class LabelsController
@@ -18,7 +19,8 @@ class LabelsController
         $locales = Locale::query()->select('id', 'iso', 'label')->get();
 
         $labels = Label::query()
-            ->select('labels.id', 'translations.locale_id', 'labels.key', 'labels.value')
+            ->withoutGlobalScope(TranslatableScope::class)
+            ->select('translations.locale_id', 'labels.key', 'labels.value')
             ->join('translations', 'labels.id', '=', 'translations.translatable_id')
             ->where('translations.translatable_type', '=', Label::class)
             ->get();
@@ -28,10 +30,7 @@ class LabelsController
             if (! isset($matrix[$label->key])) {
                 $matrix[$label->key] = [];
             }
-             $matrix[$label->key][$label->locale_id] = [
-                 'id' => $label->id,
-                 'value' => ! empty($label->value) ? $label->value : '',
-             ];
+            $matrix[$label->key][$label->locale_id] = $label->value;
         }
 
         return response()->json([
