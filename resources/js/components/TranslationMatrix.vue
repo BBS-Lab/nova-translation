@@ -16,6 +16,7 @@
             <tr class="p-3">
               <th></th>
               <th v-for="locale in locales" :key="locale.id">{{ locale.label }}</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -23,6 +24,11 @@
               <td>{{ key }}</td>
               <td v-for="locale in locales" :key="`${key}__${locale.id}`">
                 <textarea class="w-full form-control form-input form-input-bordered py-3 h-auto" @input="updateLabel(key, locale.id, $event.target.value)" rows="1">{{ keyI18n[locale.id] ? keyI18n[locale.id] : '' }}</textarea>
+              </td>
+              <td class="table-actions">
+                <button class="block" @click="deleteKey(key)">
+                  <icon type="delete" width="12" height="12" view-box="0 0 24 24"/>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -131,6 +137,18 @@
         }).finally(() => {
           this.loading = false
         })
+      },
+
+      deleteKey(key) {
+        let labels = []
+
+        for (let i = 0 ; i < this.labels.length ; i++) {
+          if (this.labels[i].key !== key) {
+            labels.push(this.labels[i])
+          }
+        }
+
+        this.labels = labels
       }
     },
 
@@ -152,12 +170,17 @@
   }
 </script>
 
-<style>
+<style scoped>
   .modal {
     background-color: rgba(0, 0, 0, 0.6);
   }
 
-  .table tfoot tr:hover td {
-    background-color: transparent;
+  .table tbody tr td.table-actions {
+    min-width: 0;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    text-align: right;
+    width: 1%;
+    white-space: nowrap;
   }
 </style>
