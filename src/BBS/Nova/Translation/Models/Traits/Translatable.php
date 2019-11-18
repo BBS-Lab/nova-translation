@@ -9,10 +9,8 @@ trait Translatable
     /**
      * {@inheritdoc}
      */
-    protected static function boot()
+    public static function bootTranslatable()
     {
-        parent::boot();
-
         static::addGlobalScope(new TranslatableScope);
     }
 
