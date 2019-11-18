@@ -4,6 +4,10 @@ namespace BBS\Nova\Translation\Models\Traits;
 
 use BBS\Nova\Translation\Models\Scopes\TranslatableScope;
 
+/**
+ * @method getTable(): string
+ * @method getAttribute(): mixed
+ */
 trait Translatable
 {
     /**
@@ -26,7 +30,7 @@ trait Translatable
 
         $lastTranslation = static::query()
             ->withoutGlobalScope(TranslatableScope::class)
-            ->select($instance->getTable() . '.'. $translationIdField)
+            ->select($instance->getTable().'.'.$translationIdField)
             ->orderBy($translationIdField, 'desc')
             ->first();
 

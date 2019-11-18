@@ -40,12 +40,12 @@ class ServiceProvider extends BaseServiceProvider
      */
     protected function bootPackage()
     {
-        $this->mergeConfigFrom(__DIR__ . '/../../../../config/config.php', static::PACKAGE_ID);
-        $this->loadMigrationsFrom(__DIR__ . '/../../../../database/migrations');
-        $this->loadTranslationsFrom(__DIR__ . '/../../../../resources/lang', static::PACKAGE_ID);
+        $this->mergeConfigFrom(__DIR__.'/../../../../config/config.php', static::PACKAGE_ID);
+        $this->loadMigrationsFrom(__DIR__.'/../../../../database/migrations');
+        $this->loadTranslationsFrom(__DIR__.'/../../../../resources/lang', static::PACKAGE_ID);
 
         $this->publishes([
-            __DIR__ . '/../../../../config/config.php' => base_path('config/' . static::PACKAGE_ID . '.php'),
+            __DIR__.'/../../../../config/config.php' => base_path('config/'.static::PACKAGE_ID.'.php'),
         ]);
     }
 
@@ -71,8 +71,8 @@ class ServiceProvider extends BaseServiceProvider
         }
 
         Route::middleware(['nova', Authorize::class])
-            ->prefix('nova-vendor/' . static::PACKAGE_ID)
-            ->group(__DIR__ . '/../../../../routes/api.php');
+            ->prefix('nova-vendor/'.static::PACKAGE_ID)
+            ->group(__DIR__.'/../../../../routes/api.php');
     }
 
     /**
@@ -82,14 +82,14 @@ class ServiceProvider extends BaseServiceProvider
      */
     protected function loadNovaTranslations()
     {
-        $file = __DIR__ . '/../../../../resources/lang/' . app()->getLocale(). '.json';
+        $file = __DIR__.'/../../../../resources/lang/'.app()->getLocale(). '.json';
         if (! file_exists($file)) {
-            $file = __DIR__ . '/../../../../resources/lang/en.json';
+            $file = __DIR__.'/../../../../resources/lang/en.json';
         }
 
         $translations = json_decode(file_get_contents($file), true);
         $translations = collect($translations)->mapWithKeys(function ($value, $key) {
-            return [static::PACKAGE_ID . '::' . $key => $value];
+            return [static::PACKAGE_ID.'::'.$key => $value];
         })->toArray();
 
         \Laravel\Nova\Nova::translations($translations);

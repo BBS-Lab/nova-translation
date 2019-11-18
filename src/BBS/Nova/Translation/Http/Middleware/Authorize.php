@@ -2,8 +2,8 @@
 
 namespace BBS\Nova\Translation\Http\Middleware;
 
-use Laravel\Nova\Nova;
 use BBS\Nova\Translation\Tools\TranslationMatrix;
+use Laravel\Nova\Nova;
 
 class Authorize
 {

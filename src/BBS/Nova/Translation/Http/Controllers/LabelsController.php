@@ -19,10 +19,10 @@ class LabelsController
     public function index()
     {
         $labels = Label::query()
-            ->withoutGlobalScope(TranslatableScope::class)
             ->select('translations.locale_id', 'labels.key', 'labels.value')
             ->join('translations', 'labels.id', '=', 'translations.translatable_id')
             ->where('translations.translatable_type', '=', Label::class)
+            ->withoutGlobalScope(TranslatableScope::class)
             ->get();
 
         $locales = Locale::query()->select('id', 'label')->get();
@@ -62,7 +62,6 @@ class LabelsController
     protected function createLabel(array $data)
     {
         $translatedLabel = Label::query()
-            ->withoutGlobalScope(TranslatableScope::class)
             ->select('labels.translation_id')
             ->join('translations', function ($join) {
                 $join
@@ -70,6 +69,7 @@ class LabelsController
                     ->where('translations.translatable_type', '=', Label::class);
             })
             ->where('labels.key', '=', $data['key'])
+            ->withoutGlobalScope(TranslatableScope::class)
             ->first();
 
         $translationId = ! empty($translatedLabel) ? $translatedLabel->translation_id : Label::freshTranslationId();
