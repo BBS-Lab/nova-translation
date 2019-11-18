@@ -18,12 +18,7 @@ class LabelsController
      */
     public function index()
     {
-        $labels = Label::query()
-            ->select('translations.locale_id', 'labels.key', 'labels.value')
-            ->join('translations', 'labels.id', '=', 'translations.translatable_id')
-            ->where('translations.translatable_type', '=', Label::class)
-            ->withoutGlobalScope(TranslatableScope::class)
-            ->get();
+        $labels = $this->labels();
 
         $locales = Locale::query()->select('id', 'label')->get();
 
@@ -50,7 +45,24 @@ class LabelsController
 
         DB::commit();
 
-        return response()->json($labels, 200);
+        return response()->json([
+            'labels' => $labels,
+        ], 200);
+    }
+
+    /**
+     * Return all non-scoped labels.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    protected function labels()
+    {
+        return Label::query()
+            ->select('translations.locale_id', 'labels.key', 'labels.value')
+            ->join('translations', 'labels.id', '=', 'translations.translatable_id')
+            ->where('translations.translatable_type', '=', Label::class)
+            ->withoutGlobalScope(TranslatableScope::class)
+            ->get();
     }
 
     /**

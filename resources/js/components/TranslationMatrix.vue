@@ -121,10 +121,15 @@
       },
 
       saveLabels() {
+        this.loading = true
+
         Nova.request().post('/nova-vendor/nova-translation/labels', { labels: this.labels }).then((response) => {
+          this.labels = response.data.labels
           this.$toasted.show(this.trans('The translations have been successfully saved!'), { type: 'success' })
         }).catch((error) => {
           this.$toasted.show(this.trans('An error occurred while saving the translations!'), { type: 'error' })
+        }).finally(() => {
+          this.loading = false
         })
       }
     },
