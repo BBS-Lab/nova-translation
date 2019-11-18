@@ -6,6 +6,7 @@ use BBS\Nova\Translation\Models\Label;
 use BBS\Nova\Translation\Models\Locale;
 use BBS\Nova\Translation\Models\Scopes\TranslatableScope;
 use BBS\Nova\Translation\Models\Translation;
+use Illuminate\Http\Request;
 
 class LabelsController
 {
@@ -14,10 +15,8 @@ class LabelsController
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function matrix()
+    public function index()
     {
-        $locales = Locale::query()->select('id', 'iso', 'label')->get();
-
         $labels = Label::query()
             ->withoutGlobalScope(TranslatableScope::class)
             ->select('translations.locale_id', 'labels.key', 'labels.value')
@@ -25,17 +24,14 @@ class LabelsController
             ->where('translations.translatable_type', '=', Label::class)
             ->get();
 
-        $matrix = [];
-        foreach ($labels as $label) {
-            if (! isset($matrix[$label->key])) {
-                $matrix[$label->key] = [];
-            }
-            $matrix[$label->key][$label->locale_id] = $label->value;
-        }
+        $locales = Locale::query()->select('id', 'iso', 'label')->get();
 
-        return response()->json([
-            'matrix' => $matrix,
-            'locales' => $locales,
-        ], 200);
+        return response()->json(compact('labels', 'locales'), 200);
+    }
+
+    public function save(Request $request)
+    {
+        print_r($request->all());
+        exit;
     }
 }

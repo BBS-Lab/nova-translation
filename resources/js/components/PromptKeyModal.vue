@@ -2,7 +2,7 @@
   <modal role="dialog" @modal-close="handleClose">
     <form autocomplete="off" @keydown="handleKeydown" @submit.prevent.stop="handleConfirm" class="bg-white rounded-lg shadow-lg overflow-hidden w-action-fields">
       <div>
-        <heading :level="2" class="border-b border-40 py-8 px-8">Add a translation key</heading>
+        <heading :level="2" class="border-b border-40 py-8 px-8">{{ trans('Add a translation key') }}</heading>
 
         <div class="m-8">
           <div class="action">
@@ -14,11 +14,10 @@
       <div class="bg-30 px-6 py-3 flex">
         <div class="flex items-center ml-auto">
           <button type="button" @click.prevent="handleClose" class="btn btn-link dim cursor-pointer text-80 ml-auto mr-6">
-            Close
+            {{ trans('Close') }}
           </button>
-
           <button type="submit" class="btn btn-default btn-primary">
-            Confirm
+            {{ trans('Confirm') }}
           </button>
         </div>
       </div>
@@ -27,12 +26,16 @@
 </template>
 
 <script>
+  import Trans from '../mixins/Trans'
+
   export default {
+    mixins: [
+      Trans
+    ],
+
     data() {
       return {
-        errors: {},
-        newKey: '',
-        working: false
+        newKey: ''
       }
     },
 

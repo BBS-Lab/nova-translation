@@ -1,3 +1,11 @@
 {
-  "Translations Matrix": "Translations Matrix"
+  "Translations Matrix": "Translations Matrix",
+  "Add key": "+ Add key",
+  "The key you try to add already exists!": "The key you try to add already exists!",
+  "Save": "Save",
+  "Add a translation key": "Add a translation key",
+  "Close": "Close",
+  "Confirm": "Confirm",
+  "The translations have been successfully saved!": "The translations have been successfully saved!",
+  "An error occurred while saving the translations!": "An error occurred while saving the translations!"
 }
