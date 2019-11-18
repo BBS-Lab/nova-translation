@@ -82,7 +82,7 @@ class ServiceProvider extends BaseServiceProvider
      */
     protected function loadNovaTranslations()
     {
-        $file = __DIR__.'/../../../../resources/lang/'.app()->getLocale(). '.json';
+        $file = __DIR__.'/../../../../resources/lang/'.app()->getLocale().'.json';
         if (! file_exists($file)) {
             $file = __DIR__.'/../../../../resources/lang/en.json';
         }
