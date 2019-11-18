@@ -1,6 +1,6 @@
 # Laravel Nova Translation
 
-[![StyleCI](https://styleci.io/repos/220784911/shield)](https://styleci.io/repos/220784911)
+[![StyleCI](https://styleci.io/repos/221661972/shield)](https://styleci.io/repos/221661972)
 [![Quality Score](https://img.shields.io/scrutinizer/g/bbs-lab/nova-translation.svg?style=flat-square)](https://scrutinizer-ci.com/g/bbs-lab/nova-translation)
 
 ## Contents
