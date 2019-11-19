@@ -1,0 +1,5 @@
+"Nova Translation translation type."
+type Translation {
+    "Translation JSON"
+    json: TranslationJson
+}

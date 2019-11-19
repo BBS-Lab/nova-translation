@@ -1,0 +1,12 @@
+extend type Query {
+    "Fetch translations by locale ISO"
+    translationsByLocaleIso(
+        "Locale ISO"
+        iso: String
+    ): Translation @field(resolver: "BBS\\Nova\\Translation\\GraphQL\\Queries\\Translation\\ByLocaleIso@resolve")
+    "Fetch translations by locale ID"
+    translationsByLocaleId(
+        "Locale ID"
+        id: ID
+    ): Translation @field(resolver: "BBS\\Nova\\Translation\\GraphQL\\Queries\\Translation\\ByLocaleId@resolve")
+}
