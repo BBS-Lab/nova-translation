@@ -32,10 +32,10 @@ The service provider will automatically get registered. Or you may manually add 
 You can tailor default in your application by running:
 
 ```bash
-php artisan vendor:publish --provider="BBSLab\Nova\Translation\ServiceProvider::class"
+php artisan vendor:publish --provider="BBS\Nova\Translation\ServiceProvider::class"
 ```
 
-You need to run migrations 
+You need to run migrations and seeds Locales.
 
 ```bash
 php artisan migrate

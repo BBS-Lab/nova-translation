@@ -2,27 +2,22 @@
 
 namespace BBS\Nova\Translation\GraphQL\Queries\Translation;
 
-use GraphQL\Type\Definition\ResolveInfo;
-use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
+use Illuminate\Database\Eloquent\Builder;
 
-class ByLocaleIso
+class ByLocaleIso extends ByLocale
 {
     /**
-     * Return a value for the field.
-     *
-     * @param  mixed  $rootValue
-     * @param  array  $args
-     * @param  \Nuwave\Lighthouse\Support\Contracts\GraphQLContext  $context
-     * @param  \GraphQL\Type\Definition\ResolveInfo  $resolveInfo
-     * @return array
+     * {@inheritdoc}
      */
-    public function resolve($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
+    protected function filterLocales(Builder $query, array $args)
     {
-        // @TODO...
-        dump($args);
+        if (empty($args['iso']) || ($args['iso'] === '*')) {
+            //
+        } else {
+            $localeIsos = explode(',', trim($args['iso'], ','));
+            $query = $query->whereIn('iso', $localeIsos);
+        }
 
-        return [
-            'json' => [],
-        ];
+        return $query;
     }
 }
