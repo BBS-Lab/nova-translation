@@ -1,0 +1,7 @@
+extend type Query {
+    "Fetch labels by locale ISO"
+    localesByIso(
+        "Locale ISO (can be empty or '*' for all translations, a list of comma separated ISOs OR a single ISO)"
+        iso: String @translation
+    ): [Label!]!
+}

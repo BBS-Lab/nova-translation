@@ -59,7 +59,7 @@ class LabelsController
     protected function labels()
     {
         return Label::newQueryWithoutScope(TranslatableScope::class)
-            ->select('translations.locale_id', 'labels.key', 'labels.value')
+            ->select('translations.locale_id', 'labels.type', 'labels.key', 'labels.value')
             ->join('translations', 'labels.id', '=', 'translations.translatable_id')
             ->where('translations.translatable_type', '=', Label::class)
             ->get();

@@ -1,2 +1,0 @@
-"A JSON object representing the labels translations indexed by ISO."
-scalar TranslationJson @scalar(class: "BBS\\Nova\\Translation\\GraphQL\\Scalars\\TranslationJson")

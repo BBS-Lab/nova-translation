@@ -1,0 +1,9 @@
+"Nova-Translation Label type."
+type Label {
+    "Label type"
+    type: String!
+    "Label key"
+    key: String!
+    "Label value"
+    value: String
+}

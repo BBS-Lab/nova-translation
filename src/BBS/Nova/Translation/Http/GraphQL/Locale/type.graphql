@@ -1,4 +1,4 @@
-"Nova Translation Locale type."
+"Nova-Translation Locale type."
 type Locale {
     "Locale ID"
     id: ID!
