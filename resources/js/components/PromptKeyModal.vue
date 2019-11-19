@@ -6,6 +6,12 @@
 
         <div class="m-8">
           <div class="action">
+            <select class="w-full form-control form-select" v-model="newType">
+              <option value="text">{{ trans('Text') }}</option>
+              <option value="upload">{{ trans('Upload') }}</option>
+            </select>
+          </div>
+          <div class="mt-2 action">
             <input type="text" class="w-full form-control form-input form-input-bordered" v-model="newKey">
           </div>
         </div>
@@ -35,7 +41,8 @@
 
     data() {
       return {
-        newKey: ''
+        newKey: '',
+        newType: 'text'
       }
     },
 
@@ -53,7 +60,7 @@
       },
 
       handleConfirm() {
-        this.$emit('confirm', this.newKey)
+        this.$emit('confirm', { type: this.newType, key: this.newKey })
       },
 
       handleClose() {

@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "animated-scroll-to": "^2.0.5",
+    "cloudinary-core": "^2.7.4",
     "vue": "^2.5.0"
   }
 }
