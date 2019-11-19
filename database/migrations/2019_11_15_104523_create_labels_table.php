@@ -16,8 +16,9 @@ class CreateLabelsTable extends Migration
         Schema::create('labels', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('translation_id')->index();
+            $table->string('type')->default('text');
             $table->string('key');
-            $table->text('value');
+            $table->text('value')->nullable();
             $table->timestamps();
         });
     }

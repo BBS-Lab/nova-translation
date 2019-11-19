@@ -44,7 +44,7 @@ class Label extends Resource
         return [
             ID::make()->sortable(),
 
-            ID::make('Translatable ID', 'translatable_id')
+            ID::make('Translation ID', 'translation_id')
                 ->hideFromIndex()
                 ->rules('required'),
 

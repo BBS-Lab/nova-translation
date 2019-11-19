@@ -6,15 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property int $id
- * @property int $translation_id
+ * @property string $type
  * @property string $key
  * @property string $value
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
+ * @mixin \BBS\Nova\Translation\Models\Traits\Translatable
  */
 class Label extends Model
 {
     use Traits\Translatable;
+    
+    const TYPE_TEXT = 'text';
+
+    const TYPE_UPLOAD = 'upload';
 
     /**
      * {@inheritdoc}
@@ -25,7 +30,7 @@ class Label extends Model
      * {@inheritdoc}
      */
     protected $fillable = [
-        'translation_id',
+        'type',
         'key',
         'value',
     ];
@@ -33,7 +38,8 @@ class Label extends Model
     /**
      * {@inheritdoc}
      */
-    protected $casts = [
-        'translation_id' => 'integer',
+    protected $nonTranslatable = [
+        'type',
+        'key',
     ];
 }

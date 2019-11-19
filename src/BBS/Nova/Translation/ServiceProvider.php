@@ -3,6 +3,8 @@
 namespace BBS\Nova\Translation;
 
 use BBS\Nova\Translation\Http\Middleware\Authorize;
+use BBS\Nova\Translation\Models\Locale;
+use BBS\Nova\Translation\Models\Observers\LocaleObserver;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
@@ -31,6 +33,8 @@ class ServiceProvider extends BaseServiceProvider
 
             $this->loadNovaTranslations();
         }
+
+        Locale::observe(LocaleObserver::class);
     }
 
     /**

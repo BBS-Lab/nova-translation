@@ -3,6 +3,7 @@
 namespace BBS\Nova\Translation\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * @property int $locale_id
@@ -50,4 +51,14 @@ class Translation extends Model
         'translation_id' => 'integer',
         'translatable_id' => 'integer',
     ];
+
+    /**
+     * Translatable polymorphic relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function translatable(): MorphTo
+    {
+        return $this->morphTo();
+    }
 }

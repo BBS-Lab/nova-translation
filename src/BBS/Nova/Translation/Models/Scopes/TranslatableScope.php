@@ -28,9 +28,9 @@ class TranslatableScope implements Scope
 
         $builder->join('translations', function ($join) use ($model, $currentLocaleId) {
             $join
-                ->where('translations.locale_id', '=', $currentLocaleId)
+                ->on($model->getTable().'.'.$model->getKeyName(), '=', 'translations.translatable_id')
                 ->where('translations.translatable_type', '=', get_class($model))
-                ->where($model->getTable().'.'.$model->translationIdField(), '=', 'translations.translation_id');
+                ->where('translations.locale_id', '=', $currentLocaleId);
         });
     }
 }

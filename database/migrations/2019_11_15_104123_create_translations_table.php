@@ -20,7 +20,8 @@ class CreateTranslationsTable extends Migration
             $table->string('translatable_type');
 
             $table->primary(['locale_id', 'translation_id', 'translatable_id', 'translatable_type'], 'translations_pk');
-            $table->foreign('locale_id', 'locale_idx')->references('id')->on('locales')->onDelete('cascade');
+            $table->index(['translatable_id', 'translatable_type', 'locale_id'], 'scopable_idx');
+            $table->index(['translatable_id', 'translatable_type'], 'translatable_idx');
         });
     }
 
