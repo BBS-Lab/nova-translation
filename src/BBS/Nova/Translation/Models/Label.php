@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 class Label extends Model
 {
     use Traits\Translatable;
-    
+
     const TYPE_TEXT = 'text';
 
     const TYPE_UPLOAD = 'upload';
