@@ -23,7 +23,15 @@
             <tr class="p-3" v-for="(keyI18n, key) in matrix" :key="key" :id="`tr__${key}`">
               <td>{{ key }}</td>
               <td v-for="locale in locales" :key="`${key}__${locale.id}`">
-                <textarea class="w-full form-control form-input form-input-bordered py-3 h-auto" @input="updateLabel(key, locale.id, $event.target.value)" rows="1">{{ keyI18n[locale.id] ? keyI18n[locale.id] : '' }}</textarea>
+                <!--
+                <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'text'))">
+                  <textarea class="w-full form-control form-input form-input-bordered py-3 h-auto" @input="updateLabel(key, locale.id, $event.target.value)" rows="1">{{ keyI18n[locale.id].value }}</textarea>
+                </div>
+                <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'upload'))">
+                  <cloudinary-upload :url="keyI18n[locale.id].value" />
+                </div>
+                -->
+                <textarea class="w-full form-control form-input form-input-bordered py-3 h-auto" @input="updateLabel(key, locale.id, $event.target.value)" rows="1" v-if="keyI18n[locale.id]">{{ keyI18n[locale.id].value }}</textarea>
               </td>
               <td class="table-actions">
                 <button class="block" @click="deleteKey(key)">
@@ -42,7 +50,7 @@
     </div>
 
     <portal to="modals" transition="fade-transition">
-      <PromptKeyModal v-if="promptKeyModalOpened" @confirm="addKey" @close="promptKeyModalOpened = false"/>
+      <prompt-key-modal v-if="promptKeyModalOpened" @confirm="addKey" @close="promptKeyModalOpened = false"/>
     </portal>
   </div>
 </template>
@@ -57,7 +65,8 @@
     ],
 
     components: {
-      PromptKeyModal: require('./PromptKeyModal.vue')
+      PromptKeyModal: require('./PromptKeyModal.vue'),
+      CloudinaryUpload: require('./CloudinaryUpload.vue')
     },
 
     data() {
@@ -84,14 +93,14 @@
         })
       },
 
-      addKey(key) {
+      addKey(options) {
         this.promptKeyModalOpened = false
 
-        if (! this.keyExists(key)) {
-          this.addI18nKey(key)
+        if (! this.keyExists(options.key)) {
+          this.addI18nKey(options.key, options.type)
         } else {
           this.$toasted.show(this.trans('The key you try to add already exists!'), { type: 'error' })
-          animateScrollTo(document.querySelector(`#tr__${key}`), {
+          animateScrollTo(document.querySelector(`#tr__${options.key}`), {
             speed: 500
           })
         }
@@ -107,10 +116,11 @@
         return false
       },
 
-      addI18nKey(key) {
+      addI18nKey(key, type) {
         for (let i = 0 ; i < this.locales.length ; i++) {
           this.labels.push({
             key: key,
+            type: type,
             value: '',
             locale_id: this.locales[i].id
           })
@@ -161,7 +171,10 @@
           if (typeof matrix[label.key] === 'undefined') {
             matrix[label.key] = {}
           }
-          matrix[label.key][label.locale_id] = label.value
+          matrix[label.key][label.locale_id] = {
+            type: label.type,
+            value: label.value
+          }
         }
 
         return matrix

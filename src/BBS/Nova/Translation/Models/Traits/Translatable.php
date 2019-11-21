@@ -52,7 +52,8 @@ trait Translatable
         $translationIdField = $instance->translationIdField();
 
         /** @var \Illuminate\Database\Eloquent\Model $lastTranslation */
-        $lastTranslation = static::newQueryWithoutScope(TranslatableScope::class)
+        $lastTranslation = static::query()
+            ->withoutGlobalScope(TranslatableScope::class)
             ->select($instance->getTable().'.'.$translationIdField)
             ->orderBy($translationIdField, 'desc')
             ->first();

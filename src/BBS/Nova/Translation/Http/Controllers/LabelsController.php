@@ -36,7 +36,7 @@ class LabelsController
         // @TODO...
         DB::beginTransaction();
 
-        Label::newQueryWithoutScope(TranslatableScope::class)->truncate();
+        Label::query()->withoutGlobalScope(TranslatableScope::class)->truncate();
         Translation::query()->where('translatable_type', '=', Label::class)->delete();
 
         $labels = $request->input('labels', []);
@@ -58,7 +58,8 @@ class LabelsController
      */
     protected function labels()
     {
-        return Label::newQueryWithoutScope(TranslatableScope::class)
+        return Label::query()
+            ->withoutGlobalScope(TranslatableScope::class)
             ->select('translations.locale_id', 'labels.type', 'labels.key', 'labels.value')
             ->join('translations', 'labels.id', '=', 'translations.translatable_id')
             ->where('translations.translatable_type', '=', Label::class)
@@ -73,7 +74,8 @@ class LabelsController
      */
     protected function createLabel(array $data)
     {
-        $translatedLabel = Label::newQueryWithoutScope(TranslatableScope::class)
+        $translatedLabel = Label::query()
+            ->withoutGlobalScope(TranslatableScope::class)
             ->select('labels.translation_id')
             ->join('translations', function ($join) {
                 $join
