@@ -1,0 +1,7 @@
+"Locales default input (nothing to fetch all locales)"
+input LocaleFilters {
+    "Locale ISO"
+    locale: String,
+    "A list of valid ISOs to fetch"
+    locales: [String!]
+}

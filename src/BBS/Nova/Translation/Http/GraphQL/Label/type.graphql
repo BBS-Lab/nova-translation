@@ -6,4 +6,8 @@ type Label {
     key: String!
     "Label value"
     value: String
+    "Creation datetime"
+    createdAt: DateTime! @rename(attribute: "created_at")
+    "Last update datetime"
+    updatedAt: DateTime! @rename(attribute: "updated_at")
 }
