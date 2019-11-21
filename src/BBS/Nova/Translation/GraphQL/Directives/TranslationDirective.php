@@ -54,7 +54,7 @@ SDL;
 
         foreach ($documentAST->types as &$type) {
             if ($type->name->value === $typeToAddLocaleField) {
-                /** @var \GraphQL\Language\AST\ObjectTypeDefinitionNode $type */
+                /* @var \GraphQL\Language\AST\ObjectTypeDefinitionNode $type */
                 $type->fields = ASTHelper::mergeNodeList($type->fields, [$this->defineLocaleField()]);
             }
         }
@@ -82,8 +82,8 @@ SDL;
                 $table = (new $modelClass)->getTable();
                 $query = $modelClass::query()
                     ->withoutGlobalScope(TranslatableScope::class)
-                    ->select($table . '.type', $table . '.key', $table . '.value', 'locales.iso AS locale', $table . '.created_at', $table . '.updated_at')
-                    ->join('translations', $table . '.id', '=', 'translations.translatable_id')
+                    ->select($table.'.type', $table.'.key', $table.'.value', 'locales.iso AS locale', $table.'.created_at', $table.'.updated_at')
+                    ->join('translations', $table.'.id', '=', 'translations.translatable_id')
                     ->join('locales', 'translations.locale_id', '=', 'locales.id')
                     ->where('translations.translatable_type', '=', $modelClass)
                     ->where('locales.available_in_api', '=', true);
