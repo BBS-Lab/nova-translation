@@ -2,9 +2,9 @@
 
 namespace BBS\Nova\Translation\Models\Traits;
 
-use Exception;
 use BBS\Nova\Translation\Models\Locale;
 use BBS\Nova\Translation\Models\Translation;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -56,7 +56,7 @@ trait Translatable
         /** @var \BBS\Nova\Translation\Models\Locale $locale */
         $locale = Locale::query()->select('id')->where('iso', '=', $iso)->first();
         if (empty($locale)) {
-            throw new Exception('Invalid locale provided in inLocale scope "' . $iso . '"');
+            throw new Exception('Invalid locale provided in inLocale scope "'.$iso.'"');
         }
 
         return $builder->join('translations', function ($join) use ($model, $locale) {
