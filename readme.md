@@ -41,6 +41,16 @@ You need to run migrations and seeds Locales.
 php artisan migrate
 ```
 
+## Models setup
+
+// @TODO... Explain 
+
+ * `use Traits\Translatable`
+ 
+ * `auto_synced_models` in config.php
+ 
+ * ...
+
 ## Usage
 
 ### TranslationMatrix tool
@@ -83,4 +93,26 @@ class Locale extends BaseResource
 
 ## GraphQL
 
-@TODO...
+If your using [Lighthouse PHP](https://lighthouse-php.com) you can add some default Directive and endpoints for `Locale` and `Label`.
+
+### Directive `@translation`
+
+You need to add package Directives path to your lighthouse.php configuration file:
+
+```php
+// config/lighthouse.php
+
+'namespaces' => [
+    // ...
+    'directives' => ['App\\GraphQL\\Directives', 'BBS\\Nova\\Translation\\GraphQL\\Directives'],
+],
+```
+
+### Schema
+
+You can include those in your existing schema:
+
+```graphql
+#import ../../../vendor/bbs/nova-translation/src/BBS/Nova/Translation/Http/GraphQL/Locale/*.graphql
+#import ../../../vendor/bbs/nova-translation/src/BBS/Nova/Translation/Http/GraphQL/Label/*.graphql
+```
