@@ -23,12 +23,15 @@
             <tr class="p-3" v-for="(keyI18n, key) in matrix" :key="key" :id="`tr__${key}`">
               <td>{{ key }}</td>
               <td v-for="locale in locales" :key="`${key}__${locale.id}`">
+                <!--
                 <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'text'))">
                   <textarea class="w-full form-control form-input form-input-bordered py-3 h-auto" @input="updateLabel(key, locale.id, $event.target.value)" rows="1">{{ keyI18n[locale.id].value }}</textarea>
                 </div>
                 <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'upload'))">
                   <cloudinary-upload :url="keyI18n[locale.id].value" />
                 </div>
+                -->
+                <textarea class="w-full form-control form-input form-input-bordered py-3 h-auto" @input="updateLabel(key, locale.id, $event.target.value)" rows="1" v-if="keyI18n[locale.id]">{{ keyI18n[locale.id].value }}</textarea>
               </td>
               <td class="table-actions">
                 <button class="block" @click="deleteKey(key)">
