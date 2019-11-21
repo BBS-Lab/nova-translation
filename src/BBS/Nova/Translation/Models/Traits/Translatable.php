@@ -2,8 +2,10 @@
 
 namespace BBS\Nova\Translation\Models\Traits;
 
-use BBS\Nova\Translation\Models\Scopes\TranslatableScope;
+use Exception;
+use BBS\Nova\Translation\Models\Locale;
 use BBS\Nova\Translation\Models\Translation;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @property array $nonTranslatable
@@ -17,8 +19,6 @@ trait Translatable
      */
     public static function bootTranslatable()
     {
-        static::addGlobalScope(new TranslatableScope);
-
         static::deleted(function ($model) {
             Translation::query()
                 ->where('translatable_id', '=', $model->getKey())
@@ -42,6 +42,32 @@ trait Translatable
     }
 
     /**
+     * Scope a query to only retrieve items from given locale.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $builder
+     * @param  string  $iso
+     * @return \Illuminate\Database\Eloquent\Builder
+     * @throws \Exception
+     */
+    public function scopeInLocale(Builder $builder, string $iso = '')
+    {
+        $iso = ! empty($iso) ? $iso : app()->getLocale();
+
+        /** @var \BBS\Nova\Translation\Models\Locale $locale */
+        $locale = Locale::query()->select('id')->where('iso', '=', $iso)->first();
+        if (empty($locale)) {
+            throw new Exception('Invalid locale provided in inLocale scope "' . $iso . '"');
+        }
+
+        return $builder->join('translations', function ($join) use ($model, $locale) {
+            $join
+                ->on($model->getTable().'.'.$model->getKeyName(), '=', 'translations.translatable_id')
+                ->where('translations.translatable_type', '=', get_class($model))
+                ->where('translations.locale_id', '=', $locale->id);
+        });
+    }
+
+    /**
      * Return next fresh translation ID.
      *
      * @return int
@@ -53,7 +79,6 @@ trait Translatable
 
         /** @var \Illuminate\Database\Eloquent\Model $lastTranslation */
         $lastTranslation = static::query()
-            ->withoutGlobalScope(TranslatableScope::class)
             ->select($instance->getTable().'.'.$translationIdField)
             ->orderBy($translationIdField, 'desc')
             ->first();
@@ -79,6 +104,16 @@ trait Translatable
     public function getNonTranslatable()
     {
         return $this->nonTranslatable;
+    }
+
+    /**
+     * Translation ID accessor.
+     *
+     * @return int
+     */
+    public function getTranslationIdAttribute()
+    {
+        return $this->translationId();
     }
 
     /**

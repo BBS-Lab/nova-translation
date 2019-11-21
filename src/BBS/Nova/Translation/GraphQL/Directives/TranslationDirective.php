@@ -2,7 +2,6 @@
 
 namespace BBS\Nova\Translation\GraphQL\Directives;
 
-use BBS\Nova\Translation\Models\Scopes\TranslatableScope;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NameNode;
@@ -55,7 +54,7 @@ SDL;
         foreach ($documentAST->types as &$type) {
             if ($type->name->value === $typeToAddLocaleField) {
                 /* @var \GraphQL\Language\AST\ObjectTypeDefinitionNode $type */
-                $type->fields = ASTHelper::mergeNodeList($type->fields, [$this->defineLocaleField()]);
+                $type->fields = ASTHelper::mergeNodeList($type->fields, [$this->defineLocaleField(), $this->defineTranslationIdField()]);
             }
         }
     }
@@ -81,8 +80,7 @@ SDL;
 
                 $table = (new $modelClass)->getTable();
                 $query = $modelClass::query()
-                    ->withoutGlobalScope(TranslatableScope::class)
-                    ->select($table.'.type', $table.'.key', $table.'.value', 'locales.iso AS locale', $table.'.created_at', $table.'.updated_at')
+                    ->select($table.'.translation_id', $table.'.type', $table.'.key', $table.'.value', 'locales.iso AS locale', $table.'.created_at', $table.'.updated_at')
                     ->join('translations', $table.'.id', '=', 'translations.translatable_id')
                     ->join('locales', 'translations.locale_id', '=', 'locales.id')
                     ->where('translations.translatable_type', '=', $modelClass)
@@ -110,6 +108,23 @@ SDL;
             'arguments' => new NodeList([]),
             'directives' => new NodeList([]),
             'description' => new StringValueNode(['value' => 'Locale ISO', 'block' => false]),
+        ]);
+    }
+
+    /**
+     * Setup "translationId" field definition.
+     *
+     * @return \GraphQL\Language\AST\FieldDefinitionNode
+     */
+    protected function defineTranslationIdField()
+    {
+        // @TODO... Add @rename(attribute: "translation_id") directive
+        return new FieldDefinitionNode([
+            'name' => new NameNode(['value' => 'translationId']),
+            'type' => new NonNullTypeNode(['type' => new NamedTypeNode(['name' => new NameNode(['value' => 'Int!'])])]),
+            'arguments' => new NodeList([]),
+            'directives' => new NodeList([]),
+            'description' => new StringValueNode(['value' => 'Item translation ID', 'block' => false]),
         ]);
     }
 }

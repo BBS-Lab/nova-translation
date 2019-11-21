@@ -3,7 +3,6 @@
 namespace BBS\Nova\Translation\Models\Observers;
 
 use BBS\Nova\Translation\Models\Locale;
-use BBS\Nova\Translation\Models\Scopes\TranslatableScope;
 use BBS\Nova\Translation\Models\Translation;
 use BBS\Nova\Translation\ServiceProvider;
 
@@ -47,9 +46,7 @@ class LocaleObserver
 
         foreach ($query->cursor() as $translation) {
             /** @var \BBS\Nova\Translation\Models\Translation $translation */
-            $instance = (new $translation->translatable_type)
-                ->newQueryWithoutScope(TranslatableScope::class)
-                ->find($translation->translatable_id);
+            $instance = (new $translation->translatable_type)->find($translation->translatable_id);
 
             if (! empty($instance)) {
                 // Related translation is deleted by the Translatable "deleted" observer

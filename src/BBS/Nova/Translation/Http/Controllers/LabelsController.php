@@ -4,7 +4,6 @@ namespace BBS\Nova\Translation\Http\Controllers;
 
 use BBS\Nova\Translation\Models\Label;
 use BBS\Nova\Translation\Models\Locale;
-use BBS\Nova\Translation\Models\Scopes\TranslatableScope;
 use BBS\Nova\Translation\Models\Translation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -36,7 +35,7 @@ class LabelsController
         // @TODO...
         DB::beginTransaction();
 
-        Label::query()->withoutGlobalScope(TranslatableScope::class)->truncate();
+        Label::query()->truncate();
         Translation::query()->where('translatable_type', '=', Label::class)->delete();
 
         $labels = $request->input('labels', []);
@@ -59,7 +58,6 @@ class LabelsController
     protected function labels()
     {
         return Label::query()
-            ->withoutGlobalScope(TranslatableScope::class)
             ->select('translations.locale_id', 'labels.type', 'labels.key', 'labels.value')
             ->join('translations', 'labels.id', '=', 'translations.translatable_id')
             ->where('translations.translatable_type', '=', Label::class)
@@ -74,8 +72,8 @@ class LabelsController
      */
     protected function createLabel(array $data)
     {
+        /** @var \BBS\Nova\Translation\Models\Label $translatedLabel */
         $translatedLabel = Label::query()
-            ->withoutGlobalScope(TranslatableScope::class)
             ->select('labels.translation_id')
             ->join('translations', function ($join) {
                 $join
@@ -87,6 +85,7 @@ class LabelsController
 
         $translationId = ! empty($translatedLabel) ? $translatedLabel->translation_id : Label::freshTranslationId();
 
+        /** @var \BBS\Nova\Translation\Models\Label $label */
         $label = Label::query()->create([
             'translation_id' => $translationId,
             'key' => $data['key'],
