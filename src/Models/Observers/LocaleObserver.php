@@ -16,19 +16,28 @@ class LocaleObserver
      */
     public function created(Locale $locale)
     {
+        /** @var \BBSLab\NovaTranslation\Models\Locale $defaultLocale */
+        $defaultLocale = Locale::query()->select('id')->availableInApi()->first();
+        
         foreach ($this->translatableModels() as $modelClassName) {
             /** @var \Illuminate\Database\Eloquent\Model $model */
             $model = (new $modelClassName);
+            $table = $model->getTable();
 
-            // @TODO... Handle translation_id in Translation
-            foreach ($model->query()->cursor() as $instance) {
+            $query = $model->query()
+                ->select($table.'.*', 'translations.translation_id')
+                ->join('translations', $table.'.'.$model->getKeyName(), '=', 'translations.translatable_id')
+                ->where('translations.translatable_type', '=', $modelClassName)
+                ->where('translations.locale_id', '=', $defaultLocale->id);
+
+            foreach ($query->cursor() as $instance) {
                 $data = [];
                 foreach ($instance->getNonTranslatable() as $field) {
                     $data[$field] = $instance->$field;
                 }
 
                 $created = $model->query()->create($data);
-                $created->createTranslationEntry($locale->id);
+                $created->createTranslationEntry($locale->id, $instance->translation_id);
             }
         }
     }

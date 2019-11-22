@@ -16,7 +16,7 @@ class Locale extends Resource
      *
      * @var string
      */
-    public static $model = 'BBS\\Nova\\Translation\\Models\\Locale';
+    public static $model = 'BBSLab\\NovaTranslation\\Models\\Locale';
 
     /**
      * {@inheritdoc}

@@ -18,7 +18,7 @@ class Label extends Resource
      *
      * @var string
      */
-    public static $model = 'BBS\\Nova\\Translation\\Models\\Label';
+    public static $model = 'BBSLab\\NovaTranslation\\Models\\Label';
 
     /**
      * {@inheritdoc}

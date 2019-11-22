@@ -11,7 +11,7 @@
       </div>
 
       <card>
-        <table class="my-4 table w-full" cellpadding="0" cellspacing="0">
+        <table class="translation-matrix my-4 table w-full" cellpadding="0" cellspacing="0">
           <thead>
             <tr class="p-3">
               <th></th>
@@ -25,13 +25,13 @@
               <td v-for="locale in locales" :key="`${key}__${locale.id}`">
                 <!--
                 <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'text'))">
-                  <textarea class="w-full form-control form-input form-input-bordered py-3 h-auto" @input="updateLabel(key, locale.id, $event.target.value)" rows="1">{{ keyI18n[locale.id].value }}</textarea>
+                  <textarea class="w-full form-control form-input form-input-bordered py-3 h-auto" rows="1" @input="updateLabel(key, locale.id, $event.target.value)" :id="`textarea__${key}__${locale.id}`" v-if="keyI18n[locale.id]">{{ keyI18n[locale.id].value }}</textarea>
                 </div>
                 <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'upload'))">
                   <cloudinary-upload :url="keyI18n[locale.id].value" />
                 </div>
                 -->
-                <textarea class="w-full form-control form-input form-input-bordered py-3 h-auto" @input="updateLabel(key, locale.id, $event.target.value)" rows="1" v-if="keyI18n[locale.id]">{{ keyI18n[locale.id].value }}</textarea>
+                <textarea class="w-full form-control form-input form-input-bordered py-3 h-auto" rows="1" @input="updateLabel(key, locale.id, $event.target.value)" :id="`textarea__${key}__${locale.id}`" v-if="keyI18n[locale.id]">{{ keyI18n[locale.id].value }}</textarea>
               </td>
               <td class="table-actions">
                 <button class="block" @click="deleteKey(key)">
@@ -100,10 +100,17 @@
           this.addI18nKey(options.key, options.type)
         } else {
           this.$toasted.show(this.trans('The key you try to add already exists!'), { type: 'error' })
+        }
+
+        this.$nextTick(() => {
+          const textarea = document.querySelector(`#textarea__${options.key}__${this.locales[0].id}`)
+          if (textarea) {
+            textarea.focus()
+          }
           animateScrollTo(document.querySelector(`#tr__${options.key}`), {
             speed: 500
           })
-        }
+        })
       },
 
       keyExists(key) {

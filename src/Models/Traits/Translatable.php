@@ -8,7 +8,6 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * @property array $non_translatable
  * @property \Illuminate\Database\Eloquent\Collection $translations
  */
 trait Translatable
@@ -33,7 +32,9 @@ trait Translatable
      */
     public function initializeTranslatable()
     {
-        $this->nonTranslatable = [];
+        if (! isset($this->nonTranslatable)) {
+            $this->nonTranslatable = [];
+        }
     }
 
     /**

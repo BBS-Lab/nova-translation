@@ -83,10 +83,12 @@ SDL;
                     }
                 }
 
-                $table = (new $modelClass)->getTable();
+                /** @var \Illuminate\Database\Eloquent\Model $model */
+                $model = new $modelClass;
+                $table = $model->getTable();
                 $query = $modelClass::query()
                     ->select($table.'.*', 'locales.iso AS locale', 'translations.translation_id')
-                    ->join('translations', $table.'.id', '=', 'translations.translatable_id')
+                    ->join('translations', $table.'.'.$model->getKeyName(), '=', 'translations.translatable_id')
                     ->join('locales', 'translations.locale_id', '=', 'locales.id')
                     ->where('translations.translatable_type', '=', $modelClass)
                     ->where('locales.available_in_api', '=', true);
