@@ -25,14 +25,14 @@ The service provider will automatically get registered. Or you may manually add 
 ```php
 'providers' => [
     // ...
-    BBS\Nova\Translation\ServiceProvider::class,
+    BBS\NovaTranslation\NovaTranslationServiceProvider::class,
 ],
 ```
 
 You can tailor default in your application by running:
 
 ```bash
-php artisan vendor:publish --provider="BBS\Nova\Translation\ServiceProvider::class"
+php artisan vendor:publish --provider="BBSLab\NovaTranslation\NovaTranslationServiceProvider::class"
 ```
 
 You need to run migrations and seeds Locales.
@@ -63,7 +63,7 @@ You must register the translation matrix backend tool with [Nova](https://nova.l
 public function tools()
 {
     return [
-        new \BBS\Nova\Translation\Tools\TranslationMatrix,
+        new \BBSLab\NovaTranslation\Tools\TranslationMatrix,
     ];
 }
 ```
@@ -80,7 +80,7 @@ And you can add the Locale [Nova](https://nova.laravel.com) Resource within your
 namespace App\Nova;
 
 use App\Helpers\StaticLabel;
-use BBS\Nova\Translation\Resources\Locale as BaseResource;
+use BBSLab\NovaTranslation\Resources\Locale as BaseResource;
 
 class Locale extends BaseResource
 {
@@ -104,7 +104,7 @@ You need to add package Directives path to your lighthouse.php configuration fil
 
 'namespaces' => [
     // ...
-    'directives' => ['App\\GraphQL\\Directives', 'BBS\\Nova\\Translation\\GraphQL\\Directives'],
+    'directives' => ['App\\GraphQL\\Directives', 'BBSLab\\NovaTranslation\\GraphQL\\Directives'],
 ],
 ```
 
@@ -113,6 +113,6 @@ You need to add package Directives path to your lighthouse.php configuration fil
 You can include those in your existing schema:
 
 ```graphql
-#import ../../../vendor/bbs/nova-translation/src/BBS/Nova/Translation/Http/GraphQL/Locale/*.graphql
-#import ../../../vendor/bbs/nova-translation/src/BBS/Nova/Translation/Http/GraphQL/Label/*.graphql
+#import ../../../vendor/bbs-lab/nova-translation/src/Http/GraphQL/Locale/*.graphql
+#import ../../../vendor/bbs-lab/nova-translation/src/Http/GraphQL/Label/*.graphql
 ```
