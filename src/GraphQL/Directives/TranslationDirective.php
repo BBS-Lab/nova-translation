@@ -55,7 +55,7 @@ SDL;
 
         foreach ($documentAST->types as &$type) {
             if ($type->name->value === $typeToAddLocaleField) {
-                /** @var \GraphQL\Language\AST\ObjectTypeDefinitionNode $type */
+                /* @var \GraphQL\Language\AST\ObjectTypeDefinitionNode $type */
                 $type->fields = ASTHelper::mergeNodeList($type->fields, [
                     $this->defineLocaleField(),
                     $this->defineTranslationIdField(),
