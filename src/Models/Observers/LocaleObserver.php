@@ -18,7 +18,7 @@ class LocaleObserver
     {
         /** @var \BBSLab\NovaTranslation\Models\Locale $defaultLocale */
         $defaultLocale = Locale::query()->select('id')->availableInApi()->first();
-        
+
         foreach ($this->translatableModels() as $modelClassName) {
             /** @var \Illuminate\Database\Eloquent\Model $model */
             $model = (new $modelClassName);
