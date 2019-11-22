@@ -25,7 +25,7 @@ The service provider will automatically get registered. Or you may manually add 
 ```php
 'providers' => [
     // ...
-    BBS\NovaTranslation\NovaTranslationServiceProvider::class,
+    BBSLab\NovaTranslation\NovaTranslationServiceProvider::class,
 ],
 ```
 
