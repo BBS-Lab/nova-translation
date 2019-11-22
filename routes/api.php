@@ -3,6 +3,6 @@
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'labels'], function () {
-    Route::post('/', [\BBS\Nova\Translation\Http\Controllers\LabelsController::class, 'save']);
-    Route::get('/', [\BBS\Nova\Translation\Http\Controllers\LabelsController::class, 'index']);
+    Route::post('/', [\BBSLab\NovaTranslation\Http\Controllers\LabelsController::class, 'save']);
+    Route::get('/', [\BBSLab\NovaTranslation\Http\Controllers\LabelsController::class, 'index']);
 });

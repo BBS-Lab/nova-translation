@@ -14,7 +14,7 @@ return [
     */
 
     'auto_synced_models' => [
-        \BBS\Nova\Translation\Models\Label::class,
+        \BBSLab\NovaTranslation\Models\Label::class,
     ],
 
 ];

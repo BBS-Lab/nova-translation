@@ -1,10 +1,10 @@
 <?php
 
-namespace BBS\Nova\Translation\Http\Controllers;
+namespace BBSLab\NovaTranslation\Http\Controllers;
 
-use BBS\Nova\Translation\Models\Label;
-use BBS\Nova\Translation\Models\Locale;
-use BBS\Nova\Translation\Models\Translation;
+use BBSLab\NovaTranslation\Models\Label;
+use BBSLab\NovaTranslation\Models\Locale;
+use BBSLab\NovaTranslation\Models\Translation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -72,31 +72,23 @@ class LabelsController
      */
     protected function createLabel(array $data)
     {
-        /** @var \BBS\Nova\Translation\Models\Label $translatedLabel */
-        $translatedLabel = Label::query()
-            ->select('labels.translation_id')
-            ->join('translations', function ($join) {
-                $join
-                    ->on('translations.translatable_id', '=', 'labels.id')
-                    ->where('translations.translatable_type', '=', Label::class);
-            })
+        /** @var \BBSLab\NovaTranslation\Models\Translation $keyTranslation */
+        $keyTranslation = Translation::query()
+            ->select('translations.translation_id')
+            ->join('labels', 'translations.translatable_id', '=', 'labels.id')
+            ->where('translations.translatable_type', '=', Label::class)
             ->where('labels.key', '=', $data['key'])
             ->first();
 
-        $translationId = ! empty($translatedLabel) ? $translatedLabel->translation_id : Label::freshTranslationId();
+        $translationId = ! empty($keyTranslation) ? $keyTranslation->translation_id : Label::freshTranslationId();
 
-        /** @var \BBS\Nova\Translation\Models\Label $label */
+        /** @var \BBSLab\NovaTranslation\Models\Label $label */
         $label = Label::query()->create([
-            'translation_id' => $translationId,
+            'type' => Label::TYPE_TEXT,
             'key' => $data['key'],
             'value' => ! empty($data['value']) ? $data['value'] : '',
         ]);
 
-        Translation::query()->create([
-            'locale_id' => $data['locale_id'],
-            'translation_id' => $translationId,
-            'translatable_id' => $label->id,
-            'translatable_type' => Label::class,
-        ]);
+        $label->createTranslationEntry($data['locale_id'], $translationId);
     }
 }

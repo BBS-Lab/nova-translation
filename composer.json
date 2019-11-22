@@ -1,5 +1,5 @@
 {
-  "name": "bbs/nova-translation",
+  "name": "bbs-lab/nova-translation",
   "require": {
     "php": "^7.2",
     "ext-json": "*",
@@ -13,7 +13,7 @@
       "database/factories"
     ],
     "psr-4": {
-      "BBS\\Nova\\Translation\\": "src/BBS/Nova/Translation"
+      "BBSLab\\NovaTranslation\\": "src/"
     }
   },
   "config": {
@@ -24,7 +24,7 @@
   "extra": {
     "laravel": {
       "providers": [
-        "BBS\\Nova\\Translation\\ServiceProvider"
+        "BBSLab\\NovaTranslation\\NovaTranslationServiceProvider"
       ]
     }
   },

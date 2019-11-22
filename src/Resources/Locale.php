@@ -1,34 +1,34 @@
 <?php
 
-namespace BBS\Nova\Translation\Resources;
+namespace BBSLab\NovaTranslation\Resources;
 
 use App\Nova\Resource;
-use BBS\Nova\Translation\Models\Label as Model;
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Textarea;
 
-class Label extends Resource
+class Locale extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = 'BBS\\Nova\\Translation\\Models\\Label';
+    public static $model = 'BBS\\Nova\\Translation\\Models\\Locale';
 
     /**
      * {@inheritdoc}
      */
-    public static $title = 'key';
+    public static $title = 'label';
 
     /**
      * {@inheritdoc}
      */
     public static $search = [
-        'key',
-        'value',
+        'iso',
+        'label',
     ];
 
     /**
@@ -44,16 +44,23 @@ class Label extends Resource
         return [
             ID::make()->sortable(),
 
-            ID::make('Translation ID', 'translation_id')
-                ->hideFromIndex()
-                ->rules('required'),
-
-            Text::make('Key')
+            Text::make('ISO')
                 ->sortable()
-                ->rules('required'),
+                ->rules('required', 'max:255')
+                ->creationRules('unique:locales,iso')
+                ->updateRules('unique:locales,iso,{{resourceId}}'),
 
-            Textarea::make('Value')
-                ->hideFromIndex(),
+            Text::make('Label')
+                ->sortable()
+                ->rules('required', 'max:255'),
+
+            Select::make('Fallback', 'fallback_id')
+                ->options($this->model()->query()->select('id', 'label')->orderBy('label', 'asc')->get()->pluck('label', 'id')->toArray())
+                ->nullable()
+                ->hideFromIndex()
+                ->displayUsingLabels(),
+
+            Boolean::make('Is available in API?', 'available_in_api'),
         ];
     }
 

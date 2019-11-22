@@ -1,14 +1,14 @@
 <?php
 
-namespace BBS\Nova\Translation;
+namespace BBSLab\NovaTranslation;
 
-use BBS\Nova\Translation\Http\Middleware\Authorize;
-use BBS\Nova\Translation\Models\Locale;
-use BBS\Nova\Translation\Models\Observers\LocaleObserver;
+use BBSLab\NovaTranslation\Http\Middleware\Authorize;
+use BBSLab\NovaTranslation\Models\Locale;
+use BBSLab\NovaTranslation\Models\Observers\LocaleObserver;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
-class ServiceProvider extends BaseServiceProvider
+class NovaTranslationServiceProvider extends BaseServiceProvider
 {
     /**
      * Package ID.
@@ -44,9 +44,9 @@ class ServiceProvider extends BaseServiceProvider
      */
     protected function bootPackage()
     {
-        $this->mergeConfigFrom(__DIR__.'/../../../../config/config.php', static::PACKAGE_ID);
-        $this->loadMigrationsFrom(__DIR__.'/../../../../database/migrations');
-        $this->loadTranslationsFrom(__DIR__.'/../../../../resources/lang', static::PACKAGE_ID);
+        $this->mergeConfigFrom(__DIR__.'/../config/config.php', static::PACKAGE_ID);
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', static::PACKAGE_ID);
 
         $this->publishes([
             __DIR__.'/../../../../config/config.php' => base_path('config/'.static::PACKAGE_ID.'.php'),
@@ -76,7 +76,7 @@ class ServiceProvider extends BaseServiceProvider
 
         Route::middleware(['nova', Authorize::class])
             ->prefix('nova-vendor/'.static::PACKAGE_ID)
-            ->group(__DIR__.'/../../../../routes/api.php');
+            ->group(__DIR__.'/../routes/api.php');
     }
 
     /**
@@ -86,9 +86,9 @@ class ServiceProvider extends BaseServiceProvider
      */
     protected function loadNovaTranslations()
     {
-        $file = __DIR__.'/../../../../resources/lang/'.app()->getLocale().'.json';
+        $file = __DIR__.'/../resources/lang/'.app()->getLocale().'.json';
         if (! file_exists($file)) {
-            $file = __DIR__.'/../../../../resources/lang/en.json';
+            $file = __DIR__.'/../resources/lang/en.json';
         }
 
         $translations = json_decode(file_get_contents($file), true);

@@ -1,8 +1,8 @@
 <?php
 
-namespace BBS\Nova\Translation\Seeders;
+namespace BBSLab\NovaTranslation\Seeders;
 
-use BBS\Nova\Translation\Models\Locale;
+use BBSLab\NovaTranslation\Models\Locale;
 use Illuminate\Database\Seeder;
 
 class LocalesTableSeeder extends Seeder

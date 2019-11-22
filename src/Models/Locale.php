@@ -1,6 +1,6 @@
 <?php
 
-namespace BBS\Nova\Translation\Models;
+namespace BBSLab\NovaTranslation\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

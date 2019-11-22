@@ -1,0 +1,14 @@
+extend type Query {
+    "Fetch all locales"
+    locales: [Locale!]! @all(model: "BBSLab\\NovaTranslation\\Models\\Locale", scopes: ["availableInApi"])
+    "Locale by ID"
+    localeById(
+        "Locale ID"
+        id: ID! @eq
+    ): Locale @find(model: "BBSLab\\NovaTranslation\\Models\\Locale", scopes: ["availableInApi"])
+    "Locale by ISO"
+    localeByIso(
+        "Locale ISO"
+        iso: String! @eq
+    ): Locale @find(model: "BBSLab\\NovaTranslation\\Models\\Locale", scopes: ["availableInApi"])
+}

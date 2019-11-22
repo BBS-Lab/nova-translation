@@ -1,8 +1,8 @@
 <?php
 
-namespace BBS\Nova\Translation\Http\Middleware;
+namespace BBSLab\NovaTranslation\Http\Middleware;
 
-use BBS\Nova\Translation\Tools\TranslationMatrix;
+use BBSLab\NovaTranslation\Tools\TranslationMatrix;
 use Laravel\Nova\Nova;
 
 class Authorize

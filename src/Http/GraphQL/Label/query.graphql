@@ -1,7 +1,7 @@
 extend type Query {
     "Fetch labels by locale ISO"
-    labelsByIsos(
+    labels(
         "Locale filters"
         localeFilters: LocaleFilters
-    ): [Label!]! @translation(model: "BBS\\Nova\\Translation\\Models\\Label")
+    ): [Label!]! @translation(model: "BBSLab\\NovaTranslation\\Models\\Label")
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace BBS\Nova\Translation\Models\Observers;
+namespace BBSLab\NovaTranslation\Models\Observers;
 
-use BBS\Nova\Translation\Models\Locale;
-use BBS\Nova\Translation\Models\Translation;
-use BBS\Nova\Translation\ServiceProvider;
+use BBSLab\NovaTranslation\Models\Locale;
+use BBSLab\NovaTranslation\Models\Translation;
+use BBSLab\NovaTranslation\NovaTranslationServiceProvider;
 
 class LocaleObserver
 {
@@ -20,6 +20,7 @@ class LocaleObserver
             /** @var \Illuminate\Database\Eloquent\Model $model */
             $model = (new $modelClassName);
 
+            // @TODO... Handle translation_id in Translation
             foreach ($model->query()->cursor() as $instance) {
                 $data = [];
                 foreach ($instance->getNonTranslatable() as $field) {
@@ -45,7 +46,7 @@ class LocaleObserver
             ->whereIn('translatable_type', $this->translatableModels());
 
         foreach ($query->cursor() as $translation) {
-            /** @var \BBS\Nova\Translation\Models\Translation $translation */
+            /** @var \BBSLab\NovaTranslation\Models\Translation $translation */
             $instance = (new $translation->translatable_type)->find($translation->translatable_id);
 
             if (! empty($instance)) {
@@ -62,6 +63,6 @@ class LocaleObserver
      */
     protected function translatableModels()
     {
-        return config(ServiceProvider::PACKAGE_ID.'.auto_synced_models');
+        return config(NovaTranslationServiceProvider::PACKAGE_ID.'.auto_synced_models');
     }
 }
