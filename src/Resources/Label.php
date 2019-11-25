@@ -2,7 +2,6 @@
 
 namespace BBSLab\NovaTranslation\Resources;
 
-use App\Nova\Resource;
 use BBSLab\NovaTranslation\Models\Label as Model;
 use BBSLab\NovaTranslation\NovaTranslationServiceProvider;
 use Illuminate\Http\Request;
@@ -10,8 +9,9 @@ use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
+use Laravel\Nova\Resource;
 
-class Label extends Resource
+class Label extends TranslatableResource
 {
     /**
      * The model the resource corresponds to.
@@ -43,24 +43,25 @@ class Label extends Resource
      */
     public function fields(Request $request)
     {
-        return [
+        return $this->translations($request, [
+            /*
             ID::make()->sortable(),
 
             Select::make('Type', 'type')
                 ->sortable()
                 ->options([
-                    Model::TYPE_TEXT => trans(NovaTranslationServiceProvider::PACKAGE_ID.'.labels.types.'.Model::TYPE_TEXT),
-                    Model::TYPE_UPLOAD => trans(NovaTranslationServiceProvider::PACKAGE_ID.'.labels.types.'.Model::TYPE_UPLOAD),
+                    Model::TYPE_TEXT => trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.labels.types.'.Model::TYPE_TEXT),
+                    Model::TYPE_UPLOAD => trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.labels.types.'.Model::TYPE_UPLOAD),
                 ])
                 ->displayUsingLabels(),
-
-            Text::make('Key', 'key')
+*/
+            Text::make('Key', 'key')/*
                 ->sortable()
-                ->rules('required'),
-
+                ->rules('required'),*/
+/*
             Textarea::make('Value', 'value')
-                ->hideFromIndex(),
-        ];
+                ->hideFromIndex(),*/
+        ]);
     }
 
     /**
