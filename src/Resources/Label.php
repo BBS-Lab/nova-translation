@@ -44,7 +44,6 @@ class Label extends TranslatableResource
     public function fields(Request $request)
     {
         return $this->translations($request, [
-            /*
             ID::make()->sortable(),
 
             Select::make('Type', 'type')
@@ -54,13 +53,13 @@ class Label extends TranslatableResource
                     Model::TYPE_UPLOAD => trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.labels.types.'.Model::TYPE_UPLOAD),
                 ])
                 ->displayUsingLabels(),
-*/
-            Text::make('Key', 'key')/*
+
+            Text::make('Key', 'key')
                 ->sortable()
-                ->rules('required'),*/
-/*
+                ->rules('required'),
+
             Textarea::make('Value', 'value')
-                ->hideFromIndex(),*/
+                ->hideFromIndex(),
         ]);
     }
 
