@@ -63,14 +63,19 @@ trait Translatable
      * @param  int  $localeId
      * @return \BBS\Nova\Translation\Models\Translation
      */
-    public function createTranslationEntry(int $localeId, int $translationId = 0)
+    public function upsertTranslationEntry(int $localeId, int $translationId = 0)
     {
-        Translation::query()->create([
+        $data = [
             'locale_id' => $localeId,
             'translation_id' => ! empty($translationId) ? $translationId : static::freshTranslationId(),
             'translatable_id' => $this->getKey(),
             'translatable_type' => get_class($this),
-        ]);
+        ];
+
+        $translation = Translation::query()->where($data)->first();
+        if (empty($translation)) {
+            Translation::query()->create($data);
+        }
     }
 
     /**
@@ -98,14 +103,14 @@ trait Translatable
      * @return \Illuminate\Database\Eloquent\Builder
      * @throws \Exception
      */
-    public function scopeInLocale(Builder $builder, string $iso = '')
+    public function scopeLocale(Builder $builder, string $iso = '')
     {
         $iso = ! empty($iso) ? $iso : app()->getLocale();
 
         /** @var \BBSLab\NovaTranslation\Models\Locale $locale */
         $locale = Locale::query()->select('id')->where('iso', '=', $iso)->first();
         if (empty($locale)) {
-            throw new Exception('Invalid locale provided in inLocale() scope "'.$iso.'"');
+            throw new Exception('Invalid locale provided in locale() scope "'.$iso.'"');
         }
 
         return $builder->join('translations', function ($join) use ($locale) {

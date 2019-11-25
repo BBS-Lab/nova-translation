@@ -33,7 +33,7 @@ abstract class TranslatableResource extends Resource
         $tabs = [];
         $test = [Text::make('key')];
         foreach ($locales as $locale) {
-            $tabs[$locale->label] = [Text::make('key_' . $locale->iso)];
+            $tabs[$locale->label] = [Text::make('key_'.$locale->iso)];
             /*
             $tabs[] = new Tabs($locale->label, array_merge([
                 // Text::make('Translation ID', 'translation_id', $translationId)->withMeta(['type' => 'hidden']),
@@ -51,7 +51,7 @@ abstract class TranslatableResource extends Resource
      */
     public static function indexQuery(NovaRequest $request, $query)
     {
-        return $query->inLocale();
+        return $query->locale();
     }
 
     /**

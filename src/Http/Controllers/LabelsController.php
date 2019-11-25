@@ -89,6 +89,6 @@ class LabelsController
             'value' => ! empty($data['value']) ? $data['value'] : '',
         ]);
 
-        $label->createTranslationEntry($data['locale_id'], $translationId);
+        $label->upsertTranslationEntry($data['locale_id'], $translationId);
     }
 }

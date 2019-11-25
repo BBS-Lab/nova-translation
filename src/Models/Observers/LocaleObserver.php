@@ -37,7 +37,7 @@ class LocaleObserver
                 }
 
                 $created = $model->query()->create($data);
-                $created->createTranslationEntry($locale->id, $instance->translation_id);
+                $created->upsertTranslationEntry($locale->id, $instance->translation_id);
             }
         }
     }
