@@ -78,11 +78,12 @@ trait Translatable
      *
      * @return int
      */
-    public static function freshTranslationId()
+    public function freshTranslationId()
     {
         /** @var \BBSLab\NovaTranslation\Models\Translation $lastTranslation */
         $lastTranslation = Translation::query()
             ->select('translation_id')
+            ->where('translatable_type', '=', get_class($this))
             ->orderBy('translation_id', 'desc')
             ->first();
 

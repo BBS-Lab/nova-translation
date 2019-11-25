@@ -80,7 +80,7 @@ class LabelsController
             ->where('labels.key', '=', $data['key'])
             ->first();
 
-        $translationId = ! empty($keyTranslation) ? $keyTranslation->translation_id : Label::freshTranslationId();
+        $translationId = ! empty($keyTranslation) ? $keyTranslation->translation_id : (new Label)->freshTranslationId();
 
         /** @var \BBSLab\NovaTranslation\Models\Label $label */
         $label = Label::query()->create([

@@ -2,12 +2,12 @@
 
 namespace BBSLab\NovaTranslation\Resources;
 
-use App\Nova\Resource;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Resource;
 
 class Locale extends Resource
 {
