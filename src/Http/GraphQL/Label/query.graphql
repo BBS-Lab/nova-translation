@@ -3,5 +3,5 @@ extend type Query {
     labels(
         "Locale filters"
         localeFilters: LocaleFilters
-    ): [Label!]! @translation(model: "BBSLab\\NovaTranslation\\Models\\Label")
+    ): [Label!]! @allTranslations(model: "BBSLab\\NovaTranslation\\Models\\Label")
 }
