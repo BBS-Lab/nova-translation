@@ -2,6 +2,7 @@
 
 namespace BBSLab\NovaTranslation\GraphQL\Directives;
 
+use Exception;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -58,6 +59,10 @@ SDL;
     {
         return $fieldValue->setResolver(
             function ($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo) {
+                if (isset($args['localeFilters']) && ! empty($args['localeFilters']['locales'])) {
+                    throw new Exception('Multiple locales cannot be queried on a single returned instance! You have to only use "locale" filter on your "localeFilters" parameter.');
+                }
+
                 return $this->localeFilters($this->getModelClass(), $args)->first();
             }
         );
