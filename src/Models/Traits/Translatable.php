@@ -52,9 +52,9 @@ trait Translatable
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
-    public function translations(): MorphMany
+    public function translations()
     {
-        return $this->morphMany(Translation::class, 'translatable')->withPivot(['locale_id', 'translation_id']);
+        return $this->morphMany(Translation::class, 'translatable');
     }
 
     /**
