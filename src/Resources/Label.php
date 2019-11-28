@@ -38,8 +38,10 @@ class Label extends TranslatableResource
      */
     public static $group = null;
 
-    // @TODO... Refactor
-    protected function singleIsoFields(Request $request)
+    /**
+     * {@inheritdoc}
+     */
+    public function fields(Request $request)
     {
         return [
             ID::make()->sortable(),
@@ -59,16 +61,6 @@ class Label extends TranslatableResource
             Textarea::make('Value', 'value')
                 ->hideFromIndex(),
         ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function fields(Request $request)
-    {
-        // return $this->singleIsoFields($request);
-
-        return $this->translations($request, $this->singleIsoFields($request));
     }
 
     /**
