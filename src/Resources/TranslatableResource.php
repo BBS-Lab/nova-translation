@@ -7,7 +7,6 @@ use BBSLab\NovaTranslation\Models\Translation;
 use Eminiarts\Tabs\Tabs;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
-use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Http\Requests\ResourceIndexRequest;
 use Laravel\Nova\Panel;
