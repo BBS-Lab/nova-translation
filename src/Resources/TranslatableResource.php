@@ -4,10 +4,12 @@ namespace BBSLab\NovaTranslation\Resources;
 
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Translation;
+use Closure;
 use Eminiarts\Tabs\TabsOnEdit;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Nova\Contracts\Resolvable;
 use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Fields\FieldCollection;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -100,43 +102,23 @@ abstract class TranslatableResource extends Resource
     /**
      * {@inheritdoc}
      */
-    public function serializeForDetail(NovaRequest $request)
+    protected function resolveFields(NovaRequest $request, Closure $filter = null)
     {
-        $serialized = parent::serializeForDetail($request);
-        if (! empty($serialized['id'])) {
-            unset($serialized['id']);
-        }
+        $fields = parent::resolveFields($request, $filter);
 
-        $serialized['fields'] = $this->translationsFields($request, $serialized['fields']);
+        $fields = $this->translationsFields($fields);
 
-        return $serialized;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function updateFieldsWithinPanels($request)
-    {
-        $panels = parent::updateFieldsWithinPanels($request);
-
-        /*
-        foreach ($panels as $panel) {
-            $panels['fields'] = new FieldCollection($this->translationsFields($request, $panel['fields']->all()));
-        }
-        */
-
-        return $panels;
+        return $fields;
     }
 
     /**
      * Transform fields to handle translation system.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @param  array  $fields
-     * @return array
+     * @param  \Laravel\Nova\Fields\FieldCollection  $fields
+     * @return \Laravel\Nova\Fields\FieldCollection
      * @throws \Exception
      */
-    protected function translationsFields(NovaRequest $request, array $fields)
+    protected function translationsFields(FieldCollection $fields)
     {
         $translationsFields = [];
 
@@ -155,7 +137,7 @@ abstract class TranslatableResource extends Resource
             }
         }
 
-        return $translationsFields;
+        return new FieldCollection($translationsFields);
     }
 
     /**
@@ -172,7 +154,11 @@ abstract class TranslatableResource extends Resource
 
         // @TODO... Use Field resolve()??
         // Compute value (resolve() on detail AND direct attribute on update)
+        // $value = ($field instanceof Resolvable) ? $field->resolve($localeResource) : $localeResource->{$field->attribute};
+        dump($field->attribute);
+        dump($localeResource->toArray());
         $value = $localeResource->{$field->attribute};
+        dump($value);
 
         $cloneField->panel = static::PANEL_TRANSLATIONS;
         $cloneField->value = $value;
