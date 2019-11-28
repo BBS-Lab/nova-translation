@@ -32,6 +32,8 @@ trait Translatable
      */
     public function initializeTranslatable()
     {
+        // $this->with[] = 'translation';
+
         if (! isset($this->nonTranslatable)) {
             $this->nonTranslatable = [];
         }
@@ -48,13 +50,31 @@ trait Translatable
     }
 
     /**
-     * Translations relationship.
+     * Translation relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     */
+    public function translation()
+    {
+        return $this->morphOne(Translation::class, 'translatable');
+    }
+
+    /**
+     * Return current item translations.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function translations()
     {
-        return $this->morphMany(Translation::class, 'translatable');
+        /** @var \BBSLab\NovaTranslation\Models\Translation $currentTranslation */
+        $currentTranslation = $this->translation;
+
+        return static::query()
+            ->select($this->getTable().'.*', 'translations.locale_id', 'translations.translation_id')
+            ->join('translations', $this->getTable().'.'.$this->getKeyName(), '=', 'translations.translatable_id')
+            ->where('translations.translatable_type', '=', get_class($this))
+            ->where('translations.translation_id', '=', $currentTranslation->translation_id)
+            ->get();
     }
 
     /**
