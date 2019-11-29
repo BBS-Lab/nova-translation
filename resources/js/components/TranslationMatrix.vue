@@ -84,7 +84,7 @@
 
     methods: {
       hydrate() {
-        Nova.request().get('/nova-vendor/nova-translation/labels').then((response) => {
+        Nova.request().get('/nova-vendor/nova-translation/translation-matrix').then((response) => {
           this.labels = response.data.labels
           this.locales = response.data.locales
           this.loading = false
@@ -146,7 +146,7 @@
       saveLabels() {
         this.loading = true
 
-        Nova.request().post('/nova-vendor/nova-translation/labels', { labels: this.labels }).then((response) => {
+        Nova.request().post('/nova-vendor/nova-translation/translation-matrix', { labels: this.labels }).then((response) => {
           this.labels = response.data.labels
           this.$toasted.show(this.trans('The translations have been successfully saved!'), { type: 'success' })
         }).catch((error) => {
