@@ -2,9 +2,10 @@
 
 namespace BBSLab\NovaTranslation\Http\Controllers\TranslatableResource;
 
-use Illuminate\Routing\Controller;
+use BBSLab\NovaTranslation\Resources\TranslatableResource;
 use Illuminate\Support\Facades\DB;
 use Laravel\Nova\Actions\ActionEvent;
+use Laravel\Nova\Http\Controllers\ResourceStoreController;
 use Laravel\Nova\Http\Requests\CreateResourceRequest;
 
 class StoreController extends ResourceStoreController
@@ -15,7 +16,13 @@ class StoreController extends ResourceStoreController
     public function handle(CreateResourceRequest $request)
     {
         $resource = $request->resource();
+        if ($resource instanceof TranslatableResource) {
+            dd($resource, $request);
+        } else {
+            return parent::handle($request);
+        }
 
+        /*
         $resource::authorizeToCreate($request);
 
         $resource::validateForCreation($request);
@@ -45,5 +52,6 @@ class StoreController extends ResourceStoreController
             'resource' => $model->attributesToArray(),
             'redirect' => $resource::redirectAfterCreate($request, $request->newResourceWith($model)),
         ], 201);
+        */
     }
 }

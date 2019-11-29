@@ -75,6 +75,8 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
         }
 
         Route::middleware(['nova'])
+            ->as('nova.api.')
+            ->domain(config('nova.domain', null))
             ->prefix('nova-api')
             ->group(__DIR__.'/../routes/nova.php');
 

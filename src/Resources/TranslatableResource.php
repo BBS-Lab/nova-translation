@@ -14,6 +14,7 @@ use Laravel\Nova\Contracts\Resolvable;
 use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Fields\FieldCollection;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Panel;
 use Laravel\Nova\Resource;
@@ -177,6 +178,8 @@ abstract class TranslatableResource extends Resource
                 throw new Exception('Invalid locale resource for "'.$locale->label.'"');
             }
 
+            $translationsFields[] = $this->translationIdField($locale, $localeResource);
+
             foreach ($fields as $field) {
                 /** @var \Laravel\Nova\Fields\Field $field */
                 if ($forceReadonlyIds && $field instanceof ID && ($field->attribute === $this->resource->getKeyName())) {
@@ -215,6 +218,31 @@ abstract class TranslatableResource extends Resource
         ]);
 
         return $cloneField;
+    }
+
+    /**
+     * Return hidden translation ID field.
+     *
+     * @param  \BBSLab\NovaTranslation\Models\Locale  $locale
+     * @param  \Illuminate\Database\Eloquent\Model  $localeResource
+     * @return \Laravel\Nova\Fields\Text
+     */
+    protected function translationIdField(Locale $locale, Model $localeResource)
+    {
+        $field = new Text('Translation ID');
+
+        $field->panel = $this->translationsPanelName();
+        $field->value = $localeResource->translation_id;
+        $field->attribute = 'translation_id['.$locale->id.']';
+
+        $field->readonly();
+        $field->withMeta([
+            'tab' => $locale->label,
+            'localeId' => $locale->id,
+            'localeValue' => $localeResource->translation_id,
+        ]);
+
+        return $field;
     }
 
     /**
