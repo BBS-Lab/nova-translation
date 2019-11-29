@@ -9,48 +9,21 @@ use Eminiarts\Tabs\TabsOnEdit;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Laravel\Nova\Contracts\Resolvable;
 use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Fields\FieldCollection;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Http\Requests\ResourceIndexRequest;
 use Laravel\Nova\Panel;
 use Laravel\Nova\Resource;
 
 abstract class TranslatableResource extends Resource
 {
-    use TabsOnEdit;
-
-    const PANEL_TRANSLATIONS = 'Translations';
-
-    /**
-     * Return resource translations.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    protected function getResourceTranslations()
-    {
-        $baseTranslation = Translation::query()
-            ->select('translation_id')
-            ->where('translatable_id', '=', $this->resource->getKey())
-            ->where('translatable_type', '=', get_class($this->resource))
-            ->first();
-
-        if (empty($baseTranslation)) {
-            $translationId = $this->resource->freshTranslationId();
-            $translations = new Collection();
-            foreach ($this->indexedLocales as $localeId => $locale) {
-                // @TODO... Instantiate new model (maybe with nonTranslatable() already filled in + "locale_id" and "translation_id")
-            }
-        } else {
-            $translations = $this->resource->translations();
-        }
-
-        return $translations;
+    use TabsOnEdit {
+        creationFields as tabsOnEditCreationFields;
+        updateFields as tabsOnEditUpdateFields;
     }
-
-    // --------------------------------------------------------------------------------
-    // --------------------------------------------------------------------------------
-    // --------------------------------------------------------------------------------
 
     /**
      * {@inheritdoc}
@@ -60,6 +33,18 @@ abstract class TranslatableResource extends Resource
         $panels = parent::availablePanelsForDetail($request);
 
         $panels[] = $this->translationsPanel('detail-tabs');
+
+        return $panels;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function availablePanelsForCreate($request)
+    {
+        $panels = parent::availablePanelsForUpdate($request);
+
+        $panels[] = $this->translationsPanel('tabs');
 
         return $panels;
     }
@@ -84,7 +69,7 @@ abstract class TranslatableResource extends Resource
      */
     protected function translationsPanel(string $component = 'detail-tabs')
     {
-        $panelTranslations = new Panel(static::PANEL_TRANSLATIONS);
+        $panelTranslations = new Panel($this->translationsPanelName());
 
         $panelTranslations->withToolbar();
         $panelTranslations->withMeta([
@@ -95,6 +80,16 @@ abstract class TranslatableResource extends Resource
         return $panelTranslations;
     }
 
+    /**
+     * Translations panel name.
+     *
+     * @return string
+     */
+    protected function translationsPanelName()
+    {
+        return 'Translations '.Str::lower(static::label());
+    }
+
     // --------------------------------------------------------------------------------
     // --------------------------------------------------------------------------------
     // --------------------------------------------------------------------------------
@@ -102,9 +97,9 @@ abstract class TranslatableResource extends Resource
     /**
      * {@inheritdoc}
      */
-    protected function resolveFields(NovaRequest $request, Closure $filter = null)
+    public function detailFields(NovaRequest $request)
     {
-        $fields = parent::resolveFields($request, $filter);
+        $fields = parent::detailFields($request);
 
         $fields = $this->translationsFields($fields);
 
@@ -112,18 +107,47 @@ abstract class TranslatableResource extends Resource
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function creationFields(NovaRequest $request)
+    {
+        $fields = $this->tabsOnEditCreationFields($request);
+
+        $fields = $this->translationsFields($fields);
+
+        return $fields;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function updateFields(NovaRequest $request)
+    {
+        $fields = $this->tabsOnEditUpdateFields($request);
+
+        $fields = $this->translationsFields($fields);
+
+        return $fields;
+    }
+
+    // --------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------
+
+    /**
      * Transform fields to handle translation system.
      *
      * @param  \Laravel\Nova\Fields\FieldCollection  $fields
+     * @param  bool  $forceReadonlyIds
      * @return \Laravel\Nova\Fields\FieldCollection
      * @throws \Exception
      */
-    protected function translationsFields(FieldCollection $fields)
+    protected function translationsFields(FieldCollection $fields, $forceReadonlyIds = false)
     {
         $translationsFields = [];
 
         $locales = Locale::query()->select('id', 'iso', 'label')->get();
-        $translations = $this->getResourceTranslations();
+        $translations = $this->getResourceTranslations($locales);
 
         foreach ($locales as $locale) {
             /** @var \BBSLab\NovaTranslation\Models\Locale $locale */
@@ -133,6 +157,10 @@ abstract class TranslatableResource extends Resource
             }
 
             foreach ($fields as $field) {
+                /** @var \Laravel\Nova\Fields\Field $field */
+                if ($forceReadonlyIds && ($field->attribute === $this->resource->getKeyName())) {
+                    $field->readonly();
+                }
                 $translationsFields[] = $this->translationField($field, $locale, $localeResource);
             }
         }
@@ -152,23 +180,51 @@ abstract class TranslatableResource extends Resource
     {
         $cloneField = clone $field;
 
-        // @TODO... Use Field resolve()??
-        // Compute value (resolve() on detail AND direct attribute on update)
-        // $value = ($field instanceof Resolvable) ? $field->resolve($localeResource) : $localeResource->{$field->attribute};
-        dump($field->attribute);
-        dump($localeResource->toArray());
-        $value = $localeResource->{$field->attribute};
-        dump($value);
+        // @TODO... Debug $field->resolve()
+        // $value = ($cloneField instanceof Resolvable) ? $cloneField->resolve($localeResource) : $localeResource->{$cloneField->attribute};
+        $value = $localeResource->{$cloneField->attribute};
 
-        $cloneField->panel = static::PANEL_TRANSLATIONS;
+        $cloneField->panel = $this->translationsPanelName();
         $cloneField->value = $value;
         $cloneField->attribute = $cloneField->attribute.'['.$locale->id.']';
         $cloneField->withMeta([
             'tab' => $locale->label,
-            'locale' => $locale->id,
+            'localeId' => $locale->id,
+            'localeValue' => $value,
         ]);
 
         return $cloneField;
+    }
+
+    /**
+     * Return resource translations.
+     *
+     * @param  \Illuminate\Database\Eloquent\Collection  $locales
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    protected function getResourceTranslations(Collection $locales)
+    {
+        $baseTranslation = Translation::query()
+            ->select('translation_id')
+            ->where('translatable_id', '=', $this->resource->getKey())
+            ->where('translatable_type', '=', get_class($this->resource))
+            ->first();
+
+        if (empty($baseTranslation)) {
+            $translationId = $this->resource->freshTranslationId();
+            $translations = new Collection();
+            foreach ($locales as $locale) {
+                /** @var \BBSLab\NovaTranslation\Models\Locale $locale */
+                $translation = new $this->resource;
+                $translation->locale_id = $locale->id;
+                $translation->translation_id = $translationId;
+                $translations->push($translation);
+            }
+        } else {
+            $translations = $this->resource->translations();
+        }
+
+        return $translations;
     }
 
     // --------------------------------------------------------------------------------
