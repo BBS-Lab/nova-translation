@@ -4,26 +4,24 @@ namespace BBSLab\NovaTranslation\Resources;
 
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Translation;
-use Closure;
 use Eminiarts\Tabs\TabsOnEdit;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Laravel\Nova\Contracts\ListableField;
 use Laravel\Nova\Contracts\Resolvable;
 use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Fields\FieldCollection;
+use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Http\Requests\NovaRequest;
-use Laravel\Nova\Http\Requests\ResourceIndexRequest;
 use Laravel\Nova\Panel;
 use Laravel\Nova\Resource;
+use Laravel\Nova\ResourceToolElement;
 
 abstract class TranslatableResource extends Resource
 {
-    use TabsOnEdit {
-        creationFields as tabsOnEditCreationFields;
-        updateFields as tabsOnEditUpdateFields;
-    }
+    use TabsOnEdit;
 
     /**
      * {@inheritdoc}
@@ -42,9 +40,9 @@ abstract class TranslatableResource extends Resource
      */
     public function availablePanelsForCreate($request)
     {
-        $panels = parent::availablePanelsForUpdate($request);
+        $panels = parent::availablePanelsForCreate($request);
 
-        $panels[] = $this->translationsPanel('tabs');
+        $panels[] = $this->translationsPanel('detail-tabs');
 
         return $panels;
     }
@@ -111,11 +109,15 @@ abstract class TranslatableResource extends Resource
      */
     public function creationFields(NovaRequest $request)
     {
-        $fields = $this->tabsOnEditCreationFields($request);
+        $fields = $this->removeNonCreationFields($request, $this->resolveFields($request));
 
-        $fields = $this->translationsFields($fields);
-
-        return $fields;
+        return new FieldCollection([
+            'Tabs' => [
+                'panel' => Panel::defaultNameForCreate($request->newResource()),
+                'fields' => $this->translationsFields($fields),
+                'component' => 'tabs',
+            ],
+        ]);
     }
 
     /**
@@ -123,11 +125,30 @@ abstract class TranslatableResource extends Resource
      */
     public function updateFields(NovaRequest $request)
     {
-        $fields = $this->tabsOnEditUpdateFields($request);
+        $fields = $this->removeNonUpdateFields($request, $this->resolveFields($request));
 
-        $fields = $this->translationsFields($fields);
+        return new FieldCollection([
+            'Tabs' => [
+                'panel' => Panel::defaultNameForUpdate($request->newResource()),
+                'fields' => $this->translationsFields($fields, true),
+                'component' => 'tabs',
+            ],
+        ]);
+    }
 
-        return $fields;
+    /**
+     * {@inheritdoc}
+     */
+    protected function removeNonUpdateFields(NovaRequest $request, FieldCollection $fields)
+    {
+        // Here we override this to keep ID field
+        return $fields->reject(function ($field) use ($request) {
+            return
+                $field instanceof ListableField ||
+                $field instanceof ResourceToolElement ||
+                $field->attribute === 'ComputedField' ||
+                ! $field->isShownOnUpdate($request, $this->resource);
+        });
     }
 
     // --------------------------------------------------------------------------------
@@ -158,7 +179,7 @@ abstract class TranslatableResource extends Resource
 
             foreach ($fields as $field) {
                 /** @var \Laravel\Nova\Fields\Field $field */
-                if ($forceReadonlyIds && ($field->attribute === $this->resource->getKeyName())) {
+                if ($forceReadonlyIds && $field instanceof ID && ($field->attribute === $this->resource->getKeyName())) {
                     $field->readonly();
                 }
                 $translationsFields[] = $this->translationField($field, $locale, $localeResource);
