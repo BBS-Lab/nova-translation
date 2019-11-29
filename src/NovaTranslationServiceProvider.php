@@ -74,6 +74,10 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
             return;
         }
 
+        Route::middleware(['nova'])
+            ->prefix('nova-api')
+            ->group(__DIR__.'/../routes/nova.php');
+
         Route::middleware(['nova', Authorize::class])
             ->prefix('nova-vendor/'.static::PACKAGE_ID)
             ->group(__DIR__.'/../routes/api.php');
