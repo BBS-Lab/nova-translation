@@ -8,7 +8,7 @@ use BBSLab\NovaTranslation\Models\Translation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class LabelsController
+class TranslationMatrixController
 {
     /**
      * Setup labels matrix endpoint.
