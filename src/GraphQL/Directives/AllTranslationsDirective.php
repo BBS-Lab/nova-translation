@@ -58,7 +58,13 @@ SDL;
     {
         return $fieldValue->setResolver(
             function ($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo) {
-                return $this->localeFilters($this->getModelClass(), $args)->get();
+                return $resolveInfo
+                    ->argumentSet
+                    ->enhanceBuilder(
+                        $this->localeFilters($this->getModelClass(), $args),
+                        $this->directiveArgValue('scopes', [])
+                    )
+                    ->get();
             }
         );
     }
