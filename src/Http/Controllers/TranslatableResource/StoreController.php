@@ -15,6 +15,7 @@ class StoreController extends ResourceStoreController
      */
     public function handle(CreateResourceRequest $request)
     {
+        echo 'YO'; exit;
         $resource = $request->resource();
         if ($resource instanceof TranslatableResource) {
             dd($resource, $request);
