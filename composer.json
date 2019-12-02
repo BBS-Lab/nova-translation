@@ -1,15 +1,8 @@
 {
   "name": "bbs-lab/nova-translation",
-  "repositories": [
-    {
-      "type": "git",
-      "url": "https://github.com/BBS-Lab/nova-cloudinary-field.git"
-    }
-  ],
   "require": {
     "php": "^7.2",
     "ext-json": "*",
-    "bbs-lab/nova-cloudinary-field": "dev-master",
     "illuminate/contracts": "^6.2",
     "illuminate/database": "^6.2",
     "illuminate/support": "^6.2"
