@@ -23,15 +23,12 @@
             <tr class="p-3" v-for="(keyI18n, key) in matrix" :key="key" :id="`tr__${key}`">
               <td>{{ key }}</td>
               <td v-for="locale in locales" :key="`${key}__${locale.id}`">
-                <!--
                 <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'text'))">
-                  <textarea class="w-full form-control form-input form-input-bordered py-3 h-auto" rows="1" @input="updateLabel(key, locale.id, $event.target.value)" :id="`textarea__${key}__${locale.id}`" v-if="keyI18n[locale.id]">{{ keyI18n[locale.id].value }}</textarea>
+                  <textarea class="w-full h-auto form-control form-input form-input-bordered py-3" rows="1" @input="updateLabel(key, locale.id, $event.target.value)" :id="`textarea__${key}__${locale.id}`" v-if="keyI18n[locale.id]" v-html="keyI18n[locale.id].value"/>
                 </div>
                 <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'upload'))">
-                  <cloudinary-upload :url="keyI18n[locale.id].value" />
+                  <cloudinary-upload :widget="cloudinaryWidget" :locale-key="key" :locale-id="locale.id" :url="keyI18n[locale.id].value" :id="`upload__${key}__${locale.id}`" @edit="setCurrentEdit($event)"/>
                 </div>
-                -->
-                <textarea class="w-full form-control form-input form-input-bordered py-3 h-auto" rows="1" @input="updateLabel(key, locale.id, $event.target.value)" :id="`textarea__${key}__${locale.id}`" v-if="keyI18n[locale.id]">{{ keyI18n[locale.id].value }}</textarea>
               </td>
               <td class="table-actions">
                 <button class="block" @click="deleteKey(key)">
@@ -61,12 +58,12 @@
 
   export default {
     mixins: [
-      I18n
+      I18n,
     ],
 
     components: {
       PromptKeyModal: require('./PromptKeyModal.vue'),
-      CloudinaryUpload: require('./CloudinaryUpload.vue')
+      CloudinaryUpload: require('./CloudinaryUpload.vue'),
     },
 
     data() {
@@ -74,7 +71,9 @@
         labels: [],
         locales: [],
         loading: true,
-        promptKeyModalOpened: false
+        currentEdit: {},
+        cloudinaryWidget: null,
+        promptKeyModalOpened: false,
       }
     },
 
@@ -85,6 +84,7 @@
     methods: {
       hydrate() {
         Nova.request().get('/nova-vendor/nova-translation/translation-matrix').then((response) => {
+          this.setupCloudinaryWidget(response.data.cloudinary)
           this.labels = response.data.labels
           this.locales = response.data.locales
           this.loading = false
@@ -92,6 +92,53 @@
           console.error(error)
         })
       },
+
+      updateLabel(key, localeId, value) {
+        for (let i = 0 ; i < this.labels.length ; i++) {
+          if ((this.labels[i].key === key) && (this.labels[i].locale_id === localeId)) {
+            this.labels[i].value = value
+            break
+          }
+        }
+      },
+
+      saveLabels() {
+        this.loading = true
+
+        Nova.request().post('/nova-vendor/nova-translation/translation-matrix', { labels: this.labels }).then((response) => {
+          this.labels = response.data.labels
+          this.$toasted.show(this.trans('The translations have been successfully saved!'), { type: 'success' })
+        }).catch((error) => {
+          this.$toasted.show(this.trans('An error occurred while saving the translations!'), { type: 'error' })
+        }).finally(() => {
+          this.loading = false
+        })
+      },
+
+      // ------------------------------------------------------------------------------
+
+      setCurrentEdit(currentEdit) {
+        this.currentEdit = currentEdit
+      },
+
+      setupCloudinaryWidget(meta) {
+        this.cloudinaryWidget = cloudinary.createMediaLibrary({
+          api_key: meta.api_key,
+          multiple: false,
+          username: meta.username,
+          signature: meta.signature,
+          timestamp: meta.timestamp,
+          cloud_name: meta.cloud_name,
+        }, {
+          insertHandler: (data) => {
+            if (data.assets.length > 0) {
+              this.updateLabel(this.currentEdit.localeKey, this.currentEdit.localeId, data.assets[0].public_id)
+            }
+          },
+        })
+      },
+
+      // ------------------------------------------------------------------------------
 
       addKey(options) {
         this.promptKeyModalOpened = false
@@ -134,28 +181,6 @@
         }
       },
 
-      updateLabel(key, localeId, value) {
-        for (let i = 0 ; i < this.labels.length ; i++) {
-          if ((this.labels[i].key === key) && (this.labels[i].locale_id === localeId)) {
-            this.labels[i].value = value
-            break
-          }
-        }
-      },
-
-      saveLabels() {
-        this.loading = true
-
-        Nova.request().post('/nova-vendor/nova-translation/translation-matrix', { labels: this.labels }).then((response) => {
-          this.labels = response.data.labels
-          this.$toasted.show(this.trans('The translations have been successfully saved!'), { type: 'success' })
-        }).catch((error) => {
-          this.$toasted.show(this.trans('An error occurred while saving the translations!'), { type: 'error' })
-        }).finally(() => {
-          this.loading = false
-        })
-      },
-
       deleteKey(key) {
         let labels = []
 
@@ -166,7 +191,7 @@
         }
 
         this.labels = labels
-      }
+      },
     },
 
     computed: {
@@ -185,8 +210,8 @@
         }
 
         return matrix
-      }
-    }
+      },
+    },
   }
 </script>
 

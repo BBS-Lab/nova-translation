@@ -2,6 +2,7 @@
 
 namespace BBSLab\NovaTranslation\Http\Controllers;
 
+use BBSLab\CloudinaryField\HasCloudinaryField;
 use BBSLab\NovaTranslation\Models\Label;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Translation;
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 class TranslationMatrixController
 {
+    use HasCloudinaryField;
+
     /**
      * Setup labels matrix endpoint.
      *
@@ -21,7 +24,9 @@ class TranslationMatrixController
 
         $locales = Locale::query()->select('id', 'label')->get();
 
-        return response()->json(compact('labels', 'locales'), 200);
+        $cloudinary = $this->cloudinaryMeta();
+
+        return response()->json(compact('labels', 'locales', 'cloudinary'), 200);
     }
 
     /**
@@ -32,7 +37,6 @@ class TranslationMatrixController
      */
     public function save(Request $request)
     {
-        // @TODO...
         DB::beginTransaction();
 
         Label::query()->truncate();
@@ -84,7 +88,7 @@ class TranslationMatrixController
 
         /** @var \BBSLab\NovaTranslation\Models\Label $label */
         $label = Label::query()->create([
-            'type' => Label::TYPE_TEXT,
+            'type' => $data['type'],
             'key' => $data['key'],
             'value' => ! empty($data['value']) ? $data['value'] : '',
         ]);

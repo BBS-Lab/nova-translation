@@ -36,13 +36,13 @@
 
   export default {
     mixins: [
-      I18n
+      I18n,
     ],
 
     data() {
       return {
         newKey: '',
-        newType: 'text'
+        newType: 'text',
       }
     },
 
@@ -60,12 +60,14 @@
       },
 
       handleConfirm() {
-        this.$emit('confirm', { type: this.newType, key: this.newKey })
+        if (this.newKey.trim() !== '') {
+          this.$emit('confirm', { type: this.newType, key: this.newKey })
+        }
       },
 
       handleClose() {
         this.$emit('close')
-      }
-    }
+      },
+    },
   }
 </script>
