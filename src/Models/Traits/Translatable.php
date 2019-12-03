@@ -85,15 +85,17 @@ trait Translatable
     {
         $data = [
             'locale_id' => $localeId,
-            'translation_id' => ! empty($translationId) ? $translationId : static::freshTranslationId(),
+            'translation_id' => ! empty($translationId) ? $translationId : $this->freshTranslationId(),
             'translatable_id' => $this->getKey(),
             'translatable_type' => get_class($this),
         ];
 
         $translation = Translation::query()->where($data)->first();
         if (empty($translation)) {
-            Translation::query()->create($data);
+            $translation = Translation::query()->create($data);
         }
+
+        return $translation;
     }
 
     /**

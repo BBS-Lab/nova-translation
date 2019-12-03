@@ -1,6 +1,6 @@
 <template>
-  <default-field :field="field" :errors="errors">
-    <div v-if="field.value">
+  <default-field :field="field" :errors="errors" v-if="field.value">
+    <div>
       {{ trans(`Flag ${field.locales[field.value.locale_id].iso.toUpperCase()}`) }}
     </div>
   </default-field>
@@ -32,7 +32,7 @@
       },
 
       fill(formData) {
-        formData.append(this.field.attribute, this.value)
+        // formData.append(this.field.attribute, this.value)
       },
     },
   }
