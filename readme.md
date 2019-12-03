@@ -41,6 +41,10 @@ You need to run migrations and seeds Locales.
 php artisan migrate
 ```
 
+IMPORTANT NOTES:
+
+> :warning: **You also MUST cache routes by calling**: `php artisan route:cache`
+
 ## Models setup
 
 // @TODO... Explain 

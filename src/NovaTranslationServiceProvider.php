@@ -2,12 +2,8 @@
 
 namespace BBSLab\NovaTranslation;
 
-use BBSLab\NovaTranslation\Http\Middleware\Authorize;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Observers\LocaleObserver;
-use Illuminate\Contracts\Routing\UrlGenerator as UrlGeneratorContract;
-use Illuminate\Routing\Route as RouterRoute;
-use Illuminate\Routing\RouteCollection;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
@@ -77,9 +73,14 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
             return;
         }
 
-        $this->setOverridenRoutes();
+        Route::middleware(['nova'])
+            ->namespace('BBSLab\NovaTranslation\Http\Controllers')
+            ->domain(config('nova.domain', null))
+            ->prefix('nova-api')
+            ->as('nova.api.')
+            ->group(__DIR__.'/../routes/nova.php');
 
-        Route::middleware(['nova', Authorize::class])
+        Route::middleware(['nova', \BBSLab\NovaTranslation\Http\Middleware\Authorize::class])
             ->prefix('nova-vendor/'.static::PACKAGE_ID)
             ->group(__DIR__.'/../routes/api.php');
     }
@@ -102,36 +103,5 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
         })->toArray();
 
         \Laravel\Nova\Nova::translations($translations);
-    }
-
-    /**
-     * Remove overriden routes.
-     *
-     * @return void
-     */
-    protected function setOverridenRoutes()
-    {
-        $overiddenRoutes = new RouteCollection;
-
-        $routes = $this->app->router->getRoutes();
-        foreach ($routes as $route) {
-            /** @var \Illuminate\Routing\Route $route */
-            if (in_array('POST', $route->methods()) && ($route->uri() === 'nova-api/{resource}')) {
-                $route = new RouterRoute(['POST'], 'nova-api/{resource}', [Http\Controllers\TranslatableResource\StoreController::class, 'handle']);
-                $route->name('nova.api.')->middleware('nova');
-            } elseif (in_array('PUT', $route->methods()) && ($route->uri() === 'nova-api/{resource}/{resourceId}')) {
-                $route = new RouterRoute(['PUT'], 'nova-api/{resource}/{resourceId}', [Http\Controllers\TranslatableResource\UpdateController::class, 'handle']);
-                $route->name('nova.api.')->middleware('nova');
-            } elseif (in_array('DELETE', $route->methods()) && ($route->uri() === 'nova-api/{resource}')) {
-                $route = new RouterRoute(['DELETE'], 'nova-api/{resource}', [Http\Controllers\TranslatableResource\DestroyController::class, 'handle']);
-                $route->name('nova.api.')->middleware('nova');
-            } else {
-                //
-            }
-
-            $overiddenRoutes->add($route);
-        }
-
-        $this->app->router->setRoutes($overiddenRoutes);
     }
 }
