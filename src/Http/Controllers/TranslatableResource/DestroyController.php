@@ -19,26 +19,26 @@ class DestroyController extends ResourceDestroyController
      */
     public function handle(DeleteResourceRequest $request)
     {
-        if ($this->isTranslatableResource($request)) {
-            $request->chunks(150, function ($models) use ($request) {
-                $models->each(function ($model) use ($request) {
-                    $translatableIds = Translation::query()
-                        ->select('translatable_id')
-                        ->where('translatable_type', '=', get_class($model))
-                        ->where('translation_id', '=', $model->translation->translation_id)
-                        ->get()
-                        ->pluck('translatable_id')
-                        ->toArray();
-
-                    $translatedModels = $model->query()->whereIn($model->getKeyName(), $translatableIds)->get();
-                    foreach ($translatedModels as $translatedModel) {
-                        $this->deleteSingleModel($request, $translatedModel);
-                    }
-                });
-            });
-        } else {
+        if (! $this->isTranslatableResource($request)) {
             return parent::handle($request);
         }
+
+        $request->chunks(150, function ($models) use ($request) {
+            $models->each(function ($model) use ($request) {
+                $translatableIds = Translation::query()
+                    ->select('translatable_id')
+                    ->where('translatable_type', '=', get_class($model))
+                    ->where('translation_id', '=', $model->translation->translation_id)
+                    ->get()
+                    ->pluck('translatable_id')
+                    ->toArray();
+
+                $translatedModels = $model->query()->whereIn($model->getKeyName(), $translatableIds)->get();
+                foreach ($translatedModels as $translatedModel) {
+                    $this->deleteSingleModel($request, $translatedModel);
+                }
+            });
+        });
     }
 
     /**

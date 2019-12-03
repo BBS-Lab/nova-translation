@@ -30,7 +30,8 @@ abstract class TranslatableResource extends Resource
      */
     public static function detailQuery(NovaRequest $request, $query)
     {
-        return parent::detailQuery($request, $query)->with('translation');
+        return parent::detailQuery($request, $query)
+            ->with('translation');
     }
 
     /**
