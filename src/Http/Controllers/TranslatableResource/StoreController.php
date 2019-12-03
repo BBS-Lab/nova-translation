@@ -68,8 +68,8 @@ class StoreController extends ResourceStoreController
             }
 
             if ($request->viaRelationship()) {
-                $request->findParentModelOrFail()->{$request->viaRelationship}()->save($translatedModels[$localeId]);
                 // @TODO... Check for Translation entry for new created model
+                $request->findParentModelOrFail()->{$request->viaRelationship}()->save($translatedModels[$localeId]);
             } else {
                 $translatedModels[$localeId]->save();
                 $translatedModels[$localeId]->upsertTranslationEntry($localeId, $translationId);
