@@ -10,7 +10,6 @@ use Laravel\Nova\Actions\Actionable;
 use Laravel\Nova\Actions\ActionEvent;
 use Laravel\Nova\Contracts\Deletable;
 use Laravel\Nova\DeleteField;
-use Laravel\Nova\Http\Controllers\DeletesFields;
 use Laravel\Nova\Http\Controllers\ResourceDestroyController;
 use Laravel\Nova\Http\Requests\DeleteResourceRequest;
 use Laravel\Nova\Http\Requests\NovaRequest;

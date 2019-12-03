@@ -6,13 +6,13 @@ use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Resources\TranslatableResource;
 use Illuminate\Support\Facades\DB;
 use Laravel\Nova\Actions\ActionEvent;
-use Laravel\Nova\Fields\Field;
-use Laravel\Nova\Fields\FieldCollection;
 use Laravel\Nova\Http\Controllers\ResourceStoreController;
 use Laravel\Nova\Http\Requests\CreateResourceRequest;
 
 class StoreController extends ResourceStoreController
 {
+    use Traits\TranslatableController;
+
     /**
      * {@inheritdoc}
      */
@@ -22,6 +22,7 @@ class StoreController extends ResourceStoreController
 
         if (is_subclass_of($resource, TranslatableResource::class)) {
             $resource::authorizeToCreate($request);
+            // @TODO... Ensure creation rules
             $resource::validateForCreation($request);
 
             $model = DB::transaction(function () use ($request, $resource) {
@@ -53,7 +54,6 @@ class StoreController extends ResourceStoreController
     protected function storeTranslatable(CreateResourceRequest $request, string $resource)
     {
         $model = $resource::newModel();
-
         $creationFields = (new $resource($model))->creationFields($request);
         $translatedData = $this->mapTranslatableData($request, $creationFields);
 
@@ -82,44 +82,5 @@ class StoreController extends ResourceStoreController
         }
 
         return $translatedModels;
-    }
-
-    /**
-     * Map translatable data.
-     *
-     * @param  \Laravel\Nova\Http\Requests\CreateResourceRequest  $request
-     * @param  \Laravel\Nova\Fields\FieldCollection  $fields
-     * @return array
-     */
-    protected function mapTranslatableData(CreateResourceRequest $request, FieldCollection $fields)
-    {
-        $translatedData = [];
-
-        foreach ($fields as $panel) {
-            foreach ($panel['fields'] as $field) {
-                /** @var \Laravel\Nova\Fields\Field $field */
-                $localeId = $field->meta()['localeId'];
-                if (! isset($translatedData[$localeId])) {
-                    $translatedData[$localeId] = [];
-                }
-
-                $attribute = $this->translatableAttribute($field, $localeId);
-                $translatedData[$localeId][$attribute] = $request->input($attribute.'.'.$localeId);
-            }
-        }
-
-        return $translatedData;
-    }
-
-    /**
-     * Return translatable attribute name.
-     *
-     * @param  \Laravel\Nova\Fields\Field  $field
-     * @param  int  $localeId
-     * @return string
-     */
-    protected function translatableAttribute(Field $field, int $localeId)
-    {
-        return substr($field->attribute, 0, strpos($field->attribute, '['.$localeId.']'));
     }
 }
