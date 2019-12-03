@@ -8,7 +8,7 @@
 </template>
 
 <script>
-  import I18n from '../mixins/I18n'
+  import I18n from '../../mixins/I18n'
 
   export default {
     mixins: [

@@ -2,6 +2,7 @@
 
 namespace BBSLab\NovaTranslation\Resources;
 
+use BBSLab\NovaTranslation\Fields\Translation;
 use BBSLab\NovaTranslation\Models\Label as Model;
 use BBSLab\NovaTranslation\NovaTranslationServiceProvider;
 use Illuminate\Http\Request;
@@ -45,6 +46,8 @@ class Label extends TranslatableResource
     {
         return [
             ID::make()->sortable(),
+
+            Translation::make(),
 
             Select::make('Type', 'type')
                 ->sortable()

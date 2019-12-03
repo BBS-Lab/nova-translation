@@ -11,7 +11,8 @@
   },
   "devDependencies": {
     "cross-env": "^5.0.0",
-    "laravel-mix": "^1.0"
+    "laravel-mix": "^1.0",
+    "laravel-nova": "^1.0"
   },
   "dependencies": {
     "animated-scroll-to": "^2.0.5",

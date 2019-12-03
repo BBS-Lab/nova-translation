@@ -13,7 +13,7 @@ class TranslationMatrix extends Tool
      */
     public function boot()
     {
-        Nova::script(NovaTranslationServiceProvider::PACKAGE_ID, __DIR__.'/../../dist/js/tool.js');
-        Nova::style(NovaTranslationServiceProvider::PACKAGE_ID, __DIR__.'/../../dist/css/tool.css');
+        Nova::script(NovaTranslationServiceProvider::PACKAGE_ID, __DIR__.'/../../dist/js/'.NovaTranslationServiceProvider::PACKAGE_ID.'.js');
+        Nova::style(NovaTranslationServiceProvider::PACKAGE_ID, __DIR__.'/../../dist/css/'.NovaTranslationServiceProvider::PACKAGE_ID.'.css');
     }
 }

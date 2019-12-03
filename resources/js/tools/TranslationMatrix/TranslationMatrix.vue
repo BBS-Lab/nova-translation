@@ -53,7 +53,7 @@
 </template>
 
 <script>
-  import I18n from '../mixins/I18n'
+  import I18n from '../../mixins/I18n'
   import animateScrollTo from 'animated-scroll-to'
 
   export default {

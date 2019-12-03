@@ -32,8 +32,6 @@ trait Translatable
      */
     public function initializeTranslatable()
     {
-        // $this->with[] = 'translation';
-
         if (! isset($this->nonTranslatable)) {
             $this->nonTranslatable = [];
         }
