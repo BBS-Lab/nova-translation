@@ -1,15 +1,17 @@
 <template>
   <div class="nova-translation-field_index" v-if="field.value">
-    <div v-for="(locale, localeId) in field.locales" :key="localeId" v-html="viewLink(locale)" v-if="locale.id !== field.value.locale_id"/>
+    <div v-for="locale in field.locales" :key="`translation_${locale.id}`" v-html="viewLink(locale)" v-if="locale.id !== field.value.locale_id"/>
   </div>
 </template>
 
 <script>
-  import I18n from '../../mixins/I18n'
+  import I18nMixin from '../../mixins/I18n'
+  import TranslationMixin from '../../mixins/Translation'
 
   export default {
     mixins: [
-      I18n,
+      I18nMixin,
+      TranslationMixin,
     ],
 
     props: [
@@ -23,31 +25,27 @@
 
     methods: {
       viewLink(locale) {
-        return `<a href="/resources/${this.resourceName}/${this.field.translations[locale.id].translatable_id}">${this.flag(locale)}</a>`
-      },
-
-      flag(locale) {
-        return this.trans(`Flag ${locale.iso.toUpperCase()}`)
+        return `<a href="/resources/${this.resourceName}/${this.field.translations[locale.id].translatable_id}"><span class="nova-translation--flag">${this.flag(locale)}</span></a>`
       },
     },
   }
 </script>
 
-<style>
+<style lang="scss">
   .nova-translation-field_index {
     display: flex;
     align-items: center;
-  }
 
-  .nova-translation-field_index div {
-    margin-left: 8px;
-  }
+    div {
+      margin-left: .5rem;
 
-  .nova-translation-field_index div:first-child {
-    margin-left: 0;
-  }
+      &:first-child {
+        margin-left: 0;
+      }
 
-  .nova-translation-field_index div a {
-    text-decoration: none;
+      a {
+        text-decoration: none;
+      }
+    }
   }
 </style>

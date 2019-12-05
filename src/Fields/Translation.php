@@ -35,13 +35,13 @@ class Translation extends Field
     /**
      * {@inheritdoc}
      */
-    public function resolveForDisplay($resource, $attribute = null)
+    public function resolve($resource, $attribute = null)
     {
         $this->withMeta([
             'translations' => $this->translations($resource),
         ]);
 
-        return parent::resolveForDisplay($resource, $attribute);
+        return parent::resolve($resource, $attribute);
     }
 
     /**
@@ -71,11 +71,17 @@ class Translation extends Field
     {
         $translations = [];
 
-        $query = TranslationModel::query()
-            ->where('translation_id', '=', $resource->translation_id)
-            ->where('translatable_type', '=', $resource->translatable_type);
-        foreach ($query->cursor() as $translation) {
-            $translations[$translation->locale_id] = $translation->toArray();
+        /** @var \BBSLab\NovaTranslation\Models\Translation $resourceTranslation */
+        $resourceTranslation = $resource->translation;
+        
+        if (! empty($resourceTranslation)) {
+            $query = TranslationModel::query()
+                ->where('translation_id', '=', $resourceTranslation->translation_id)
+                ->where('translatable_type', '=', $resourceTranslation->translatable_type);
+
+            foreach ($query->cursor() as $translation) {
+                $translations[$translation->locale_id] = $translation->toArray();
+            }
         }
 
         return $translations;

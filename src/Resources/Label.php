@@ -45,9 +45,9 @@ class Label extends TranslatableResource
     public function fields(Request $request)
     {
         return [
-            ID::make()->sortable(),
-
             Translation::make(),
+
+            ID::make()->sortable(),
 
             Select::make('Type', 'type')
                 ->sortable()

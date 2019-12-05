@@ -120,3 +120,7 @@ You can include those in your existing schema:
 #import ../../../vendor/bbs-lab/nova-translation/src/Http/GraphQL/Locale/*.graphql
 #import ../../../vendor/bbs-lab/nova-translation/src/Http/GraphQL/Label/*.graphql
 ```
+
+## Flags resources
+
+Flags UTF-8 (e.g `en.json`) came from [EmojiTerra](https://emojiterra.com/flags/)
