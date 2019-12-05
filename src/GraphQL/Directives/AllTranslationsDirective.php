@@ -36,7 +36,7 @@ directive @allTranslations(
   model: String
   "Specify the GraphQL type to add the 'locale' field (if GraphQL type is different from model class basename)."
   type: String
-) on ARGUMENT_DEFINITION
+) on FIELD_DEFINITION
 SDL;
     }
 
