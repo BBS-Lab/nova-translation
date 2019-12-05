@@ -73,7 +73,7 @@ class Translation extends Field
 
         /** @var \BBSLab\NovaTranslation\Models\Translation $resourceTranslation */
         $resourceTranslation = $resource->translation;
-        
+
         if (! empty($resourceTranslation)) {
             $query = TranslationModel::query()
                 ->where('translation_id', '=', $resourceTranslation->translation_id)
