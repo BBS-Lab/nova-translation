@@ -42,14 +42,30 @@ class Label extends TranslatableResource
     /**
      * {@inheritdoc}
      */
+    public static function label()
+    {
+        return trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.labels.resources');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function singularLabel()
+    {
+        return trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.labels.resource');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function fields(Request $request)
     {
         return [
-            Translation::make(),
-
             ID::make()->sortable(),
 
-            Select::make('Type', 'type')
+            Translation::make(),
+
+            Select::make(trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.labels.type'), 'type')
                 ->sortable()
                 ->options([
                     Model::TYPE_TEXT => trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.labels.types.'.Model::TYPE_TEXT),
@@ -57,11 +73,11 @@ class Label extends TranslatableResource
                 ])
                 ->displayUsingLabels(),
 
-            Text::make('Key', 'key')
+            Text::make(trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.labels.key'), 'key')
                 ->sortable()
                 ->rules('required'),
 
-            Textarea::make('Value', 'value')
+            Textarea::make(trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.labels.value'), 'value')
                 ->hideFromIndex(),
         ];
     }
