@@ -7,7 +7,7 @@
     <div v-else>
       <div class="mb-6 text-right">
         <button class="btn btn-link dim cursor-pointer text-80" @click.prevent="promptKeyModalOpened = true">{{ trans('Add key') }}</button>
-        <button class="ml-3 btn btn-default btn-primary text-white cursor-pointer text-80" @click="saveLabels">Save</button>
+        <button class="ml-3 btn btn-default btn-primary text-white cursor-pointer text-80" @click="saveLabels">{{ trans('Save') }}</button>
       </div>
 
       <card>
@@ -42,7 +42,7 @@
 
       <div class="mt-6 text-right">
         <button class="btn btn-link dim cursor-pointer text-80" @click.prevent="promptKeyModalOpened = true">{{ trans('Add key') }}</button>
-        <button class="ml-3 btn btn-default btn-primary text-white cursor-pointer text-80" @click="saveLabels">Save</button>
+        <button class="ml-3 btn btn-default btn-primary text-white cursor-pointer text-80" @click="saveLabels">{{ trans('Save') }}</button>
       </div>
     </div>
 

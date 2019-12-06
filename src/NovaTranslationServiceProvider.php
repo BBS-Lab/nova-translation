@@ -25,15 +25,15 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
     {
         $this->bootPackage();
 
+        Locale::observe(LocaleObserver::class);
+
         if ($this->isNovaInstalled()) {
             $this->app->booted(function () {
                 $this->bootRoutes();
             });
 
-            $this->loadNovaTranslations();
+            $this->serveNova();
         }
-
-        Locale::observe(LocaleObserver::class);
     }
 
     /**
@@ -83,6 +83,22 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
         Route::middleware(['nova', \BBSLab\NovaTranslation\Http\Middleware\Authorize::class])
             ->prefix('nova-vendor/'.static::PACKAGE_ID)
             ->group(__DIR__.'/../routes/api.php');
+    }
+
+    /**
+     * Serve Laravel Nova.
+     *
+     * @return void
+     */
+    protected function serveNova()
+    {
+        \Laravel\Nova\Nova::serving(function (\Laravel\Nova\Events\ServingNova $event) {
+            $this->loadNovaTranslations();
+
+            \Laravel\Nova\Nova::provideToScript([
+                'locale' => app()->getLocale(),
+            ]);
+        });
     }
 
     /**

@@ -2,7 +2,7 @@
   <div class="w-full h-auto flex items-center form-control form-input form-input-bordered p-0">
     <input type="text" class="flex-1 outline-none form-control form-input shadow-none px-3" :value="url"/>
     <button type="button" class="btn btn-default btn-primary" @click.prevent="openMediaLibrary()">
-      {{ trans('Choose image') }}
+      {{ trans('Choose') }}
     </button>
   </div>
 </template>
