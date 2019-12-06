@@ -1,10 +1,16 @@
 <template>
-  <div class="nova-translation" v-if="field.value">
-    <div>
-      <span class="nova-translation--flag_current" v-html="trans(`Flag ${field.locales[field.value.locale_id].iso.toUpperCase()}`)"/>
-    </div>
-    <div class="nova-translation--links">
-      <div v-for="translation in field.translations" :key="`translation_${translation.locale_id}`" v-html="viewLink(translation)" v-if="translation.locale_id !== field.value.locale_id"/>
+  <div class="border-b border-40">
+    <div class="py-2 flex items-center justify-between" v-if="field.value">
+      <div>
+        <span class="text-4xl" v-html="trans(`Flag ${field.locales[field.value.locale_id].iso.toUpperCase()}`)"/>
+      </div>
+      <div class="flex items-center text-right">
+        <div
+          class="inline-block ml-2"
+          v-for="translation in field.translations" :key="`translation_${translation.locale_id}`"
+          v-html="viewLink(translation)" v-if="translation.locale_id !== field.value.locale_id"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -28,33 +34,8 @@
 
     methods: {
       viewLink(translation) {
-        return `<a href="/resources/${this.resourceName}/${translation.translatable_id}"><span class="nova-translation--flag">${this.flag(this.field.locales[translation.locale_id])}</span></a>`
+        return `<a class="no-underline" href="/resources/${this.resourceName}/${translation.translatable_id}"><span class="nova-translation--flag">${this.flag(this.field.locales[translation.locale_id])}</span></a>`
       },
     },
   }
 </script>
-
-<style lang="scss">
-  .nova-translation {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0;
-
-    &--flag_current {
-      font-size: 1.5rem;
-    }
-
-    &--links {
-      display: flex;
-      align-items: center;
-      text-align: right;
-
-      a {
-        display: inline-block;
-        margin-left: .5rem;
-        text-decoration: none;
-      }
-    }
-  }
-</style>
