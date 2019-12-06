@@ -57,15 +57,15 @@ IMPORTANT NOTES:
  
 ## Config Nova
 
-Add `SetLocale` middleware in nova config.
+Add `SetLocale` middleware in application kernel.
 
 ```php
-// config/nova.php
+// app/Http/Kernel.php
 
-'middleware' => [
+protected $middleware = [
     // ...
     \BBSLab\NovaTranslation\Http\Middleware\SetLocale::class,
-],
+];
 ```
 
 ## Usage
