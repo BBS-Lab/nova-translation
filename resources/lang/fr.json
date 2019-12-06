@@ -1,0 +1,16 @@
+{
+  "Translations Matrix": "Matrice des traductions",
+  "Add key": "+ Ajouter une clé",
+  "The key you try to add already exists!": "La clé que vous désirez ajouter existe déjà !",
+  "Save": "Enregistrer",
+  "Add a translation key": "Ajouter une clé de traduction",
+  "Text": "Texte",
+  "Upload": "Upload",
+  "Close": "Fermer",
+  "Confirm": "Confirmer",
+  "The translations have been successfully saved!": "Les traductions ont été sauvegardées avec succès !",
+  "An error occurred while saving the translations!": "Une erreur est survenue pendant l'enregistrement des traductions !",
+  "Flag FR": "\uD83C\uDDEB\uD83C\uDDF7",
+  "Flag EN": "\uD83C\uDDEC\uD83C\uDDE7",
+  "Flag ES": "\uD83C\uDDEA\uD83C\uDDF8"
+}
