@@ -54,6 +54,19 @@ IMPORTANT NOTES:
  * `auto_synced_models` in config.php
  
  * ...
+ 
+## Config Nova
+
+Add `SetLocale` middleware in nova config.
+
+```php
+// config/nova.php
+
+'middleware' => [
+    // ...
+    \BBSLab\NovaTranslation\Http\Middleware\SetLocale::class,
+],
+```
 
 ## Usage
 
@@ -99,7 +112,7 @@ class Locale extends BaseResource
 
 If your using [Lighthouse PHP](https://lighthouse-php.com) you can add some default Directive and endpoints for `Locale` and `Label`.
 
-### Directive `@translation`
+### Directives `@translation` related
 
 You need to add package Directives path to your lighthouse.php configuration file:
 
