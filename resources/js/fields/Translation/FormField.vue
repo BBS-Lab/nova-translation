@@ -2,7 +2,7 @@
   <div class="border-b border-40">
     <div class="px-8 py-4 flex items-center justify-between">
       <div>
-        <span class="text-4xl" v-html="flag(field.locales[field.value.locale_id])"/>
+        <span class="text-4xl" v-if="field.value" v-html="flag(field.locales[field.value.locale_id])"/>
       </div>
       <div class="flex items-center text-right">
         <div
