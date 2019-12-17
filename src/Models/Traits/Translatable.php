@@ -8,7 +8,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * @property \Illuminate\Database\Eloquent\Collection $translations
+ * @property \BBSLab\NovaTranslation\Models\Translation $translation
  */
 trait Translatable
 {
@@ -64,14 +64,11 @@ trait Translatable
      */
     public function translations()
     {
-        /** @var \BBSLab\NovaTranslation\Models\Translation $currentTranslation */
-        $currentTranslation = $this->translation;
-
         return static::query()
             ->select($this->getTable().'.*', 'translations.locale_id', 'translations.translation_id')
             ->join('translations', $this->getTable().'.'.$this->getKeyName(), '=', 'translations.translatable_id')
             ->where('translations.translatable_type', '=', get_class($this))
-            ->where('translations.translation_id', '=', $currentTranslation->translation_id)
+            ->where('translations.translation_id', '=', $this->translation->translation_id)
             ->get();
     }
 
