@@ -6,6 +6,18 @@
     "translation"
   ],
   "license": "MIT",
+  "authors": [
+    {
+      "name": "Sébastien Muller",
+      "email": "smuller@big-boss-studio.com",
+      "role": "Developer"
+    },
+    {
+      "name": "BBS Lab",
+      "email": "paris@big-boss-studio.com",
+      "role": "Maintainer"
+    }
+  ],
   "require": {
     "php": "^7.2",
     "ext-json": "*",
