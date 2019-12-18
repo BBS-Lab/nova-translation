@@ -48,7 +48,7 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', static::PACKAGE_ID);
 
         $this->publishes([
-            __DIR__.'/../../../../config/config.php' => base_path('config/'.static::PACKAGE_ID.'.php'),
+            __DIR__.'/../config/config.php' => config_path(static::PACKAGE_ID.'.php'),
         ]);
     }
 
