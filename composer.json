@@ -1,8 +1,27 @@
 {
   "name": "bbs-lab/nova-translation",
+  "keywords": [
+    "laravel",
+    "nova",
+    "translation"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Sébastien Muller",
+      "email": "smuller@big-boss-studio.com",
+      "role": "Developer"
+    },
+    {
+      "name": "BBS Lab",
+      "email": "paris@big-boss-studio.com",
+      "role": "Maintainer"
+    }
+  ],
   "require": {
     "php": "^7.2",
     "ext-json": "*",
+    "bbs-lab/nova-cloudinary-field": "dev-master",
     "illuminate/contracts": "^6.2",
     "illuminate/database": "^6.2",
     "illuminate/support": "^6.2"
