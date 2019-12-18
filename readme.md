@@ -32,7 +32,7 @@ The service provider will automatically get registered. Or you may manually add 
 You can tailor default in your application by running:
 
 ```bash
-php artisan vendor:publish --provider="BBSLab\NovaTranslation\NovaTranslationServiceProvider::class"
+php artisan vendor:publish --provider="BBSLab\NovaTranslation\NovaTranslationServiceProvider"
 ```
 
 You need to run migrations and seeds Locales.
@@ -40,10 +40,6 @@ You need to run migrations and seeds Locales.
 ```bash
 php artisan migrate
 ```
-
-IMPORTANT NOTES:
-
-> :warning: **You also MUST cache routes by calling**: `php artisan route:cache`
 
 ## Models setup
 
@@ -137,3 +133,11 @@ You can include those in your existing schema:
 ## Flags resources
 
 Flags UTF-8 (e.g `en.json`) came from [EmojiTerra](https://emojiterra.com/flags/)
+
+## TODO
+
+- [ ] Order keys (alphanum)
+- [ ] Add order button on keys heading
+- [ ] Add search bar to filter keys
+- [ ] Add checkboxes to enable/disable display of locale
+- [ ] Add custom message/component when no locale is selected

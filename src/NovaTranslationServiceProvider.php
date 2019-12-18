@@ -2,10 +2,18 @@
 
 namespace BBSLab\NovaTranslation;
 
+use BBSLab\NovaTranslation\Http\Controllers\TranslatableResource\DestroyController;
+use BBSLab\NovaTranslation\Http\Controllers\TranslatableResource\StoreController;
+use BBSLab\NovaTranslation\Http\Controllers\TranslatableResource\UpdateController;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Observers\LocaleObserver;
+use BBSLab\NovaTranslation\Resources\Locale as LocaleResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Laravel\Nova\Http\Controllers\ResourceDestroyController;
+use Laravel\Nova\Http\Controllers\ResourceStoreController;
+use Laravel\Nova\Http\Controllers\ResourceUpdateController;
+use Laravel\Nova\Nova;
 
 class NovaTranslationServiceProvider extends BaseServiceProvider
 {
@@ -30,7 +38,16 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
         if ($this->isNovaInstalled()) {
             $this->app->booted(function () {
                 $this->bootRoutes();
+
+                $this->app->bind(ResourceStoreController::class, StoreController::class);
+                $this->app->bind(ResourceUpdateController::class, UpdateController::class);
+                $this->app->bind(ResourceDestroyController::class, DestroyController::class);
             });
+
+            if (config('nova-translation.use_default_locale_resource', false) === true) {
+                LocaleResource::$group = config('nova-translation.default_locale_resource_group');
+                Nova::resources([LocaleResource::class]);
+            }
 
             $this->serveNova();
         }
@@ -72,13 +89,6 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
         if ($this->app->routesAreCached()) {
             return;
         }
-
-        Route::middleware(['nova'])
-            ->namespace('BBSLab\NovaTranslation\Http\Controllers')
-            ->domain(config('nova.domain', null))
-            ->prefix('nova-api')
-            ->as('nova.api.')
-            ->group(__DIR__.'/../routes/nova.php');
 
         Route::middleware(['nova', \BBSLab\NovaTranslation\Http\Middleware\Authorize::class])
             ->prefix('nova-vendor/'.static::PACKAGE_ID)
