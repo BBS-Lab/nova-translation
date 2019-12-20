@@ -209,7 +209,12 @@
           }
         }
 
-        return matrix
+        let ordered = {}
+        Object.keys(matrix).sort().forEach((key) => {
+          ordered[key] = matrix[key];
+        });
+
+        return ordered
       },
     },
   }
