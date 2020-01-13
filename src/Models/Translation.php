@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property int $translation_id
  * @property int $translatable_id
  * @property string $translatable_type
+ * @property \BBSLab\NovaTranslation\Models\Locale $locale
  */
 class Translation extends Model
 {
@@ -60,5 +61,15 @@ class Translation extends Model
     public function translatable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Locale relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function locale()
+    {
+        return $this->belongsTo(Locale::class);
     }
 }
