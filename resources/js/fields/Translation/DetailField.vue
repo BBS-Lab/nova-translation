@@ -34,7 +34,7 @@
 
     methods: {
       viewLink(translation) {
-        return `<a class="no-underline" href="/resources/${this.resourceName}/${translation.translatable_id}"><span class="nova-translation--flag">${this.flag(this.field.locales[translation.locale_id])}</span></a>`
+        return `<a class="no-underline" href="${this.basePath()}/resources/${this.resourceName}/${translation.translatable_id}"><span class="nova-translation--flag">${this.flag(this.field.locales[translation.locale_id])}</span></a>`
       },
     },
   }
