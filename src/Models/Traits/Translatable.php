@@ -26,28 +26,13 @@ trait Translatable
     }
 
     /**
-     * Initialize a translatable model.
-     *
-     * @return void
-     */
-    public function initializeTranslatable()
-    {
-        if (! isset($this->nonTranslatable)) {
-            $this->nonTranslatable = [];
-        }
-        if (! isset($this->onCreateTranslatable)) {
-            $this->onCreateTranslatable = [];
-        }
-    }
-
-    /**
      * Get the list of non translatable fields.
      *
      * @return array
      */
     public function getNonTranslatable()
     {
-        return $this->nonTranslatable;
+        return isset($this->nonTranslatable) ? $this->nonTranslatable : [];
     }
 
     /**
@@ -58,7 +43,7 @@ trait Translatable
      */
     public function getOnCreateTranslatable()
     {
-        return ! empty($this->onCreateTranslatable) ? $this->onCreateTranslatable : $this->nonTranslatable;
+        return isset($this->onCreateTranslatable) ? $this->onCreateTranslatable : $this->getNonTranslatable();
     }
 
     /**
