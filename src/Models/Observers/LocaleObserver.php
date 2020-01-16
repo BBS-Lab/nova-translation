@@ -32,7 +32,7 @@ class LocaleObserver
 
             foreach ($query->cursor() as $instance) {
                 $data = [];
-                foreach ($instance->getNonTranslatable() as $field) {
+                foreach ($instance->getOnCreateTranslatable() as $field) {
                     $data[$field] = $instance->$field;
                 }
 

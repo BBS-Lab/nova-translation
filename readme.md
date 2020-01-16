@@ -49,7 +49,21 @@ php artisan migrate
  
  * `auto_synced_models` in config.php
  
- * ...
+ * Define `$nonTranslatable` attributes (attributes that will be overridden during in all translations during an entry update).
+ 
+ * Define `$onCreateTranslatable` attributes (attributes that will be copied during translations entry creation).
+ 
+ * If your using `michielkempen/nova-order-field` package you must override system in model with:
+ 
+```php
+/**
+ * {@inheritdoc}
+ */
+public function buildSortQuery()
+{
+    return static::query()->locale();
+}
+```
  
 ## Config Nova
 
@@ -81,6 +95,10 @@ public function tools()
 }
 ```
 
+### Nova resource
+
+Nova Resource MUST **extends** `BBSLab\NovaTranslation\Resources\TranslatableResource` to work.
+
 ### Locale resource
 
 And you can add the Locale [Nova](https://nova.laravel.com) Resource within your application:
@@ -108,7 +126,9 @@ class Locale extends BaseResource
 
 If your using [Lighthouse PHP](https://lighthouse-php.com) you can add some default Directive and endpoints for `Locale` and `Label`.
 
-### Directives `@translation` related
+### Directives `@allTranslations`, `@paginateTranslations`, `@firstTranslation` related
+
+Acting as similar `@all`, `@paginate`, `@first`.
 
 You need to add package Directives path to your lighthouse.php configuration file:
 
@@ -136,7 +156,6 @@ Flags UTF-8 (e.g `en.json`) came from [EmojiTerra](https://emojiterra.com/flags/
 
 ## TODO
 
-- [ ] Order keys (alphanum)
 - [ ] Add order button on keys heading
 - [ ] Add search bar to filter keys
 - [ ] Add checkboxes to enable/disable display of locale

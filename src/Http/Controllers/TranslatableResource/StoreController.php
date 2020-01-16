@@ -55,7 +55,7 @@ class StoreController extends ResourceStoreController
         $otherLocales = Locale::query()->select('id')->where('id', '!=', $currentLocale->id)->get();
         foreach ($otherLocales as $otherLocale) {
             $otherModel = $resource::newModel();
-            foreach ($model->getNonTranslatable() as $field) {
+            foreach ($model->getOnCreateTranslatable() as $field) {
                 $otherModel->$field = $model->$field;
             }
             $otherModel->save();

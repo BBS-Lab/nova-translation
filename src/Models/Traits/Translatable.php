@@ -35,6 +35,9 @@ trait Translatable
         if (! isset($this->nonTranslatable)) {
             $this->nonTranslatable = [];
         }
+        if (! isset($this->onCreateTranslatable)) {
+            $this->onCreateTranslatable = [];
+        }
     }
 
     /**
@@ -45,6 +48,17 @@ trait Translatable
     public function getNonTranslatable()
     {
         return $this->nonTranslatable;
+    }
+
+    /**
+     * Get the list of fields to duplicate on create.
+     * (Other fields MUST BE nullable in database)
+     *
+     * @return array
+     */
+    public function getOnCreateTranslatable()
+    {
+        return ! empty($this->onCreateTranslatable) ? $this->onCreateTranslatable : $this->nonTranslatable;
     }
 
     /**
