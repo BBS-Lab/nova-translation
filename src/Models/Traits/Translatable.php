@@ -52,7 +52,7 @@ trait Translatable
 
     /**
      * Get the list of fields to duplicate on create.
-     * (Other fields MUST BE nullable in database)
+     * (Other fields MUST BE nullable in database).
      *
      * @return array
      */
