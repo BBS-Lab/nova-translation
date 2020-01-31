@@ -2,13 +2,16 @@
 
 namespace BBSLab\NovaTranslation\Models\Traits;
 
-use BBSLab\NovaTranslation\Models\Locale;
+use BBSLab\NovaTranslation\Models\Observers\TranslatableObserver;
 use BBSLab\NovaTranslation\Models\Translation;
-use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Query\JoinClause;
 
 /**
  * @property \BBSLab\NovaTranslation\Models\Translation $translation
+ * @method static \Illuminate\Database\Eloquent\Builder locale(?string $iso = null)
  */
 trait Translatable
 {
@@ -17,12 +20,7 @@ trait Translatable
      */
     public static function bootTranslatable()
     {
-        static::deleted(function ($model) {
-            Translation::query()
-                ->where('translatable_id', '=', $model->getKey())
-                ->where('translatable_type', '=', get_class($model))
-                ->delete();
-        });
+        static::observe(TranslatableObserver::class);
     }
 
     /**
@@ -30,7 +28,7 @@ trait Translatable
      *
      * @return array
      */
-    public function getNonTranslatable()
+    public function getNonTranslatable(): array
     {
         return isset($this->nonTranslatable) ? $this->nonTranslatable : [];
     }
@@ -41,7 +39,7 @@ trait Translatable
      *
      * @return array
      */
-    public function getOnCreateTranslatable()
+    public function getOnCreateTranslatable(): array
     {
         return isset($this->onCreateTranslatable) ? $this->onCreateTranslatable : $this->getNonTranslatable();
     }
@@ -51,7 +49,7 @@ trait Translatable
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
-    public function translation()
+    public function translation(): MorphOne
     {
         return $this->morphOne(Translation::class, 'translatable');
     }
@@ -59,15 +57,15 @@ trait Translatable
     /**
      * Return current item translations.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Collection|self[]
      */
-    public function translations()
+    public function translations(): Collection
     {
         return static::query()
-            ->select($this->getTable().'.*', 'translations.locale_id', 'translations.translation_id')
-            ->join('translations', $this->getTable().'.'.$this->getKeyName(), '=', 'translations.translatable_id')
-            ->where('translations.translatable_type', '=', get_class($this))
-            ->where('translations.translation_id', '=', $this->translation->translation_id)
+            ->select($this->qualifyColumn('*'), 'translations.locale_id', 'translations.translation_id')
+            ->join('translations', $this->getQualifiedKeyName(), '=', 'translations.translatable_id')
+            ->where('translations.translatable_type', '=', static::class)
+            ->where($this->getQualifiedKeyName(), '<>', $this->getKey())
             ->get();
     }
 
@@ -75,21 +73,19 @@ trait Translatable
      * Create and return a translation entry for given locale ID.
      *
      * @param  int  $localeId
-     * @return \BBS\Nova\Translation\Models\Translation
+     * @param  int  $translationId
+     * @return \BBSLab\NovaTranslation\Models\Translation
      */
-    public function upsertTranslationEntry(int $localeId, int $translationId = 0)
+    public function upsertTranslationEntry(int $localeId, int $translationId = 0): Translation
     {
-        $data = [
-            'locale_id' => $localeId,
-            'translation_id' => ! empty($translationId) ? $translationId : $this->freshTranslationId(),
-            'translatable_id' => $this->getKey(),
-            'translatable_type' => get_class($this),
-        ];
-
-        $translation = Translation::query()->where($data)->first();
-        if (empty($translation)) {
-            $translation = Translation::query()->create($data);
-        }
+        /** @var \BBSLab\NovaTranslation\Models\Translation $translation */
+        $translation = Translation::query()
+            ->firstOrCreate([
+                'locale_id' => $localeId,
+                'translation_id' => ! empty($translationId) ? $translationId : $this->freshTranslationId(),
+                'translatable_id' => $this->getKey(),
+                'translatable_type' => static::class,
+            ]);
 
         return $translation;
     }
@@ -99,16 +95,13 @@ trait Translatable
      *
      * @return int
      */
-    public function freshTranslationId()
+    public function freshTranslationId(): int
     {
-        /** @var \BBSLab\NovaTranslation\Models\Translation $lastTranslation */
         $lastTranslation = Translation::query()
-            ->select('translation_id')
-            ->where('translatable_type', '=', get_class($this))
-            ->orderBy('translation_id', 'desc')
-            ->first();
+            ->where('translatable_type', '=', static::class)
+            ->max('translation_id') ?? 0;
 
-        return ! empty($lastTranslation) ? ($lastTranslation->translation_id + 1) : 1;
+        return $lastTranslation + 1;
     }
 
     /**
@@ -117,25 +110,17 @@ trait Translatable
      * @param  \Illuminate\Database\Eloquent\Builder  $builder
      * @param  string  $iso
      * @return \Illuminate\Database\Eloquent\Builder
-     * @throws \Exception
      */
-    public function scopeLocale(Builder $builder, string $iso = '')
+    public function scopeLocale(Builder $builder, string $iso = null)
     {
-        $iso = ! empty($iso) ? $iso : app()->getLocale();
-
-        /** @var \BBSLab\NovaTranslation\Models\Locale $locale */
-        $locale = Locale::query()->select('id')->where('iso', '=', $iso)->first();
-        if (empty($locale)) {
-            throw new Exception('Invalid locale provided in locale() scope "'.$iso.'"');
-        }
-
-        return $builder->join('translations', function ($join) use ($locale) {
-            $model = new static;
-
-            $join
-                ->on($model->getTable().'.'.$model->getKeyName(), '=', 'translations.translatable_id')
-                ->where('translations.translatable_type', '=', get_class($model))
-                ->where('translations.locale_id', '=', $locale->id);
-        });
+        return $builder->join('translations', function (JoinClause $join) {
+            $join->on($this->getQualifiedKeyName(), '=', 'translations.translatable_id')
+                ->where('translations.translatable_type', '=', static::class);
+        })
+            ->join('locales', function (JoinClause $join) use ($iso) {
+                $join->on('locales.id', '=', 'translations.locale_id')
+                    ->where('locales.iso', '=', $iso ?? app()->getLocale());
+            })
+            ->select($this->qualifyColumn('*'));
     }
 }

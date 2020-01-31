@@ -3,13 +3,14 @@
 namespace BBSLab\NovaTranslation\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
  * @property string $iso
  * @property string $label
  * @property int $fallback_id
- * @property \BBS\Nova\Translation\Models\Locale $fallback
+ * @property \BBSLab\NovaTranslation\Models\Locale $fallback
  * @property bool $available_in_api
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
@@ -56,10 +57,19 @@ class Locale extends Model
     /**
      * Locale fallback relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relationships\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function fallback()
+    public function fallback(): BelongsTo
     {
         return $this->belongsTo(static::class, 'fallback_id');
+    }
+
+    /**
+     * @param  string  $iso
+     * @return \BBSLab\NovaTranslation\Models\Locale|null
+     */
+    public static function iso(string $iso)
+    {
+        return static::query()->firstWhere('iso', '=', $iso);
     }
 }

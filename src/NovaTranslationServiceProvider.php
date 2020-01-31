@@ -38,10 +38,6 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
         if ($this->isNovaInstalled()) {
             $this->app->booted(function () {
                 $this->bootRoutes();
-
-                $this->app->bind(ResourceStoreController::class, StoreController::class);
-                $this->app->bind(ResourceUpdateController::class, UpdateController::class);
-                $this->app->bind(ResourceDestroyController::class, DestroyController::class);
             });
 
             if (config('nova-translation.use_default_locale_resource', false) === true) {
