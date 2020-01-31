@@ -2,17 +2,11 @@
 
 namespace BBSLab\NovaTranslation;
 
-use BBSLab\NovaTranslation\Http\Controllers\TranslatableResource\DestroyController;
-use BBSLab\NovaTranslation\Http\Controllers\TranslatableResource\StoreController;
-use BBSLab\NovaTranslation\Http\Controllers\TranslatableResource\UpdateController;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Observers\LocaleObserver;
 use BBSLab\NovaTranslation\Resources\Locale as LocaleResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-use Laravel\Nova\Http\Controllers\ResourceDestroyController;
-use Laravel\Nova\Http\Controllers\ResourceStoreController;
-use Laravel\Nova\Http\Controllers\ResourceUpdateController;
 use Laravel\Nova\Nova;
 
 class NovaTranslationServiceProvider extends BaseServiceProvider
