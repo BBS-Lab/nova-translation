@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property int $translatable_id
  * @property string $translatable_type
  * @property \BBSLab\NovaTranslation\Models\Locale $locale
+ * @property \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $translatable
  */
 class Translation extends Model
 {
