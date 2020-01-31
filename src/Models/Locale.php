@@ -69,7 +69,7 @@ class Locale extends Model
      * @param  string  $iso
      * @return \BBSLab\NovaTranslation\Models\Locale|null
      */
-    public static function iso(string $iso)
+    public static function havingIso(string $iso)
     {
         return static::query()->firstWhere('iso', '=', $iso);
     }

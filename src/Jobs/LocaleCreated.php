@@ -40,8 +40,9 @@ class LocaleCreated implements ShouldQueue
         }
 
         Translation::query()
-            ->select('translation_id', 'translatable_type', 'MIN(translatable_id) as translatable_id')
-            ->groupBy(['translatable_id', 'translatable_type'])
+            ->selectRaw('translation_id, translatable_type, MIN(translatable_id) as `translatable_id`')
+            ->whereIn('translatable_type', $models)
+            ->groupBy(['translation_id', 'translatable_type'])
             ->orderBy('translation_id')
             ->cursor()
             ->each(function (Translation $translation) {

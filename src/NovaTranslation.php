@@ -17,7 +17,7 @@ class NovaTranslation
      */
     public static function currentLocale(): Locale
     {
-        $locale = Locale::iso($iso = app()->getLocale());
+        $locale = Locale::havingIso($iso = app()->getLocale());
 
         if (empty($locale)) {
             throw new \Exception("No such locale [{$iso}]");
