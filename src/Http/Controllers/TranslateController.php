@@ -13,7 +13,7 @@ class TranslateController
     {
         $model = Nova::modelInstanceForKey($resource);
 
-        if (empty($model) || !($model instanceof IsTranslatable)) {
+        if (empty($model) || ! ($model instanceof IsTranslatable)) {
             return redirect()->back();
         }
 

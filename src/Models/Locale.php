@@ -108,6 +108,6 @@ class Locale extends Model
         $chunks = explode('-', $this->iso);
         $country = end($chunks);
 
-        return config('nova-translation.flags.'.$country) ??  config('nova-translation.flags.default');
+        return config('nova-translation.flags.'.$country) ?? config('nova-translation.flags.default');
     }
 }

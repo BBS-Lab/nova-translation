@@ -64,5 +64,5 @@ interface IsTranslatable
      * @param  \BBSLab\NovaTranslation\Models\Locale  $locale
      * @return \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable
      */
-    public function translate(Locale $locale): IsTranslatable;
+    public function translate(Locale $locale);
 }

@@ -5,7 +5,6 @@ namespace BBSLab\NovaTranslation\Http\Controllers;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\NovaTranslation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 
 class LocaleController
 {

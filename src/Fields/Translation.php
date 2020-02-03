@@ -4,10 +4,8 @@ namespace BBSLab\NovaTranslation\Fields;
 
 use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;
 use BBSLab\NovaTranslation\Models\Locale;
-use BBSLab\NovaTranslation\Models\Translation as TranslationModel;
 use BBSLab\NovaTranslation\NovaTranslation;
 use BBSLab\NovaTranslation\NovaTranslationServiceProvider;
-use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Fields\Field;
 
 class Translation extends Field
