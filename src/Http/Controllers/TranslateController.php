@@ -5,6 +5,7 @@ namespace BBSLab\NovaTranslation\Http\Controllers;
 use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;
 use BBSLab\NovaTranslation\Models\Locale;
 use Laravel\Nova\Nova;
+use Laravel\Nova\Resource;
 
 class TranslateController
 {
@@ -27,12 +28,29 @@ class TranslateController
         $translated = $model->translate($locale);
 
         return $translated
-            ? redirect(nova_resource_url(Nova::resourceForModel($translated), $translated->getKey()).'/edit')
+            ? redirect($this->redirectToResource($translated))
             : redirect()->back();
     }
 
     protected function errorPage(): string
     {
         return Nova::path().'/404';
+    }
+
+    protected function redirectToResource(IsTranslatable $translatable): string
+    {
+        $resource = Nova::resourceForModel($translatable);
+
+        if (! is_subclass_of($resource, Resource::class)) {
+            throw new \BadMethodCallException("{$resource} is not a valid Nova resource");
+        }
+
+        return implode('/', array_filter([
+            trim(Nova::path()),
+            'resources',
+            $resource::uriKey(),
+            $translatable->getKey(),
+            'edit',
+        ]));
     }
 }
