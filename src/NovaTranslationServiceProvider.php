@@ -2,11 +2,15 @@
 
 namespace BBSLab\NovaTranslation;
 
+use BBSLab\NovaTranslation\Http\Middleware\Authorize;
+use BBSLab\NovaTranslation\Http\View\Composers\LocaleComposer;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Observers\LocaleObserver;
 use BBSLab\NovaTranslation\Resources\Locale as LocaleResource;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Laravel\Nova\Events\ServingNova;
 use Laravel\Nova\Nova;
 
 class NovaTranslationServiceProvider extends BaseServiceProvider
@@ -53,6 +57,9 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', static::PACKAGE_ID);
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', static::PACKAGE_ID);
+        $this->loadViewsFrom(__DIR__.'/../resources/views', static::PACKAGE_ID);
+
+        View::composer(static::PACKAGE_ID.'::locale-dropdown', LocaleComposer::class);
 
         $this->publishes([
             __DIR__.'/../config/config.php' => config_path(static::PACKAGE_ID.'.php'),
@@ -80,7 +87,7 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
             return;
         }
 
-        Route::middleware(['nova', \BBSLab\NovaTranslation\Http\Middleware\Authorize::class])
+        Route::middleware(['nova', Authorize::class])
             ->prefix('nova-vendor/'.static::PACKAGE_ID)
             ->group(__DIR__.'/../routes/api.php');
     }
@@ -92,10 +99,10 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
      */
     protected function serveNova()
     {
-        \Laravel\Nova\Nova::serving(function (\Laravel\Nova\Events\ServingNova $event) {
+        Nova::serving(function (ServingNova $event) {
             $this->loadNovaTranslations();
 
-            \Laravel\Nova\Nova::provideToScript([
+            Nova::provideToScript([
                 'locale' => app()->getLocale(),
             ]);
         });

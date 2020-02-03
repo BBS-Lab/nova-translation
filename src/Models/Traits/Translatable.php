@@ -2,12 +2,16 @@
 
 namespace BBSLab\NovaTranslation\Models\Traits;
 
+use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;
+use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Observers\TranslatableObserver;
 use BBSLab\NovaTranslation\Models\Translation;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @property \BBSLab\NovaTranslation\Models\Translation $translation
@@ -63,7 +67,15 @@ trait Translatable
     {
         return static::query()
             ->select($this->qualifyColumn('*'), 'translations.locale_id', 'translations.translation_id')
+            ->with('translation')
             ->join('translations', $this->getQualifiedKeyName(), '=', 'translations.translatable_id')
+            ->whereExists(function (QueryBuilder $query) {
+                return $query->select(DB::raw(1))
+                    ->from('translations as t')
+                    ->whereRaw('t.translation_id = translations.translation_id')
+                    ->where('t.translatable_type', '=', static::class)
+                    ->where('t.translatable_id', '=', $this->getKey());
+            })
             ->where('translations.translatable_type', '=', static::class)
             ->where($this->getQualifiedKeyName(), '<>', $this->getKey())
             ->get();
@@ -111,7 +123,7 @@ trait Translatable
      * @param  string  $iso
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeLocale(Builder $builder, string $iso = null)
+    public function scopeLocale(EloquentBuilder $builder, string $iso = null)
     {
         return $builder->join('translations', function (JoinClause $join) {
             $join->on($this->getQualifiedKeyName(), '=', 'translations.translatable_id')
@@ -122,5 +134,31 @@ trait Translatable
                     ->where('locales.iso', '=', $iso ?? app()->getLocale());
             })
             ->select($this->qualifyColumn('*'));
+    }
+
+    /**
+     * Translate model to given locale and return translated model.
+     *
+     * @param  \BBSLab\NovaTranslation\Models\Locale  $locale
+     * @return \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable
+     */
+    public function translate(Locale $locale): IsTranslatable
+    {
+        /** @var \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $translated */
+        $translated = $this->translations()->first(function (IsTranslatable $translatable) use ($locale) {
+            return $translatable->translation->locale_id === $locale->getKey();
+        });
+
+        return $translated ?? static::withoutEvents(function () use ($locale) {
+            /** @var self $translated */
+            $translated = $this->newQuery()->create(
+                $this->only(
+                    $this->getOnCreateTranslatable()
+                )
+            );
+            $translated->upsertTranslationEntry($locale->getKey(), $this->translation->translation_id);
+
+            return $translated;
+        });
     }
 }

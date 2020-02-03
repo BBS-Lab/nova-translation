@@ -11,6 +11,16 @@ class NovaTranslation
     const LOCALES_CACHE_KEY = 'nova-translation-locales';
 
     /**
+     * Forget caches locales.
+     *
+     * @return void
+     */
+    public static function forgetLocales(): void
+    {
+        Cache::forget(static::LOCALES_CACHE_KEY);
+    }
+
+    /**
      * @return \BBSLab\NovaTranslation\Models\Locale
      *
      * @throws \Exception
@@ -55,5 +65,13 @@ class NovaTranslation
     public static function translatableModels(): array
     {
         return config(NovaTranslationServiceProvider::PACKAGE_ID.'.auto_synced_models', []) ?? [];
+    }
+
+    /**
+     * @return string
+     */
+    public static function localeSessionKey(): string
+    {
+        return config('nova-translation.locale_session_key');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace BBSLab\NovaTranslation\Models\Contracts;
 
+use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Translation;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -56,4 +57,12 @@ interface IsTranslatable
      * @return int
      */
     public function freshTranslationId(): int;
+
+    /**
+     * Translate model to given locale and return translated model.
+     *
+     * @param  \BBSLab\NovaTranslation\Models\Locale  $locale
+     * @return \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable
+     */
+    public function translate(Locale $locale): IsTranslatable;
 }

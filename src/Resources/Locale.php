@@ -61,6 +61,10 @@ class Locale extends Resource
         return [
             ID::make()->sortable(),
 
+            Text::make('Flag', 'flag')
+                ->exceptOnForms()
+                ->withMeta(['indexName' => '']),
+
             Text::make(trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.locales.iso'), 'iso')
                 ->sortable()
                 ->rules('required', 'max:255')

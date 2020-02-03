@@ -2,40 +2,62 @@
   <div class="border-b border-40">
     <div class="py-2 flex items-center justify-between" v-if="field.value">
       <div>
-        <span class="text-4xl" v-html="trans(`Flag ${field.locales[field.value.locale_id].iso.toUpperCase()}`)"/>
+        <span class="text-4xl" v-html="field.locales[field.value.locale_id].flag"/>
       </div>
       <div class="flex items-center text-right">
         <div
           class="inline-block ml-2"
-          v-for="translation in field.translations" :key="`translation_${translation.locale_id}`"
-          v-html="viewLink(translation)" v-if="translation.locale_id !== field.value.locale_id"
-        />
+          v-for="otherLocale in otherLocales"
+          :key="`locale_${otherLocale.id}`"
+        >
+          <router-link
+            v-if="isTranslated[otherLocale.id]"
+            class="inline-flex cursor-pointer no-underline text-3xl"
+            :to="{
+                name: 'detail',
+                params: {
+                  resourceName,
+                  resourceId: translations[otherLocale.id].translatable_id,
+                },
+              }"
+            :title="__('View')"
+          >
+              <span class="nova-translation--flag">
+                {{ otherLocale.flag }}
+              </span>
+          </router-link>
+          <create-translation-link
+            v-else
+            :resource-name="resourceName"
+            :resource-id="resourceId"
+            :target-locale="otherLocale"
+          />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-  import I18nMixin from '../../mixins/I18n'
-  import TranslationMixin from '../../mixins/Translation'
+import I18nMixin from '../../mixins/I18n'
+import TranslationMixin from '../../mixins/Translation'
+import CreateTranslationLink from './CreateTranslationLink'
 
-  export default {
-    mixins: [
-      I18nMixin,
-      TranslationMixin,
-    ],
+export default {
+  components: {
+    CreateTranslationLink,
+  },
 
-    props: [
-      'field',
-      'resource',
-      'resourceId',
-      'resourceName',
-    ],
+  mixins: [
+    I18nMixin,
+    TranslationMixin,
+  ],
 
-    methods: {
-      viewLink(translation) {
-        return `<a class="no-underline" href="${this.basePath()}/resources/${this.resourceName}/${translation.translatable_id}"><span class="nova-translation--flag">${this.flag(this.field.locales[translation.locale_id])}</span></a>`
-      },
-    },
-  }
+  props: [
+    'field',
+    'resource',
+    'resourceId',
+    'resourceName',
+  ],
+}
 </script>

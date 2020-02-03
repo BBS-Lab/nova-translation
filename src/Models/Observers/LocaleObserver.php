@@ -5,7 +5,7 @@ namespace BBSLab\NovaTranslation\Models\Observers;
 use BBSLab\NovaTranslation\Jobs\LocaleCreated;
 use BBSLab\NovaTranslation\Jobs\LocaleDeleted;
 use BBSLab\NovaTranslation\Models\Locale;
-use BBSLab\NovaTranslation\NovaTranslationServiceProvider;
+use BBSLab\NovaTranslation\NovaTranslation;
 
 class LocaleObserver
 {
@@ -28,16 +28,18 @@ class LocaleObserver
      */
     public function deleted(Locale $locale)
     {
+        NovaTranslation::forgetLocales();
         LocaleDeleted::dispatch($locale);
     }
 
     /**
-     * Return list of translated models.
+     * Handle the Locale "saved" event.
      *
-     * @return array
+     * @param  \BBSLab\NovaTranslation\Models\Locale  $locale
+     * @return void
      */
-    protected function translatableModels()
+    public function saved(Locale $locale)
     {
-        return config(NovaTranslationServiceProvider::PACKAGE_ID.'.auto_synced_models');
+        NovaTranslation::forgetLocales();
     }
 }

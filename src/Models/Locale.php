@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $fallback_id
  * @property \BBSLab\NovaTranslation\Models\Locale $fallback
  * @property bool $available_in_api
+ * @property string $flag
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder availableInApi(array $args = [])
@@ -40,6 +41,13 @@ class Locale extends Model
         'fallback_id' => 'integer',
         'available_in_api' => 'boolean',
     ];
+
+    protected $appends = ['flag'];
+
+    /**
+     * @var \Callable|null
+     */
+    public static $flagResolver;
 
     /**
      * Scope a query to only include locales available in API.
@@ -72,5 +80,34 @@ class Locale extends Model
     public static function havingIso(string $iso)
     {
         return static::query()->firstWhere('iso', '=', $iso);
+    }
+
+    /**
+     * Flag attribute accessor.
+     *
+     * @return string|null
+     */
+    public function getFlagAttribute(): ?string
+    {
+        if (! isset($this->attributes['flag'])) {
+            $this->attributes['flag'] = static::$flagResolver
+                ? call_user_func(static::$flagResolver, $this)
+                : $this->resolveFlag();
+        }
+
+        return $this->attributes['flag'];
+    }
+
+    /**
+     * Resolve flag using default behaviour.
+     *
+     * @return string|null
+     */
+    protected function resolveFlag(): ?string
+    {
+        $chunks = explode('-', $this->iso);
+        $country = end($chunks);
+
+        return config('nova-translation.flags.'.$country) ??  config('nova-translation.flags.default');
     }
 }
