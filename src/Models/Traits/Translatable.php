@@ -142,7 +142,7 @@ trait Translatable
      * @param  \BBSLab\NovaTranslation\Models\Locale  $locale
      * @return \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable
      */
-    public function translate(Locale $locale): IsTranslatable
+    public function translate(Locale $locale)
     {
         /** @var \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $translated */
         $translated = $this->translations()->first(function (IsTranslatable $translatable) use ($locale) {
