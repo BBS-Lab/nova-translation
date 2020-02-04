@@ -76,5 +76,19 @@ class TranslatableObserver
             ->where('translation_id', '=', $translatable->translation->translation_id)
             ->where('locale_id', '=', $translatable->translation->locale_id)
             ->delete();
+
+        if (! in_array(get_class($translatable), NovaTranslation::translatableModels())) {
+            return;
+        }
+
+        // Prevent deleted translation to delete other translations again.
+        if ($translatable->deleting_translation) {
+            return;
+        }
+
+        $translatable->translations()->each(function (IsTranslatable $translatable) {
+            $translatable->deleting_translation = true;
+            $translatable->delete();
+        });
     }
 }

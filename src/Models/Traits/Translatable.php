@@ -69,13 +69,7 @@ trait Translatable
             ->select($this->qualifyColumn('*'), 'translations.locale_id', 'translations.translation_id')
             ->with('translation')
             ->join('translations', $this->getQualifiedKeyName(), '=', 'translations.translatable_id')
-            ->whereExists(function (QueryBuilder $query) {
-                return $query->select(DB::raw(1))
-                    ->from('translations as t')
-                    ->whereRaw('t.translation_id = translations.translation_id')
-                    ->where('t.translatable_type', '=', static::class)
-                    ->where('t.translatable_id', '=', $this->getKey());
-            })
+            ->where('translations.translation_id', '=', optional($this->translation)->translation_id)
             ->where('translations.translatable_type', '=', static::class)
             ->where($this->getQualifiedKeyName(), '<>', $this->getKey())
             ->get();
