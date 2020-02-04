@@ -1,34 +1,50 @@
 <template>
   <div class="nova-translation-field_index" v-if="field.value">
-    <div v-for="locale in field.locales" :key="`translation_${locale.id}`" v-html="viewLink(locale)" v-if="locale.id !== field.value.locale_id"/>
+    <div
+      v-for="otherLocale in otherLocales"
+      :key="`translation_${otherLocale.id}`"
+    >
+      <router-link
+        v-if="isTranslated[otherLocale.id]"
+        class="inline-flex cursor-pointer no-underline text-3xl"
+        :to="{
+          name: 'detail',
+          params: {
+            resourceName,
+            resourceId: translations[otherLocale.id].translatable_id,
+          },
+        }"
+        :title="__('View')"
+      >
+        <span class="nova-translation--flag">
+          {{ otherLocale.flag }}
+        </span>
+      </router-link>
+    </div>
   </div>
 </template>
 
 <script>
-  import I18nMixin from '../../mixins/I18n'
-  import TranslationMixin from '../../mixins/Translation'
+import I18nMixin from '../../mixins/I18n'
+import TranslationMixin from '../../mixins/Translation'
+import CreateTranslationLink from './CreateTranslationLink'
 
-  export default {
-    mixins: [
-      I18nMixin,
-      TranslationMixin,
-    ],
+export default {
+  components: {
+    CreateTranslationLink,
+  },
 
-    props: [
-      'field',
-      'resourceName',
-    ],
+  mixins: [
+    I18nMixin,
+    TranslationMixin,
+  ],
 
-    mounted() {
-      //
-    },
-
-    methods: {
-      viewLink(locale) {
-        return `<a href="${this.basePath()}/resources/${this.resourceName}/${this.field.translations[locale.id].translatable_id}"><span class="nova-translation--flag">${this.flag(locale)}</span></a>`
-      },
-    },
-  }
+  props: [
+    'field',
+    'resourceName',
+    'resourceId',
+  ],
+}
 </script>
 
 <style lang="scss">

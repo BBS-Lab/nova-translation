@@ -2,6 +2,7 @@
 
 namespace BBSLab\NovaTranslation\Models;
 
+use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -11,9 +12,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $value
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
- * @mixin \BBS\Nova\Translation\Models\Traits\Translatable
  */
-class Label extends Model
+class Label extends Model implements IsTranslatable
 {
     use Traits\Translatable;
 

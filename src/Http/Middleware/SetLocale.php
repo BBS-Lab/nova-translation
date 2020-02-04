@@ -3,6 +3,7 @@
 namespace BBSLab\NovaTranslation\Http\Middleware;
 
 use BBSLab\NovaTranslation\Models\Locale;
+use BBSLab\NovaTranslation\NovaTranslation;
 use Illuminate\Support\Facades\Session;
 
 class SetLocale
@@ -16,20 +17,20 @@ class SetLocale
      */
     public function handle($request, $next)
     {
-        if (Session::has('nova_locale')) {
-            $locale = Session::get('nova_locale');
+        if (Session::has(NovaTranslation::localeSessionKey())) {
+            app()->setLocale(
+                Session::get(NovaTranslation::localeSessionKey())
+            );
         } else {
-            $browserLocale = substr($request->server('HTTP_ACCEPT_LANGUAGE'), 0, 2);
-            $databaseLocale = Locale::query()->select('id')->where('iso', '=', $browserLocale)->first();
-            if (! empty($databaseLocale)) {
-                $locale = $browserLocale;
-            } else {
-                $locale = config('app.locale');
-            }
-            Session::put('nova_locale', $locale);
-        }
+            $browserLocale = Locale::havingIso(
+                $request->server('HTTP_ACCEPT_LANGUAGE')
+            );
 
-        app()->setLocale($locale);
+            $locale = $browserLocale ? $browserLocale->iso : config('app.locale');
+            Session::put(NovaTranslation::localeSessionKey(), $locale);
+
+            app()->setLocale($locale);
+        }
 
         return $next($request);
     }
