@@ -106,7 +106,7 @@ class Locale extends Model
     protected function resolveFlag(): ?string
     {
         $chunks = explode('-', $this->iso);
-        $country = end($chunks);
+        $country = strtoupper(end($chunks));
 
         return config('nova-translation.flags.'.$country) ?? config('nova-translation.flags.default');
     }
