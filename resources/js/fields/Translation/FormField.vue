@@ -36,11 +36,7 @@ export default {
   computed: {
     isCreate() {
       return this.$route && this.$route.name && this.$route.name === 'create'
-
     },
-    locale() {
-      return Nova.config.locale
-    }
   },
 
   methods: {
