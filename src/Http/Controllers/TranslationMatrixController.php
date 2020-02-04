@@ -87,11 +87,13 @@ class TranslationMatrixController
         $translationId = ! empty($keyTranslation) ? $keyTranslation->translation_id : (new Label)->freshTranslationId();
 
         /** @var \BBSLab\NovaTranslation\Models\Label $label */
-        $label = Label::query()->create([
-            'type' => $data['type'],
-            'key' => $data['key'],
-            'value' => ! empty($data['value']) ? $data['value'] : '',
-        ]);
+        $label = Label::withoutEvents(function () use ($data) {
+            return Label::query()->create([
+                'type' => $data['type'],
+                'key' => $data['key'],
+                'value' => ! empty($data['value']) ? $data['value'] : '',
+            ]);
+        });
 
         $label->upsertTranslationEntry($data['locale_id'], $translationId);
     }
