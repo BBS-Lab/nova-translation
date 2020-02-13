@@ -15,7 +15,14 @@
           <thead>
             <tr class="p-3">
               <th></th>
-              <th v-for="locale in locales" :key="locale.id">{{ locale.label }}</th>
+              <th v-for="locale in locales" :key="locale.id">
+                {{ locale.label }}
+                <a :href="`/nova-vendor/nova-translation/translation-matrix/export-locale?locale=${locale.iso}`" :title="trans('Download')" class="btn btn-link text-80">
+                  <svg class="fill-current h-4 w-4" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M11 14.59V3a1 1 0 0 1 2 0v11.59l3.3-3.3a1 1 0 0 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 0 1 1.4-1.42l3.3 3.3zM3 17a1 1 0 0 1 2 0v3h14v-3a1 1 0 0 1 2 0v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3z"/>
+                  </svg>
+                </a>
+              </th>
               <th></th>
             </tr>
           </thead>

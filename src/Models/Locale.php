@@ -4,6 +4,8 @@ namespace BBSLab\NovaTranslation\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
@@ -79,7 +81,9 @@ class Locale extends Model
      */
     public static function havingIso(string $iso)
     {
-        return static::query()->firstWhere('iso', '=', $iso);
+        $iso = DB::connection()->getPdo()->quote(Str::lower($iso));
+
+        return static::query()->whereRaw('LOWER(`iso`) = '.$iso)->first();
     }
 
     /**

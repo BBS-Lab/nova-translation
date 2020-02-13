@@ -6,6 +6,8 @@ use BBSLab\NovaTranslation\Http\Controllers\TranslationMatrixController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'translation-matrix'], function () {
+    Route::get('/export-locale', [TranslationMatrixController::class, 'exportLocale']);
+
     Route::post('/', [TranslationMatrixController::class, 'save']);
     Route::get('/', [TranslationMatrixController::class, 'index']);
 });

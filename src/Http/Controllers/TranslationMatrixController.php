@@ -22,7 +22,7 @@ class TranslationMatrixController
     {
         $labels = $this->labels();
 
-        $locales = Locale::query()->select('id', 'label')->get();
+        $locales = Locale::query()->select('id', 'iso', 'label')->get();
 
         $cloudinary = $this->cloudinaryMeta();
 
@@ -52,6 +52,30 @@ class TranslationMatrixController
         return response()->json([
             'labels' => $labels,
         ], 200);
+    }
+
+    /**
+     * Download labels in JSON key-value format for given locale.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function exportLocale(Request $request)
+    {
+        $locale = $request->input('locale', app()->getLocale());
+
+        $json = Label::query()
+            ->select('key', 'value')
+            ->locale($locale)
+            ->orderBy('key', 'asc')
+            ->get()
+            ->pluck('value', 'key')
+            ->toArray();
+
+        $path = storage_path('app/labels_'.$locale.'.json');
+        file_put_contents($path, json_encode($json, JSON_PRETTY_PRINT));
+
+        return response()->download($path, $locale.'.json');
     }
 
     /**
