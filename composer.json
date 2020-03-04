@@ -22,9 +22,9 @@
     "php": "^7.2",
     "ext-json": "*",
     "bbs-lab/nova-cloudinary-field": "dev-master",
-    "illuminate/contracts": "^6.2",
-    "illuminate/database": "^6.2",
-    "illuminate/support": "^6.2"
+    "illuminate/contracts": "^6.2 || ^7.0",
+    "illuminate/database": "^6.2 || ^7.0",
+    "illuminate/support": "^6.2 || ^7.0"
   },
   "autoload": {
     "classmap": [
