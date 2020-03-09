@@ -74,6 +74,20 @@ trait Translatable
     }
 
     /**
+     * Return current item translation models.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection|\BBSLab\NovaTranslation\Models\Translation[]
+     */
+    public function translationModels(): Collection
+    {
+        return Translation::query()
+            ->where('translation_id', '=', optional($this->translation)->translation_id)
+            ->where('translatable_type', '=', static::class)
+            ->where('translatable_id', '<>', $this->getKey())
+            ->get();
+    }
+
+    /**
      * Create and return a translation entry for given locale ID.
      *
      * @param  int  $localeId

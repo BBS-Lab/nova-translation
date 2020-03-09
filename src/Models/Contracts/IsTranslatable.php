@@ -43,6 +43,13 @@ interface IsTranslatable
     public function translations(): Collection;
 
     /**
+     * Return current item translation models.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection|\BBSLab\NovaTranslation\Models\Translation[]
+     */
+    public function translationModels(): Collection;
+
+    /**
      * Create and return a translation entry for given locale ID.
      *
      * @param  int  $localeId

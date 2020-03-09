@@ -4,6 +4,7 @@ namespace BBSLab\NovaTranslation\Fields;
 
 use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;
 use BBSLab\NovaTranslation\Models\Locale;
+use BBSLab\NovaTranslation\Models\Translation as TranslationModel;
 use BBSLab\NovaTranslation\NovaTranslation;
 use BBSLab\NovaTranslation\NovaTranslationServiceProvider;
 use Laravel\Nova\Fields\Field;
@@ -37,11 +38,15 @@ class Translation extends Field
      */
     public function resolve($resource, $attribute = null)
     {
+        if ($this->value !== null) {
+            return;
+        }
+
         $this->withMeta([
-            'translations' => $resource instanceof IsTranslatable ? $this->translations($resource) : [],
+            'translations' => $translations = $resource instanceof IsTranslatable ? $this->translations($resource) : [],
         ]);
 
-        parent::resolve($resource, $attribute);
+        $this->value = $translations;
     }
 
     /**
@@ -65,9 +70,9 @@ class Translation extends Field
      */
     protected function translations(IsTranslatable $resource)
     {
-        return $resource->translations()->mapWithKeys(function (IsTranslatable $translatable) {
+        return $resource->translationModels()->mapWithKeys(function (TranslationModel $translation) {
             return [
-                $translatable->translation->locale_id => $translatable->translation->toArray(),
+                $translation->locale_id => $translation->toArray(),
             ];
         })->toArray();
     }
