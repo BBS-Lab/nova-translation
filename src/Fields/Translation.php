@@ -38,15 +38,11 @@ class Translation extends Field
      */
     public function resolve($resource, $attribute = null)
     {
-        if ($this->value !== null) {
-            return;
-        }
-
         $this->withMeta([
-            'translations' => $translations = $resource instanceof IsTranslatable ? $this->translations($resource) : [],
+            'translations' => $resource instanceof IsTranslatable ? $this->translations($resource) : [],
         ]);
 
-        $this->value = $translations;
+        parent::resolve($resource, $attribute);
     }
 
     /**
@@ -70,7 +66,7 @@ class Translation extends Field
      */
     protected function translations(IsTranslatable $resource)
     {
-        return $resource->translationModels()->mapWithKeys(function (TranslationModel $translation) {
+        return $resource->translations->mapWithKeys(function (TranslationModel $translation) {
             return [
                 $translation->locale_id => $translation->toArray(),
             ];

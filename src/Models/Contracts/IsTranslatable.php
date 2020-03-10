@@ -4,12 +4,14 @@ namespace BBSLab\NovaTranslation\Models\Contracts;
 
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Translation;
-use Illuminate\Database\Eloquent\Collection;
+use BBSLab\NovaTranslation\Models\TranslationRelation;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 /**
  * @mixin \Illuminate\Database\Eloquent\Model
  * @property \BBSLab\NovaTranslation\Models\Translation $translation
+ * @property \Illuminate\Database\Eloquent\Collection|\BBSLab\NovaTranslation\Models\Translation[] $translations
+ * @property bool $_deleting_translation
  */
 interface IsTranslatable
 {
@@ -38,16 +40,9 @@ interface IsTranslatable
     /**
      * Return current item translations.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return \BBSLab\NovaTranslation\Models\TranslationRelation
      */
-    public function translations(): Collection;
-
-    /**
-     * Return current item translation models.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection|\BBSLab\NovaTranslation\Models\Translation[]
-     */
-    public function translationModels(): Collection;
+    public function translations(): TranslationRelation;
 
     /**
      * Create and return a translation entry for given locale ID.
@@ -72,4 +67,18 @@ interface IsTranslatable
      * @return \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable
      */
     public function translate(Locale $locale);
+
+    /**
+     * Set deleting translation state.
+     *
+     * @return void
+     */
+    public function deletingTranslation(): void;
+
+    /**
+     * Determine is the model currently in a delete translation process.
+     *
+     * @return bool
+     */
+    public function isDeletingTranslation(): bool;
 }
