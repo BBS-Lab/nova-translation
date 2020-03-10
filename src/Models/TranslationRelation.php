@@ -31,7 +31,7 @@ class TranslationRelation extends Relation
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function addConstraints()
     {
@@ -50,7 +50,7 @@ class TranslationRelation extends Relation
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function addEagerConstraints(array $models)
     {
@@ -69,7 +69,7 @@ class TranslationRelation extends Relation
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function initRelation(array $models, $relation)
     {
@@ -82,7 +82,7 @@ class TranslationRelation extends Relation
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function match(array $models, Collection $results, $relation)
     {
@@ -105,7 +105,7 @@ class TranslationRelation extends Relation
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getResults()
     {
