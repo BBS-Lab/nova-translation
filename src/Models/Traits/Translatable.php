@@ -2,21 +2,23 @@
 
 namespace BBSLab\NovaTranslation\Models\Traits;
 
-use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Observers\TranslatableObserver;
 use BBSLab\NovaTranslation\Models\Translation;
+use BBSLab\NovaTranslation\Models\TranslationRelation;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Query\JoinClause;
 
 /**
  * @property \BBSLab\NovaTranslation\Models\Translation $translation
+ * @property \Illuminate\Database\Eloquent\Collection|\BBSLab\NovaTranslation\Models\Translation[] $translations
  * @method static \Illuminate\Database\Eloquent\Builder locale(?string $iso = null)
  */
 trait Translatable
 {
+    protected $_deleting_translation = false;
+
     /**
      * {@inheritdoc}
      */
@@ -59,18 +61,11 @@ trait Translatable
     /**
      * Return current item translations.
      *
-     * @return \Illuminate\Database\Eloquent\Collection|self[]
+     * @return \BBSLab\NovaTranslation\Models\TranslationRelation
      */
-    public function translations(): Collection
+    public function translations(): TranslationRelation
     {
-        return static::query()
-            ->select($this->qualifyColumn('*'), 'translations.locale_id', 'translations.translation_id')
-            ->with('translation')
-            ->join('translations', $this->getQualifiedKeyName(), '=', 'translations.translatable_id')
-            ->where('translations.translation_id', '=', optional($this->translation)->translation_id)
-            ->where('translations.translatable_type', '=', static::class)
-            ->where($this->getQualifiedKeyName(), '<>', $this->getKey())
-            ->get();
+        return new TranslationRelation($this);
     }
 
     /**
@@ -137,9 +132,12 @@ trait Translatable
     public function translate(Locale $locale)
     {
         /** @var \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $translated */
-        $translated = $this->translations()->first(function (IsTranslatable $translatable) use ($locale) {
-            return $translatable->translation->locale_id === $locale->getKey();
-        });
+        $translated = optional(
+            $this->translations()
+                ->where('locale_id', '=', $locale->getKey())
+                ->with('translatable')
+                ->first()
+        )->translatable;
 
         return $translated ?? static::withoutEvents(function () use ($locale) {
             /** @var self $translated */
@@ -152,5 +150,25 @@ trait Translatable
 
             return $translated;
         });
+    }
+
+    /**
+     * Set deleting translation state.
+     *
+     * @return void
+     */
+    public function deletingTranslation(): void
+    {
+        $this->_deleting_translation = true;
+    }
+
+    /**
+     * Determine is the model currently in a delete translation process.
+     *
+     * @return bool
+     */
+    public function isDeletingTranslation(): bool
+    {
+        return $this->_deleting_translation;
     }
 }

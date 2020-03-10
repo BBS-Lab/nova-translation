@@ -55,9 +55,8 @@ class TranslatableObserver
         );
 
         $translatable::withoutEvents(function () use ($translatable, $attributes) {
-            $translatable->translations()->each(function ($model) use ($translatable, $attributes) {
-                /** @var \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $model */
-                $model->update($attributes);
+            $translatable->translations->each(function (Translation $translation) use ($translatable, $attributes) {
+                $translation->translatable->update($attributes);
             });
         });
     }
@@ -82,12 +81,13 @@ class TranslatableObserver
         }
 
         // Prevent deleted translation to delete other translations again.
-        if ($translatable->deleting_translation) {
+        if ($translatable->isDeletingTranslation()) {
             return;
         }
 
-        $translatable->translations()->each(function (IsTranslatable $translatable) {
-            $translatable->deleting_translation = true;
+        $translatable->translations->each(function (Translation $translation) {
+            $translatable = $translation->translatable;
+            $translatable->deletingTranslation();
             $translatable->delete();
         });
     }
