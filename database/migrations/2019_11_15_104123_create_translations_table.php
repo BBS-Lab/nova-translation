@@ -18,6 +18,7 @@ class CreateTranslationsTable extends Migration
             $table->unsignedInteger('translation_id');
             $table->unsignedInteger('translatable_id');
             $table->string('translatable_type');
+            $table->unsignedInteger('translatable_source');
 
             $table->primary(['locale_id', 'translation_id', 'translatable_id', 'translatable_type'], 'translations_pk');
             $table->index(['translatable_id', 'translatable_type', 'locale_id'], 'scopable_idx');

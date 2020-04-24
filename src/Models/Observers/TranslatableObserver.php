@@ -20,7 +20,7 @@ class TranslatableObserver
     {
         $translation = $translatable->upsertTranslationEntry(
             ($currentLocale = NovaTranslation::currentLocale())->getKey(),
-            0
+            $translatable->getKey()
         );
 
         if (! in_array(get_class($translatable), NovaTranslation::translatableModels())) {
@@ -37,7 +37,9 @@ class TranslatableObserver
             ) {
                 /** @var \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $model */
                 $model = $translatable->query()->create($attributes);
-                $model->upsertTranslationEntry($locale->getkey(), $translation->translation_id);
+                $model->upsertTranslationEntry(
+                    $locale->getkey(), $translatable->getKey(), $translation->translation_id
+                );
             });
         });
     }
@@ -72,6 +74,7 @@ class TranslatableObserver
         Translation::query()
             ->where('translatable_id', '=', $translatable->translation->translatable_id)
             ->where('translatable_type', '=', $translatable->translation->translatable_type)
+            ->where('translatable_source', '=', $translatable->translation->translatable_source)
             ->where('translation_id', '=', $translatable->translation->translation_id)
             ->where('locale_id', '=', $translatable->translation->locale_id)
             ->delete();

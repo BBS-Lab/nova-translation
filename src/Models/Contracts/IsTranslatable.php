@@ -48,10 +48,11 @@ interface IsTranslatable
      * Create and return a translation entry for given locale ID.
      *
      * @param  int  $localeId
+     * @param  int  $sourceId
      * @param  int  $translationId
      * @return \BBSLab\NovaTranslation\Models\Translation
      */
-    public function upsertTranslationEntry(int $localeId, int $translationId = 0): Translation;
+    public function upsertTranslationEntry(int $localeId, int $sourceId, int $translationId = 0): Translation;
 
     /**
      * Return next fresh translation ID.
