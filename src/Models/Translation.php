@@ -40,15 +40,6 @@ class Translation extends Model
     ];
 
     /**
-     * {@inheritdoc}
-     */
-    protected $casts = [
-        'locale_id' => 'integer',
-        'translation_id' => 'integer',
-        'translatable_id' => 'integer',
-    ];
-
-    /**
      * Translatable polymorphic relationship.
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo

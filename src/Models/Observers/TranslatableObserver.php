@@ -68,16 +68,12 @@ class TranslatableObserver
      *
      * @param  \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable  $translatable
      * @return void
+     * @throws \Exception
      */
     public function deleted(IsTranslatable $translatable)
     {
-        Translation::query()
-            ->where('translatable_id', '=', $translatable->translation->translatable_id)
-            ->where('translatable_type', '=', $translatable->translation->translatable_type)
-            ->where('translatable_source', '=', $translatable->translation->translatable_source)
-            ->where('translation_id', '=', $translatable->translation->translation_id)
-            ->where('locale_id', '=', $translatable->translation->locale_id)
-            ->delete();
+        $translatable->load('translations');
+        $translatable->translation->delete();
 
         if (! in_array(get_class($translatable), NovaTranslation::translatableModels())) {
             return;
