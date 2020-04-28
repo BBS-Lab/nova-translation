@@ -4,9 +4,12 @@ namespace BBSLab\NovaTranslation\Models\Traits;
 
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Observers\TranslatableObserver;
+use BBSLab\NovaTranslation\Models\Relations\BelongsToMany;
 use BBSLab\NovaTranslation\Models\Translation;
 use BBSLab\NovaTranslation\Models\TranslationRelation;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Query\JoinClause;
 
@@ -18,6 +21,7 @@ use Illuminate\Database\Query\JoinClause;
 trait Translatable
 {
     protected $_deleting_translation = false;
+    protected $_translating_relation = false;
 
     /**
      * {@inheritdoc}
@@ -175,5 +179,25 @@ trait Translatable
     public function isDeletingTranslation(): bool
     {
         return $this->_deleting_translation;
+    }
+
+    /**
+     * Set translating relation state.
+     *
+     * @return void
+     */
+    public function translatingRelation(): void
+    {
+        $this->_translating_relation = true;
+    }
+
+    /**
+     * Determine is the model currently translating a relation.
+     *
+     * @return bool
+     */
+    public function isTranslatingRelation(): bool
+    {
+        return $this->_translating_relation;
     }
 }

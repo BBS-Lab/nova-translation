@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @property \BBSLab\NovaTranslation\Models\Translation $translation
  * @property \Illuminate\Database\Eloquent\Collection|\BBSLab\NovaTranslation\Models\Translation[] $translations
  * @property bool $_deleting_translation
+ * @property bool $_translating_relation
  */
 interface IsTranslatable
 {
@@ -82,4 +83,18 @@ interface IsTranslatable
      * @return bool
      */
     public function isDeletingTranslation(): bool;
+
+    /**
+     * Set deleting translation state.
+     *
+     * @return void
+     */
+    public function translatingRelation(): void;
+
+    /**
+     * Determine is the model currently in a delete translation process.
+     *
+     * @return bool
+     */
+    public function isTranslatingRelation(): bool;
 }
