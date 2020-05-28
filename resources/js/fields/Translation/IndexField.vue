@@ -3,6 +3,7 @@
     <div
       v-for="otherLocale in otherLocales"
       :key="`translation_${otherLocale.id}`"
+      v-if="isTranslated[otherLocale.id]"
     >
       <router-link
         v-if="isTranslated[otherLocale.id]"
@@ -21,6 +22,7 @@
         </span>
       </router-link>
     </div>
+    <span v-if="!hasTranslation">—</span>
   </div>
 </template>
 

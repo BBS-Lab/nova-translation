@@ -50,6 +50,16 @@ export default {
 
         return false
       })
+    },
+
+    hasTranslation() {
+      for (let [key, value] of Object.entries(this.isTranslated)) {
+        if (value === true && key != this.locale.id) {
+          return true
+        }
+      }
+
+      return false
     }
   },
 }
