@@ -11,40 +11,51 @@
       </div>
 
       <card>
-        <table class="translation-matrix my-4 table w-full" cellpadding="0" cellspacing="0">
-          <thead>
-            <tr class="p-3">
-              <th></th>
-              <th v-for="locale in locales" :key="locale.id">
-                {{ locale.label }}
-                <a :href="`/nova-vendor/nova-translation/translation-matrix/export-locale?locale=${locale.iso}`" :title="trans('Download')" class="btn btn-link text-80">
-                  <svg class="fill-current h-4 w-4" viewBox="0 0 24 24" width="24" height="24">
-                    <path d="M11 14.59V3a1 1 0 0 1 2 0v11.59l3.3-3.3a1 1 0 0 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 0 1 1.4-1.42l3.3 3.3zM3 17a1 1 0 0 1 2 0v3h14v-3a1 1 0 0 1 2 0v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3z"/>
-                  </svg>
-                </a>
-              </th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="p-3" v-for="(keyI18n, key) in matrix" :key="key" :id="`tr__${key}`">
-              <td>{{ key }}</td>
-              <td v-for="locale in locales" :key="`${key}__${locale.id}`">
-                <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'text'))">
-                  <textarea class="w-full h-auto form-control form-input form-input-bordered py-3" rows="1" @input="updateLabel(key, locale.id, $event.target.value)" :id="`textarea__${key}__${locale.id}`" v-if="keyI18n[locale.id]" v-html="keyI18n[locale.id].value"/>
-                </div>
-                <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'upload'))">
-                  <cloudinary-upload :widget="cloudinaryWidget" :locale-key="key" :locale-id="locale.id" :url="keyI18n[locale.id].value" :id="`upload__${key}__${locale.id}`" @edit="setCurrentEdit($event)"/>
-                </div>
-              </td>
-              <td class="table-actions">
-                <button class="block" @click="deleteKey(key)">
-                  <icon type="delete" width="12" height="12" view-box="0 0 24 24"/>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="overflow-hidden overflow-x-scroll overflow-y-auto relative">
+          <div class="translation-matrix">
+            <table class="table w-full">
+              <thead>
+              <tr>
+                <th class="text-center sticky pin-l pin-t border-rb z-10">{{ trans('Label') }}</th>
+                <th v-for="locale in locales" :key="locale.id" class="text-center sticky pin-t border-b">
+                  {{ locale.label }}
+                </th>
+                <th class="sticky pin-t border-b">&nbsp;</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr class="p-3" v-for="(keyI18n, key) in matrix" :key="key" :id="`tr__${key}`">
+                <th class="sticky pin-l border-rb">{{ key }}</th>
+                <td v-for="locale in locales" :key="`${key}__${locale.id}`">
+                  <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'text'))" class="py-1">
+                    <textarea
+                      class="w-full h-auto form-control form-input form-input-bordered py-2"
+                      rows="2"
+                      cols="3"
+                      @input="updateLabel(key, locale.id, $event.target.value)"
+                      :id="`textarea__${key}__${locale.id}`" v-if="keyI18n[locale.id]"
+                      v-html="keyI18n[locale.id].value"
+                    />
+                  </div>
+                  <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'upload'))">
+                    <cloudinary-upload :widget="cloudinaryWidget" :locale-key="key" :locale-id="locale.id" :url="keyI18n[locale.id].value" :id="`upload__${key}__${locale.id}`" @edit="setCurrentEdit($event)"/>
+                  </div>
+                </td>
+                <td class="td-fit text-right pr-6 align-middle">
+                  <button
+                    class="inline-flex appearance-none cursor-pointer text-70 hover:text-primary mr-3"
+                    v-tooltip.click="trans('Delete')"
+                    @click.prevent="deleteKey(key)"
+                  >
+                    <icon />
+                  </button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </card>
 
       <div class="mt-6 text-right">
@@ -232,12 +243,25 @@
     background-color: rgba(0, 0, 0, 0.6);
   }
 
-  .table tbody tr td.table-actions {
-    min-width: 0;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    text-align: right;
-    width: 1%;
-    white-space: nowrap;
+  .translation-matrix {
+    max-height: calc(95vh - 150px);
+  }
+
+  thead th.border-rb {
+    border-bottom: none;
+  }
+
+  th.border-rb {
+    border-right: none;
+    box-shadow: 2px 2px 0 0 var(--50);
+  }
+
+  th.border-b {
+    border-bottom: none;
+    box-shadow: 0 2px 0 0 var(--50);
+  }
+
+  .table tbody tr td:not(:last-child) {
+    min-width: 20rem;
   }
 </style>
