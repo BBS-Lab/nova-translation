@@ -6,7 +6,7 @@
     >
       <router-link
         v-if="isTranslated[otherLocale.id]"
-        class="inline-flex cursor-pointer no-underline text-3xl"
+        class="no-underline dim text-primary font-semibold"
         :to="{
           name: 'detail',
           params: {
@@ -14,10 +14,10 @@
             resourceId: translations[otherLocale.id].translatable_id,
           },
         }"
-        :title="__('View')"
+        :title="__(`View in ${otherLocale.label}`)"
       >
         <span class="nova-translation--flag">
-          {{ otherLocale.flag }}
+          {{ otherLocale.iso }}
         </span>
       </router-link>
     </div>
@@ -53,10 +53,14 @@ export default {
     align-items: center;
 
     div {
-      margin-left: .5rem;
+      margin-left: .2rem;
 
       &:first-child {
         margin-left: 0;
+      }
+
+      &:not(:last-child):after {
+        content: "|";
       }
 
       a {

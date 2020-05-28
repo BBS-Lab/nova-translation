@@ -1,11 +1,11 @@
 <template>
   <a
     :href="url"
-    :title="__('Translate')"
-    class="inline-flex cursor-pointer no-underline text-3xl opacity-25"
+    :title="__(`Translate to ${targetLocale.label}`)"
+    class="block p-3 cursor-pointer no-underline text-70 hover:bg-30"
   >
     <span class="nova-translation--flag">
-      {{ targetLocale.flag }}
+      {{ targetLocale.label }}
     </span>
   </a>
 </template>

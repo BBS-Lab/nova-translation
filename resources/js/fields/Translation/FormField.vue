@@ -1,10 +1,8 @@
 <template>
   <div class="border-b border-40">
     <div class="px-8 py-4 flex items-center justify-between">
-      <div>
-        <span class="text-4xl" v-if="isCreate" v-html="locale.flag"/>
-        <span class="text-4xl" v-else-if="field.value" v-html="field.locales[field.value.locale_id].flag"/>
-      </div>
+      <heading v-if="isCreate">{{ locale.label }}</heading>
+      <heading v-else-if="field.value">{{ field.locales[field.value.locale_id].label }}</heading>
     </div>
   </div>
 </template>
