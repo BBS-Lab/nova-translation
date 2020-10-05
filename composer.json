@@ -22,15 +22,11 @@
     "php": "^7.2",
     "ext-json": "*",
     "bbs-lab/nova-cloudinary-field": "dev-master",
-    "illuminate/contracts": "^6.2 || ^7.0",
-    "illuminate/database": "^6.2 || ^7.0",
-    "illuminate/support": "^6.2 || ^7.0"
+    "illuminate/contracts": "^6.2 || ^7.0 || ^8.0",
+    "illuminate/database": "^6.2 || ^7.0 || ^8.0",
+    "illuminate/support": "^6.2 || ^7.0 || ^8.0"
   },
   "autoload": {
-    "classmap": [
-      "database/seeds",
-      "database/factories"
-    ],
     "psr-4": {
       "BBSLab\\NovaTranslation\\": "src/"
     }
