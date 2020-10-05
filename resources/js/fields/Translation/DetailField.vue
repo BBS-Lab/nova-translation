@@ -1,38 +1,50 @@
 <template>
-  <div class="border-b border-40">
-    <div class="py-2 flex items-center justify-between" v-if="field.value">
-      <div>
-        <span class="text-4xl" v-html="field.locales[field.value.locale_id].flag"/>
-      </div>
-      <div class="flex items-center text-right">
-        <div
-          class="inline-block ml-2"
-          v-for="otherLocale in otherLocales"
-          :key="`locale_${otherLocale.id}`"
-        >
-          <router-link
-            v-if="isTranslated[otherLocale.id]"
-            class="inline-flex cursor-pointer no-underline text-3xl"
-            :to="{
+  <div class="flex border-b border-40">
+    <div class="w-1/4 py-4">
+      <h4 class="font-normal text-80">{{ trans('Language') }}</h4>
+    </div>
+    <div class="w-3/4 py-4 break-words flex">
+      <p class="text-90 font-bold">
+        {{ field.locales[field.value.locale_id].label }}
+      </p>
+      <div class="flex items-center ml-auto">
+        <dropdown class="ml-auto h-6 flex items-center dropdown-right">
+          <dropdown-trigger class="h-6 flex items-center text-xs bg-40 px-2 rounded active:outline-none active:shadow-outline focus:outline-none focus:shadow-outline">
+            <span class="text-90">{{ trans('Translations') }}</span>
+          </dropdown-trigger>
+
+          <dropdown-menu slot="menu" width="200" direction="rtl">
+            <ul class="list-reset">
+              <li
+                v-for="locale in otherLocales"
+                :key="`locale_${locale.id}`"
+              >
+                <router-link
+                  v-if="isTranslated[locale.id]"
+                  class="block p-3 cursor-pointer no-underline text-90 hover:bg-30"
+                  :to="{
                 name: 'detail',
                 params: {
                   resourceName,
-                  resourceId: translations[otherLocale.id].translatable_id,
+                  resourceId: translations[locale.id].translatable_id,
                 },
               }"
-            :title="__('View')"
-          >
+                  :title="__(`View in ${locale.label}`)"
+                >
               <span class="nova-translation--flag">
-                {{ otherLocale.flag }}
+                {{ locale.label }}
               </span>
-          </router-link>
-          <create-translation-link
-            v-else
-            :resource-name="resourceName"
-            :resource-id="resourceId"
-            :target-locale="otherLocale"
-          />
-        </div>
+                </router-link>
+                <create-translation-link
+                  v-else
+                  :resource-name="resourceName"
+                  :resource-id="resourceId"
+                  :target-locale="locale"
+                />
+              </li>
+            </ul>
+          </dropdown-menu>
+        </dropdown>
       </div>
     </div>
   </div>

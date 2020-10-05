@@ -18,6 +18,7 @@ use Illuminate\Database\Query\JoinClause;
 trait Translatable
 {
     protected $_deleting_translation = false;
+    protected $_translating_relation = false;
 
     /**
      * {@inheritdoc}
@@ -72,10 +73,11 @@ trait Translatable
      * Create and return a translation entry for given locale ID.
      *
      * @param  int  $localeId
+     * @param  int  $sourceId
      * @param  int  $translationId
      * @return \BBSLab\NovaTranslation\Models\Translation
      */
-    public function upsertTranslationEntry(int $localeId, int $translationId = 0): Translation
+    public function upsertTranslationEntry(int $localeId, int $sourceId, int $translationId = 0): Translation
     {
         /** @var \BBSLab\NovaTranslation\Models\Translation $translation */
         $translation = Translation::query()
@@ -84,6 +86,7 @@ trait Translatable
                 'translation_id' => ! empty($translationId) ? $translationId : $this->freshTranslationId(),
                 'translatable_id' => $this->getKey(),
                 'translatable_type' => static::class,
+                'translatable_source' => $sourceId,
             ]);
 
         return $translation;
@@ -146,7 +149,10 @@ trait Translatable
                     $this->getOnCreateTranslatable()
                 )
             );
-            $translated->upsertTranslationEntry($locale->getKey(), $this->translation->translation_id);
+
+            $translated->upsertTranslationEntry(
+                $locale->getKey(), $this->getKey(), $this->translation->translation_id
+            );
 
             return $translated;
         });
@@ -170,5 +176,25 @@ trait Translatable
     public function isDeletingTranslation(): bool
     {
         return $this->_deleting_translation;
+    }
+
+    /**
+     * Set translating relation state.
+     *
+     * @return void
+     */
+    public function translatingRelation(): void
+    {
+        $this->_translating_relation = true;
+    }
+
+    /**
+     * Determine is the model currently translating a relation.
+     *
+     * @return bool
+     */
+    public function isTranslatingRelation(): bool
+    {
+        return $this->_translating_relation;
     }
 }

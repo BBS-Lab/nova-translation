@@ -6,7 +6,9 @@ use BBSLab\NovaTranslation\Http\Middleware\Authorize;
 use BBSLab\NovaTranslation\Http\View\Composers\LocaleComposer;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Observers\LocaleObserver;
+use BBSLab\NovaTranslation\Models\Observers\TranslatablePivotObserver;
 use BBSLab\NovaTranslation\Resources\Locale as LocaleResource;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
@@ -64,6 +66,8 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
         $this->publishes([
             __DIR__.'/../config/config.php' => config_path(static::PACKAGE_ID.'.php'),
         ]);
+
+        Pivot::observe(TranslatablePivotObserver::class);
     }
 
     /**

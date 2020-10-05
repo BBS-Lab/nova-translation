@@ -42,4 +42,15 @@ class LocaleObserver
     {
         NovaTranslation::forgetLocales();
     }
+
+    /**
+     * Handle the Locale "saving" event.
+     *
+     * @param  \BBSLab\NovaTranslation\Models\Locale  $locale
+     * @return void
+     */
+    public function saving(Locale $locale)
+    {
+        unset($locale->flag);
+    }
 }

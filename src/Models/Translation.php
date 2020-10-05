@@ -6,12 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
+ * @property int $id
  * @property int $locale_id
  * @property int $translation_id
  * @property int $translatable_id
  * @property string $translatable_type
+ * @property int $translatable_source
  * @property \BBSLab\NovaTranslation\Models\Locale $locale
  * @property \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $translatable
+ * @property \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $source
  */
 class Translation extends Model
 {
@@ -19,16 +22,6 @@ class Translation extends Model
      * {@inheritdoc}
      */
     protected $table = 'translations';
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $primaryKey = null;
-
-    /**
-     * {@inheritdoc}
-     */
-    public $incrementing = false;
 
     /**
      * {@inheritdoc}
@@ -43,15 +36,7 @@ class Translation extends Model
         'translation_id',
         'translatable_id',
         'translatable_type',
-    ];
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $casts = [
-        'locale_id' => 'integer',
-        'translation_id' => 'integer',
-        'translatable_id' => 'integer',
+        'translatable_source',
     ];
 
     /**
@@ -62,6 +47,11 @@ class Translation extends Model
     public function translatable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function source(): MorphTo
+    {
+        return $this->morphTo('source', 'translatable_type', 'translatable_source');
     }
 
     /**
