@@ -4,12 +4,9 @@ namespace BBSLab\NovaTranslation\Models\Traits;
 
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Observers\TranslatableObserver;
-use BBSLab\NovaTranslation\Models\Relations\BelongsToMany;
 use BBSLab\NovaTranslation\Models\Translation;
 use BBSLab\NovaTranslation\Models\TranslationRelation;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Query\JoinClause;
 

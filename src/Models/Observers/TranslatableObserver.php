@@ -57,7 +57,7 @@ class TranslatableObserver
         );
 
         $translatable::withoutEvents(function () use ($translatable, $attributes) {
-            $translatable->translations->each(function (Translation $translation) use ($translatable, $attributes) {
+            $translatable->translations->each(function (Translation $translation) use ($attributes) {
                 $translation->translatable->update($attributes);
             });
         });
