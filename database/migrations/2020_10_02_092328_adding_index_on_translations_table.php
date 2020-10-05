@@ -15,7 +15,11 @@ class AddingIndexOnTranslationsTable extends Migration
     {
         Schema::table('translations', function (Blueprint $table) {
             $table->dropPrimary('translations_pk');
+        });
+
+        Schema::table('translations', function (Blueprint $table) {
             $table->id()->first();
+            $table->unsignedInteger('translatable_source');
             $table->index(['translatable_type', 'translatable_source'], 'source_idx');
             $table->index(['translation_id', 'translatable_id', 'translatable_type'], 'eager_idx');
         });
@@ -29,7 +33,10 @@ class AddingIndexOnTranslationsTable extends Migration
     public function down()
     {
         Schema::table('translations', function (Blueprint $table) {
-            $table->dropColumn('id');
+            $table->dropColumn(['id', 'translatable_source']);
+        });
+
+        Schema::table('translations', function (Blueprint $table) {
             $table->primary(['locale_id', 'translation_id', 'translatable_id', 'translatable_type'], 'translations_pk');
             $table->dropIndex('source_idx');
             $table->dropIndex('eager_idx');
