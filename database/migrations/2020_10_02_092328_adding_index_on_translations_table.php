@@ -14,8 +14,8 @@ class AddingIndexOnTranslationsTable extends Migration
     public function up()
     {
         Schema::table('translations', function (Blueprint $table) {
-            $table->id()->first();
             $table->dropPrimary('translations_pk');
+            $table->id()->first();
             $table->index(['translatable_type', 'translatable_source'], 'source_idx');
             $table->index(['translation_id', 'translatable_id', 'translatable_type'], 'eager_idx');
         });
