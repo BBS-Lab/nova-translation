@@ -13,19 +13,19 @@
       <card>
         <div class="overflow-hidden overflow-x-scroll overflow-y-auto relative">
           <div class="translation-matrix">
-            <table class="table w-full">
+            <table class="table relative w-full">
               <thead>
               <tr>
-                <th class="text-center pin-l pin-t border-rb z-10">{{ trans('Label') }}</th>
-                <th v-for="locale in locales" :key="locale.id" class="text-center pin-t border-b">
+                <th class="text-center sticky top-0 border-rb z-10">{{ trans('Label') }}</th>
+                <th v-for="locale in locales" :key="locale.id" class="text-center sticky top-0 border-b">
                   {{ locale.label }}
                 </th>
-                <th class="pin-t border-b">&nbsp;</th>
+                <th class="sticky top-0 border-b">&nbsp;</th>
               </tr>
               </thead>
               <tbody>
               <tr class="p-3" v-for="(keyI18n, key) in matrix" :key="key" :id="`tr__${key}`">
-                <td class="pin-l border-rb">{{ key }}</td>
+                <th class="sticky left-0 border-rb no-uppercase">{{ key }}</th>
                 <td v-for="locale in locales" :key="`${key}__${locale.id}`">
                   <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'text'))" class="py-1">
                     <textarea
@@ -259,6 +259,10 @@
   th.border-b {
     border-bottom: none;
     box-shadow: 0 2px 0 0 var(--50);
+  }
+
+  th.no-uppercase {
+    text-transform: none !important;
   }
 
   .table tbody tr td:not(:last-child) {
