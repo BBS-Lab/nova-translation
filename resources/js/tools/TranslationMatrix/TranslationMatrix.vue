@@ -16,16 +16,16 @@
             <table class="table w-full">
               <thead>
               <tr>
-                <th class="text-center sticky pin-l pin-t border-rb z-10">{{ trans('Label') }}</th>
-                <th v-for="locale in locales" :key="locale.id" class="text-center sticky pin-t border-b">
+                <th class="text-center pin-l pin-t border-rb z-10">{{ trans('Label') }}</th>
+                <th v-for="locale in locales" :key="locale.id" class="text-center pin-t border-b">
                   {{ locale.label }}
                 </th>
-                <th class="sticky pin-t border-b">&nbsp;</th>
+                <th class="pin-t border-b">&nbsp;</th>
               </tr>
               </thead>
               <tbody>
               <tr class="p-3" v-for="(keyI18n, key) in matrix" :key="key" :id="`tr__${key}`">
-                <th class="sticky pin-l border-rb">{{ key }}</th>
+                <td class="pin-l border-rb">{{ key }}</td>
                 <td v-for="locale in locales" :key="`${key}__${locale.id}`">
                   <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'text'))" class="py-1">
                     <textarea
