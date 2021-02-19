@@ -21,10 +21,13 @@
   "require": {
     "php": "^7.2|^8.0",
     "ext-json": "*",
-    "bbs-lab/nova-cloudinary-field": "dev-master",
+    "bbs-lab/nova-cloudinary-field": "^0.3",
     "illuminate/contracts": "^6.2 || ^7.0 || ^8.0",
     "illuminate/database": "^6.2 || ^7.0 || ^8.0",
     "illuminate/support": "^6.2 || ^7.0 || ^8.0"
+  },
+  "require-dev": {
+    "nuwave/lighthouse": "^5.2"
   },
   "autoload": {
     "psr-4": {

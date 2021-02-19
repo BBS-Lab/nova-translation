@@ -27,7 +27,7 @@ trait ExtendSchemaWithLocaleFields
         foreach ($documentAST->types as &$type) {
             if ($type->name->value === $typeToExtend) {
                 /* @var \GraphQL\Language\AST\ObjectTypeDefinitionNode $type */
-                $type->fields = ASTHelper::mergeNodeList($type->fields, [
+                $type->fields = ASTHelper::mergeUniqueNodeList($type->fields, [
                     $this->defineLocaleField(),
                     $this->defineTranslationIdField(),
                 ]);
