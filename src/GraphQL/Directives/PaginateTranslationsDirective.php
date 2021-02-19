@@ -7,11 +7,11 @@ use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Type\Definition\ResolveInfo;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Laravel\Scout\Builder as ScoutBuilder;
+use Nuwave\Lighthouse\Pagination\PaginateDirective;
+use Nuwave\Lighthouse\Pagination\PaginationArgs;
 use Nuwave\Lighthouse\Pagination\PaginationManipulator;
 use Nuwave\Lighthouse\Pagination\PaginationType;
-use Nuwave\Lighthouse\Pagination\PaginationUtils;
 use Nuwave\Lighthouse\Schema\AST\DocumentAST;
-use Nuwave\Lighthouse\Schema\Directives\PaginateDirective;
 use Nuwave\Lighthouse\Schema\Values\FieldValue;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
@@ -75,7 +75,7 @@ SDL;
     {
         return $fieldValue->setResolver(
             function ($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo): LengthAwarePaginator {
-                [$first, $page] = PaginationUtils::extractArgs($args, $this->paginationType(), $this->paginateMaxCount());
+                [$first, $page] = PaginationArgs::extractArgs($args, $this->paginationType(), $this->paginateMaxCount());
 
                 $query = $resolveInfo
                     ->argumentSet
@@ -93,13 +93,10 @@ SDL;
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function paginationType(): PaginationType
     {
         return new PaginationType(
-            $this->directiveArgValue('paginatorType', PaginationType::TYPE_PAGINATOR)
+            $this->directiveArgValue('paginatorType', PaginationType::PAGINATOR)
         );
     }
 }
