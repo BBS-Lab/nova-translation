@@ -28,7 +28,7 @@ class TranslateController
         $translated = $model->translate($locale);
 
         return $translated
-            ? redirect($this->redirectToResource($translated))
+            ? redirect(str_replace('//', '/', $this->redirectToResource($translated)))
             : redirect()->back();
     }
 
