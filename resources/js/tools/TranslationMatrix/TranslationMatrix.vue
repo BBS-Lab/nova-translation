@@ -18,7 +18,7 @@
               <tr>
                 <th class="text-center sticky top-0 border-rb z-10">{{ trans('Label') }}</th>
                 <th v-for="locale in locales" :key="locale.id" class="text-center sticky top-0 border-b">
-                  {{ locale.label }}
+                  {{ locale.label }} ({{locale.iso}})
                 </th>
                 <th class="sticky top-0 border-b">&nbsp;</th>
               </tr>
