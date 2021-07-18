@@ -93,7 +93,8 @@ class BelongsToMany extends Relation
             return $changes;
         }
 
-        $keys = $this->getTranslatedKeys($this->parseIds($ids), NovaTranslation::otherLocales());
+        $ids = $this->parseIds($ids);
+        $keys = $this->getTranslatedKeys($ids, NovaTranslation::otherLocales());
 
         $this->parent->translations()
             ->with(['locale', 'translatable'])
@@ -115,21 +116,43 @@ class BelongsToMany extends Relation
             })->toArray();
         }
 
+        $ids = [];
+
+        foreach ($keys as $key => $value) {
+            $ids[] = is_array($value) ? $key : $value;
+        }
+
         return $this->related->newQuery()
-            ->whereIn($this->getRelatedKeyName(), $keys)
+            ->whereIn($this->getRelatedKeyName(), $ids)
             ->with('translations.locale')
             ->get()
             ->groupBy('translations.*.locale.iso')
-            ->mapWithKeys(function (Collection $group, $iso) {
-                return [
-                    $iso => $group->flatMap(function (IsTranslatable $translatable) use ($iso) {
-                        return $translatable->translations->filter(function (Translation $translation) use ($iso) {
-                            return $translation->locale->iso === $iso;
-                        })->map(function (Translation $translation) {
-                            return $translation->translatable_id;
-                        })->unique();
-                    }),
-                ];
+            ->mapWithKeys(function (Collection $group, $iso) use ($keys) {
+                $translations = $group->flatMap(function (IsTranslatable $translatable) use ($iso) {
+                    return $translatable->translations->filter(function (Translation $translation) use ($iso) {
+                        return $translation->locale->iso === $iso;
+                    });
+                })
+                    ->mapWithKeys(function (Translation $translation) {
+                        return [$translation->translatable_source => $translation->translatable_id];
+                    })
+                    ->toArray();
+
+                $new = [];
+
+                foreach ($keys as $key => $value) {
+                    if (is_array($value)) {
+                        if (isset($translations[$key])) {
+                            $new[$translations[$key]] = $value;
+                        }
+                    } else {
+                        if (isset($translations[$value])) {
+                            $new[$key] = $translations[$value];
+                        }
+                    }
+                }
+
+                return [$iso => $new];
             })->toArray();
     }
 }
