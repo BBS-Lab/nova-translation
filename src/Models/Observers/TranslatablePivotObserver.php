@@ -31,6 +31,10 @@ class TranslatablePivotObserver
 
         $method = Collection::make($class->getMethods())
             ->filter(function (ReflectionMethod $method) use ($pivot) {
+                if ($method->getReturnType() == null) {
+                    return false;
+                }
+
                 if (! method_exists($type = $method->getReturnType(), 'getName')) {
                     return false;
                 }
