@@ -31,6 +31,8 @@ interface IsTranslatable
 
     public function translate(Locale $locale): IsTranslatable;
 
+    public function initTranslation(): IsTranslatable;
+
     public function deletingTranslation(): void;
 
     public function isDeletingTranslation(): bool;
