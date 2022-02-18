@@ -7,6 +7,7 @@ use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Observers\TranslatableObserver;
 use BBSLab\NovaTranslation\Models\Translation;
 use BBSLab\NovaTranslation\Models\TranslationRelation;
+use BBSLab\NovaTranslation\NovaTranslation;
 use Exception;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -172,6 +173,42 @@ trait Translatable
 
             return $translated;
         });
+    }
+
+    public function initTranslation(): IsTranslatable
+    {
+        if ($this->translation) {
+            return $this;
+        }
+
+        $translation = $this->upsertTranslationEntry(
+            ($currentLocale = NovaTranslation::currentLocale())->getKey(),
+            $this->getKey()
+        );
+
+        if (! in_array(get_class($this), NovaTranslation::translatableModels())) {
+            return $this;
+        }
+
+        $attributes = $this->only(
+            $this->getOnCreateTranslatable()
+        );
+
+        $locales = NovaTranslation::otherLocales($currentLocale);
+        $related = $this->translatedParents($locales);
+
+        $this::withoutEvents(function () use ($locales, $translation, $attributes, $related) {
+            $locales->each(function (Locale $locale) use ($translation, $attributes, $related) {
+                $attributes = array_merge($attributes, $related[$locale->iso] ?? []);
+                /** @var \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $model */
+                $model = $this->newQuery()->create($attributes);
+                $model->upsertTranslationEntry(
+                    $locale->getkey(), $this->getKey(), $translation->translation_id
+                );
+            });
+        });
+
+        return $this;
     }
 
     public function deletingTranslation(): void
