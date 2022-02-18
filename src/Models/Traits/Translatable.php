@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
 use ReflectionClass;
@@ -119,32 +120,69 @@ trait Translatable
                 return false;
             }
 
-            return $type->getName() === BelongsTo::class;
+            return in_array($type->getName(), [BelongsTo::class, MorphTo::class]);
         })->each(function (ReflectionMethod $method) use (&$related, $locales) {
-            $foreignKey = $this->{$method->getName()}()->getForeignKeyName();
-
-            /** @var \Illuminate\Database\Eloquent\Model|null $parent */
-            $parent = $this->{$method->getName()};
-
-            if (empty($parent) || ! $parent instanceof IsTranslatable) {
-                $locales->each(function (Locale $locale) use (&$related, $parent, $foreignKey) {
-                    $related[$locale->iso][$foreignKey] = optional($parent)->getKey();
-                });
-
-                return;
+            switch ($method->getReturnType()->getName()) {
+                case BelongsTo::class: $this->relatedBelongsTo($method, $related, $locales); break;
+                case MorphTo::class: $this->relatedMorphTo($method, $related, $locales); break;
+                default: break;
             }
-
-            $parent->load('translation.locale');
-            $translations = $parent->translations->mapWithKeys(function (Translation $translation) {
-                return [$translation->locale->iso => $translation->translatable_id];
-            });
-
-            $locales->each(function (Locale $locale) use (&$related, $translations, $foreignKey, $parent) {
-                $related[$locale->iso][$foreignKey] = $translations->get($locale->iso) ?? $parent->translate($locale)->getKey();
-            });
         });
 
         return $related;
+    }
+
+    protected function relatedBelongsTo(ReflectionMethod $method, array &$related, Collection $locales): void
+    {
+        $foreignKey = $this->{$method->getName()}()->getForeignKeyName();
+
+        /** @var \Illuminate\Database\Eloquent\Model|null $parent */
+        $parent = $this->{$method->getName()};
+
+        if (empty($parent) || ! $parent instanceof IsTranslatable) {
+            $locales->each(function (Locale $locale) use (&$related, $parent, $foreignKey) {
+                $related[$locale->iso][$foreignKey] = optional($parent)->getKey();
+            });
+
+            return;
+        }
+
+        $parent->load('translation.locale', 'translations');
+        $translations = $parent->translations->mapWithKeys(function (Translation $translation) {
+            return [$translation->locale->iso => $translation->translatable_id];
+        });
+
+        $locales->each(function (Locale $locale) use (&$related, $translations, $foreignKey, $parent) {
+            $related[$locale->iso][$foreignKey] = $translations->get($locale->iso) ?? $parent->translate($locale)->getKey();
+        });
+    }
+
+    protected function relatedMorphTo(ReflectionMethod $method, array &$related, Collection $locales): void
+    {
+        $foreignKey = $this->{$method->getName()}()->getForeignKeyName();
+        $morphType = $this->{$method->getName()}()->getMorphType();
+
+        /** @var \Illuminate\Database\Eloquent\Model|null $parent */
+        $parent = $this->{$method->getName()};
+
+        if (empty($parent) || ! $parent instanceof IsTranslatable) {
+            $locales->each(function (Locale $locale) use (&$related, $parent, $foreignKey, $morphType) {
+                $related[$locale->iso][$foreignKey] = optional($parent)->getKey();
+                $related[$locale->iso][$morphType] = $parent ? get_class($parent) : null;
+            });
+
+            return;
+        }
+
+        $parent->load('translation.locale', 'translations');
+        $translations = $parent->translations->mapWithKeys(function (Translation $translation) {
+            return [$translation->locale->iso => $translation->translatable_id];
+        });
+
+        $locales->each(function (Locale $locale) use (&$related, $translations, $foreignKey, $morphType, $parent) {
+            $related[$locale->iso][$foreignKey] = $translations->get($locale->iso) ?? $parent->translate($locale)->getKey();
+            $related[$locale->iso][$morphType] = get_class($parent);
+        });
     }
 
     public function translate(Locale $locale): IsTranslatable
