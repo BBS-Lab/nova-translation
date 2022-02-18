@@ -39,7 +39,7 @@ class Locale extends Model
     protected $appends = ['flag'];
 
     /**
-     * @var \Callable|null
+     * @var ?callable
      */
     public static $flagResolver;
 

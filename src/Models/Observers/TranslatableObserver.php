@@ -66,9 +66,7 @@ class TranslatableObserver
         $related = $translatable->translatedParents(NovaTranslation::otherLocales($translatable->translation->locale));
 
         $translatable::withoutEvents(function () use ($translatable, $attributes, $related) {
-            $translatable->translations->each(function (Translation $translation) use (
-                $translatable, $attributes, $related
-            ) {
+            $translatable->translations->each(function (Translation $translation) use ($attributes, $related) {
                 $attributes = array_merge($attributes, $related[$translation->locale->iso] ?? []);
                 $translation->translatable->update($attributes);
             });
