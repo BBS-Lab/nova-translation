@@ -7,9 +7,14 @@ use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Observers\TranslatableObserver;
 use BBSLab\NovaTranslation\Models\Translation;
 use BBSLab\NovaTranslation\Models\TranslationRelation;
+use Exception;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Collection;
+use ReflectionClass;
+use ReflectionMethod;
 
 /**
  * @property \BBSLab\NovaTranslation\Models\Translation $translation
@@ -91,12 +96,55 @@ trait Translatable
             ->select($this->qualifyColumn('*'));
     }
 
-    /**
-     * Translate model to given locale and return translated model.
-     *
-     * @param  \BBSLab\NovaTranslation\Models\Locale  $locale
-     * @return \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable
-     */
+    public function translatedParents(Collection $locales): array
+    {
+        try {
+            $class = new ReflectionClass($this);
+        } catch (Exception $exception) {
+            return [];
+        }
+
+        $related = $locales->mapWithKeys(function (Locale $locale) {
+            return [$locale->iso => []];
+        })->toArray();
+
+        Collection::make($class->getMethods())->filter(function (ReflectionMethod $method) {
+            if(! $type = $method->getReturnType()){
+                return false;
+            }
+
+            if (! method_exists($type, 'getName')) {
+                return false;
+            }
+
+            return $type->getName() === BelongsTo::class;
+        })->each(function (ReflectionMethod $method) use (&$related, $locales) {
+            $foreignKey = $this->{$method->getName()}()->getForeignKeyName();
+
+            /** @var \Illuminate\Database\Eloquent\Model|null $parent */
+            $parent = $this->{$method->getName()};
+
+            if (empty($parent) || ! $parent instanceof IsTranslatable) {
+                $locales->each(function (Locale $locale) use (&$related, $parent, $foreignKey) {
+                    $related[$locale->iso][$foreignKey] = optional($parent)->getKey();
+                });
+
+                return;
+            }
+
+            $parent->load('translation.locale');
+            $translations = $parent->translations->mapWithKeys(function (Translation $translation) {
+                return [$translation->locale->iso => $translation->translatable_id];
+            });
+
+            $locales->each(function (Locale $locale) use (&$related, $translations, $foreignKey, $parent) {
+                $related[$locale->iso][$foreignKey] = $translations->get($locale->iso) ?? $parent->translate($locale)->getKey();
+            });
+        });
+
+        return $related;
+    }
+
     public function translate(Locale $locale): IsTranslatable
     {
         /** @var \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $translated */
@@ -108,13 +156,15 @@ trait Translatable
         )->translatable;
 
         return $translated ?? static::withoutEvents(function () use ($locale) {
-            /** @var self $translated */
-            $translated = $this->newQuery()->create(
-                $this->only(
-                    $this->getOnCreateTranslatable()
-                )
+            $parents = $this->translatedParents(collect([$locale]));
+
+            $attributes = array_merge(
+                $this->only($this->getOnCreateTranslatable()),
+                $parents[$locale->iso] ?? []
             );
 
+            /** @var \BBSLab\NovaTranslation\Models\Traits\Translatable $translated */
+            $translated = $this->newQuery()->create($attributes);
             $translated->upsertTranslationEntry(
                 $locale->getKey(), $this->getKey(), $this->translation->translation_id
             );

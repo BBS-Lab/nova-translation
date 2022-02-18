@@ -31,10 +31,14 @@ class TranslatableObserver
             $translatable->getOnCreateTranslatable()
         );
 
-        $translatable::withoutEvents(function () use ($translatable, $translation, $currentLocale, $attributes) {
-            NovaTranslation::otherLocales($currentLocale)->each(function (Locale $locale) use (
-                $translatable, $translation, $attributes
+        $locales = NovaTranslation::otherLocales($currentLocale);
+        $related = $translatable->translatedParents($locales);
+
+        $translatable::withoutEvents(function () use ($locales, $translatable, $translation, $attributes, $related) {
+            $locales->each(function (Locale $locale) use (
+                $translatable, $translation, $attributes, $related
             ) {
+                $attributes = array_merge($attributes, $related[$locale->iso] ?? []);
                 /** @var \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $model */
                 $model = $translatable->query()->create($attributes);
                 $model->upsertTranslationEntry(
@@ -49,6 +53,7 @@ class TranslatableObserver
      *
      * @param  \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable  $translatable
      * @return void
+     * @throws \Exception
      */
     public function updated(IsTranslatable $translatable)
     {
@@ -56,8 +61,13 @@ class TranslatableObserver
             $translatable->getNonTranslatable()
         );
 
-        $translatable::withoutEvents(function () use ($translatable, $attributes) {
-            $translatable->translations->each(function (Translation $translation) use ($attributes) {
+        $related = $translatable->translatedParents(NovaTranslation::otherLocales($translatable->translation->locale));
+
+        $translatable::withoutEvents(function () use ($translatable, $attributes, $related) {
+            $translatable->translations->each(function (Translation $translation) use (
+                $translatable, $attributes, $related
+            ) {
+                $attributes = array_merge($attributes, $related[$translation->locale->iso] ?? []);
                 $translation->translatable->update($attributes);
             });
         });
