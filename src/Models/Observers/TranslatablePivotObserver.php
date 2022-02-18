@@ -74,6 +74,7 @@ class TranslatablePivotObserver
      *
      * @param  \Illuminate\Database\Eloquent\Relations\Pivot  $pivot
      * @return void
+     *
      * @throws \Exception
      */
     public function created(Pivot $pivot)
@@ -86,6 +87,7 @@ class TranslatablePivotObserver
      *
      * @param  \Illuminate\Database\Eloquent\Relations\Pivot  $pivot
      * @return void
+     *
      * @throws \Exception
      */
     public function deleted(Pivot $pivot)

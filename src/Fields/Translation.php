@@ -46,6 +46,7 @@ class Translation extends Field
      * Return all indexed locales.
      *
      * @return array
+     *
      * @throws \Exception
      */
     protected function locales()

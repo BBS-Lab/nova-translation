@@ -25,6 +25,7 @@ class BelongsToMany extends Relation
      * @param  array  $attributes
      * @param  bool  $touch
      * @return void
+     *
      * @throws \Exception
      */
     public function attach($id, array $attributes = [], $touch = true)

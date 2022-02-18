@@ -19,6 +19,7 @@ use ReflectionMethod;
 /**
  * @property \BBSLab\NovaTranslation\Models\Translation $translation
  * @property \Illuminate\Database\Eloquent\Collection|\BBSLab\NovaTranslation\Models\Translation[] $translations
+ *
  * @method static \Illuminate\Database\Eloquent\Builder locale(?string $iso = null)
  */
 trait Translatable
@@ -109,7 +110,7 @@ trait Translatable
         })->toArray();
 
         Collection::make($class->getMethods())->filter(function (ReflectionMethod $method) {
-            if(! $type = $method->getReturnType()){
+            if (! $type = $method->getReturnType()) {
                 return false;
             }
 

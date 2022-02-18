@@ -41,6 +41,7 @@ class NovaTranslation
     /**
      * @param  \BBSLab\NovaTranslation\Models\Locale|null  $current
      * @return \Illuminate\Support\Collection
+     *
      * @throws \Exception
      */
     public static function otherLocales(?Locale $current = null): Collection

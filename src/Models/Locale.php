@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
  * @property string $flag
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder availableInApi(array $args = [])
  */
 class Locale extends Model

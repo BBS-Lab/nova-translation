@@ -14,6 +14,7 @@ class TranslatableObserver
      *
      * @param  \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable  $translatable
      * @return void
+     *
      * @throws \Exception
      */
     public function created(IsTranslatable $translatable)
@@ -53,6 +54,7 @@ class TranslatableObserver
      *
      * @param  \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable  $translatable
      * @return void
+     *
      * @throws \Exception
      */
     public function updated(IsTranslatable $translatable)
@@ -78,6 +80,7 @@ class TranslatableObserver
      *
      * @param  \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable  $translatable
      * @return void
+     *
      * @throws \Exception
      */
     public function deleted(IsTranslatable $translatable)
