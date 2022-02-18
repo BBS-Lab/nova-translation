@@ -2,6 +2,7 @@
 
 namespace BBSLab\NovaTranslation\Models\Traits;
 
+use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Observers\TranslatableObserver;
 use BBSLab\NovaTranslation\Models\Translation;
@@ -20,22 +21,14 @@ trait Translatable
     protected $_deleting_translation = false;
     protected $_translating_relation = false;
 
-    /**
-     * {@inheritdoc}
-     */
     public static function bootTranslatable()
     {
         static::observe(TranslatableObserver::class);
     }
 
-    /**
-     * Get the list of non translatable fields.
-     *
-     * @return array
-     */
     public function getNonTranslatable(): array
     {
-        return isset($this->nonTranslatable) ? $this->nonTranslatable : [];
+        return $this->nonTranslatable ?? [];
     }
 
     /**
@@ -46,7 +39,7 @@ trait Translatable
      */
     public function getOnCreateTranslatable(): array
     {
-        return isset($this->onCreateTranslatable) ? $this->onCreateTranslatable : $this->getNonTranslatable();
+        return $this->onCreateTranslatable ?? $this->getNonTranslatable();
     }
 
     /**
@@ -59,28 +52,14 @@ trait Translatable
         return $this->morphOne(Translation::class, 'translatable');
     }
 
-    /**
-     * Return current item translations.
-     *
-     * @return \BBSLab\NovaTranslation\Models\TranslationRelation
-     */
     public function translations(): TranslationRelation
     {
         return new TranslationRelation($this);
     }
 
-    /**
-     * Create and return a translation entry for given locale ID.
-     *
-     * @param  int  $localeId
-     * @param  int  $sourceId
-     * @param  int  $translationId
-     * @return \BBSLab\NovaTranslation\Models\Translation
-     */
     public function upsertTranslationEntry(int $localeId, int $sourceId, int $translationId = 0): Translation
     {
-        /** @var \BBSLab\NovaTranslation\Models\Translation $translation */
-        $translation = Translation::query()
+        return Translation::query()
             ->firstOrCreate([
                 'locale_id' => $localeId,
                 'translation_id' => ! empty($translationId) ? $translationId : $this->freshTranslationId(),
@@ -88,15 +67,8 @@ trait Translatable
                 'translatable_type' => static::class,
                 'translatable_source' => $sourceId,
             ]);
-
-        return $translation;
     }
 
-    /**
-     * Return next fresh translation ID.
-     *
-     * @return int
-     */
     public function freshTranslationId(): int
     {
         $lastTranslation = Translation::query()
@@ -106,14 +78,7 @@ trait Translatable
         return $lastTranslation + 1;
     }
 
-    /**
-     * Scope a query to only retrieve items from given locale.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $builder
-     * @param  string  $iso
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeLocale(EloquentBuilder $builder, string $iso = null)
+    public function scopeLocale(EloquentBuilder $builder, ?string $iso = null): EloquentBuilder
     {
         return $builder->join('translations', function (JoinClause $join) {
             $join->on($this->getQualifiedKeyName(), '=', 'translations.translatable_id')
@@ -132,7 +97,7 @@ trait Translatable
      * @param  \BBSLab\NovaTranslation\Models\Locale  $locale
      * @return \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable
      */
-    public function translate(Locale $locale)
+    public function translate(Locale $locale): IsTranslatable
     {
         /** @var \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $translated */
         $translated = optional(
@@ -158,41 +123,21 @@ trait Translatable
         });
     }
 
-    /**
-     * Set deleting translation state.
-     *
-     * @return void
-     */
     public function deletingTranslation(): void
     {
         $this->_deleting_translation = true;
     }
 
-    /**
-     * Determine is the model currently in a delete translation process.
-     *
-     * @return bool
-     */
     public function isDeletingTranslation(): bool
     {
         return $this->_deleting_translation;
     }
 
-    /**
-     * Set translating relation state.
-     *
-     * @return void
-     */
     public function translatingRelation(): void
     {
         $this->_translating_relation = true;
     }
 
-    /**
-     * Determine is the model currently translating a relation.
-     *
-     * @return bool
-     */
     public function isTranslatingRelation(): bool
     {
         return $this->_translating_relation;

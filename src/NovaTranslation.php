@@ -10,19 +10,12 @@ class NovaTranslation
 {
     const LOCALES_CACHE_KEY = 'nova-translation-locales';
 
-    /**
-     * Forget caches locales.
-     *
-     * @return void
-     */
     public static function forgetLocales(): void
     {
         Cache::forget(static::LOCALES_CACHE_KEY);
     }
 
     /**
-     * @return \BBSLab\NovaTranslation\Models\Locale
-     *
      * @throws \Exception
      */
     public static function currentLocale(): Locale
@@ -36,9 +29,6 @@ class NovaTranslation
         return $locale;
     }
 
-    /**
-     * @return \Illuminate\Support\Collection
-     */
     public static function locales(): Collection
     {
         return Cache::rememberForever(static::LOCALES_CACHE_KEY, function () {

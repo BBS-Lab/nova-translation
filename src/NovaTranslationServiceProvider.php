@@ -129,6 +129,6 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
             return [static::PACKAGE_ID.'::'.$key => $value];
         })->toArray();
 
-        \Laravel\Nova\Nova::translations($translations);
+        Nova::translations($translations);
     }
 }
