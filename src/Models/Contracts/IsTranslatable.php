@@ -33,6 +33,8 @@ interface IsTranslatable
 
     public function initTranslation(): IsTranslatable;
 
+    public function updateTranslationParents(): IsTranslatable;
+
     public function deletingTranslation(): void;
 
     public function isDeletingTranslation(): bool;
