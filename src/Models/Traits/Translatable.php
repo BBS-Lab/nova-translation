@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -161,9 +162,10 @@ trait Translatable
     {
         $foreignKey = $this->{$method->getName()}()->getForeignKeyName();
         $morphType = $this->{$method->getName()}()->getMorphType();
+        $attribute = Str::snake($method->getName());
 
         /** @var \Illuminate\Database\Eloquent\Model|null $parent */
-        $parent = $this->{$method->getName()};
+        $parent = $this->{$attribute};
 
         if (empty($parent) || ! $parent instanceof IsTranslatable) {
             $locales->each(function (Locale $locale) use (&$related, $parent, $foreignKey, $morphType) {
@@ -231,18 +233,33 @@ trait Translatable
         $attributes = $this->only(
             $this->getOnCreateTranslatable()
         );
-
         $locales = NovaTranslation::otherLocales($currentLocale);
-        $related = $this->translatedParents($locales);
 
-        $this::withoutEvents(function () use ($locales, $translation, $attributes, $related) {
-            $locales->each(function (Locale $locale) use ($translation, $attributes, $related) {
-                $attributes = array_merge($attributes, $related[$locale->iso] ?? []);
+        $this::withoutEvents(function () use ($locales, $translation, $attributes) {
+            $locales->each(function (Locale $locale) use ($translation, $attributes) {
                 /** @var \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $model */
                 $model = $this->newQuery()->create($attributes);
                 $model->upsertTranslationEntry(
                     $locale->getkey(), $this->getKey(), $translation->translation_id
                 );
+            });
+        });
+
+        return $this;
+    }
+
+    public function updateTranslationParents(): IsTranslatable
+    {
+        if (!$this->translation) {
+            return $this->initTranslation();
+        }
+
+        $locales = NovaTranslation::otherLocales($currentLocale = NovaTranslation::currentLocale());
+        $related = $this->translatedParents($locales);
+
+        static::withoutEvents(function () use ($related) {
+            $this->translations->each(function (Translation $translation) use ($related) {
+                $translation->translatable->update($related[$translation->locale->iso] ?? []);
             });
         });
 

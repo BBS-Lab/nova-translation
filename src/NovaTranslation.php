@@ -9,10 +9,12 @@ use Illuminate\Support\Facades\Cache;
 class NovaTranslation
 {
     const LOCALES_CACHE_KEY = 'nova-translation-locales';
+    static $locales = [];
 
     public static function forgetLocales(): void
     {
         Cache::forget(static::LOCALES_CACHE_KEY);
+        static::$locales = [];
     }
 
     /**
@@ -20,13 +22,17 @@ class NovaTranslation
      */
     public static function currentLocale(): Locale
     {
-        $locale = Locale::havingIso($iso = app()->getLocale());
+        if (!isset(static::$locales[$iso = app()->getLocale()])) {
+            $locale = Locale::havingIso($iso);
 
-        if (empty($locale)) {
-            throw new \Exception("No such locale [{$iso}]");
+            if (empty($locale)) {
+                throw new \Exception("No such locale [{$iso}]");
+            }
+
+            static::$locales[$iso] = $locale;
         }
 
-        return $locale;
+        return static::$locales[$iso];
     }
 
     public static function locales(): Collection
