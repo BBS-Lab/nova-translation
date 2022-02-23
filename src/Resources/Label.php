@@ -3,7 +3,6 @@
 namespace BBSLab\NovaTranslation\Resources;
 
 use BBSLab\NovaTranslation\Fields\Translation;
-use BBSLab\NovaTranslation\NovaTranslationServiceProvider;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
