@@ -11,12 +11,12 @@
       </div>
 
       <card>
-        <div class="overflow-hidden overflow-x-scroll overflow-y-auto relative">
+        <div class="rounded overflow-hidden overflow-x-scroll overflow-y-scroll relative">
           <div class="translation-matrix">
-            <table class="table relative w-full">
+            <table class="table relative w-full border-separate">
               <thead>
               <tr>
-                <th class="text-center sticky top-0 border-rb z-10">{{ trans('Label') }}</th>
+                <th class="text-center sticky top-0 left-0 border-r z-20">{{ trans('Label') }}</th>
                 <th v-for="locale in locales" :key="locale.id" class="text-center sticky top-0 border-b">
                   {{ locale.label }} ({{locale.iso}})
                 </th>
@@ -24,8 +24,8 @@
               </tr>
               </thead>
               <tbody>
-              <tr class="p-3" v-for="(keyI18n, key) in matrix" :key="key" :id="`tr__${key}`">
-                <th class="sticky left-0 border-rb no-uppercase">{{ key }}</th>
+              <tr class="p-3" v-for="(keyI18n, key) in labels" :key="key" :id="`tr__${key}`">
+                <th class="sticky left-0 border-r z-10 no-uppercase">{{ key }}</th>
                 <td v-for="locale in locales" :key="`${key}__${locale.id}`">
                   <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'text'))" class="py-1">
                     <textarea
@@ -36,9 +36,6 @@
                       :id="`textarea__${key}__${locale.id}`" v-if="keyI18n[locale.id]"
                       v-html="keyI18n[locale.id].value"
                     />
-                  </div>
-                  <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'upload'))">
-                    <cloudinary-upload :widget="cloudinaryWidget" :locale-key="key" :locale-id="locale.id" :url="keyI18n[locale.id].value" :id="`upload__${key}__${locale.id}`" @edit="setCurrentEdit($event)"/>
                   </div>
                 </td>
                 <td class="td-fit text-right pr-6 align-middle">
@@ -55,13 +52,7 @@
             </table>
           </div>
         </div>
-
       </card>
-
-      <div class="mt-6 text-right">
-        <button class="btn btn-link dim cursor-pointer text-80" @click.prevent="promptKeyModalOpened = true">{{ trans('Add key') }}</button>
-        <button class="ml-3 btn btn-default btn-primary text-white cursor-pointer text-80" @click="saveLabels">{{ trans('Save') }}</button>
-      </div>
     </div>
 
     <portal to="modals" transition="fade-transition">
@@ -72,7 +63,6 @@
 
 <script>
   import I18n from '../../mixins/I18n'
-  import animateScrollTo from 'animated-scroll-to'
 
   export default {
     mixins: [
@@ -80,20 +70,16 @@
     ],
 
     components: {
-      PromptKeyModal: require('./PromptKeyModal.vue'),
-      CloudinaryUpload: require('./CloudinaryUpload.vue'),
+      PromptKeyModal: require('./PromptKeyModal.vue').default,
     },
 
-    data() {
-      return {
-        labels: [],
-        locales: [],
-        loading: true,
-        currentEdit: {},
-        cloudinaryWidget: null,
-        promptKeyModalOpened: false,
-      }
-    },
+    data: () => ({
+      labels: [],
+      locales: [],
+      loading: true,
+      currentEdit: {},
+      promptKeyModalOpened: false,
+    }),
 
     mounted() {
       this.hydrate()
@@ -102,22 +88,18 @@
     methods: {
       hydrate() {
         Nova.request().get('/nova-vendor/nova-translation/translation-matrix').then((response) => {
-          this.setupCloudinaryWidget(response.data.cloudinary)
+          console.log(response.data)
           this.labels = response.data.labels
           this.locales = response.data.locales
           this.loading = false
         }).catch((error) => {
           console.error(error)
+          this.loading = false
         })
       },
 
       updateLabel(key, localeId, value) {
-        for (let i = 0 ; i < this.labels.length ; i++) {
-          if ((this.labels[i].key === key) && (this.labels[i].locale_id === localeId)) {
-            this.labels[i].value = value
-            break
-          }
-        }
+        this.labels[key][localeId].value = value;
       },
 
       saveLabels() {
@@ -139,23 +121,6 @@
         this.currentEdit = currentEdit
       },
 
-      setupCloudinaryWidget(meta) {
-        this.cloudinaryWidget = cloudinary.createMediaLibrary({
-          api_key: meta.api_key,
-          multiple: false,
-          username: meta.username,
-          signature: meta.signature,
-          timestamp: meta.timestamp,
-          cloud_name: meta.cloud_name,
-        }, {
-          insertHandler: (data) => {
-            if (data.assets.length > 0) {
-              this.updateLabel(this.currentEdit.localeKey, this.currentEdit.localeId, data.assets[0].public_id)
-            }
-          },
-        })
-      },
-
       // ------------------------------------------------------------------------------
 
       addKey(options) {
@@ -172,67 +137,30 @@
           if (textarea) {
             textarea.focus()
           }
-          animateScrollTo(document.querySelector(`#tr__${options.key}`), {
-            speed: 500
-          })
         })
       },
 
       keyExists(key) {
-        for (let i = 0 ; i < this.labels.length ; i++) {
-          if (this.labels[i].key === key) {
-            return true
-          }
-        }
-
-        return false
+        return key in this.labels
       },
 
       addI18nKey(key, type) {
+        this.labels[key] = {}
+
         for (let i = 0 ; i < this.locales.length ; i++) {
-          this.labels.push({
+          this.labels[key][this.locales[i].id] = {
             key: key,
             type: type,
             value: '',
             locale_id: this.locales[i].id
-          })
+          }
         }
+
+        this.labels =_(this.labels).toPairs().sortBy(0).fromPairs().value()
       },
 
       deleteKey(key) {
-        let labels = []
-
-        for (let i = 0 ; i < this.labels.length ; i++) {
-          if (this.labels[i].key !== key) {
-            labels.push(this.labels[i])
-          }
-        }
-
-        this.labels = labels
-      },
-    },
-
-    computed: {
-      matrix() {
-        let matrix = {}
-
-        for (let i = 0, label ; i < this.labels.length ; i++) {
-          label = this.labels[i]
-          if (typeof matrix[label.key] === 'undefined') {
-            matrix[label.key] = {}
-          }
-          matrix[label.key][label.locale_id] = {
-            type: label.type,
-            value: label.value
-          }
-        }
-
-        let ordered = {}
-        Object.keys(matrix).sort().forEach((key) => {
-          ordered[key] = matrix[key];
-        });
-
-        return ordered
+        delete this.labels[key]
       },
     },
   }
@@ -247,22 +175,26 @@
     max-height: calc(95vh - 150px);
   }
 
-  thead th.border-rb {
-    border-bottom: none;
+  .top-0 {
+    top: 0 !important;
   }
 
-  th.border-rb {
-    border-right: none;
-    box-shadow: 2px 2px 0 0 var(--50);
-  }
-
-  th.border-b {
-    border-bottom: none;
-    box-shadow: 0 2px 0 0 var(--50);
+  .left-0 {
+    left: 0 !important;
   }
 
   th.no-uppercase {
     text-transform: none !important;
+  }
+
+  td {
+    border-top: none !important;
+    border-bottom-width: 2px !important;
+  }
+
+  .table tbody tr th {
+    max-width: 15rem !important;
+    overflow-wrap: break-word;
   }
 
   .table tbody tr td:not(:last-child) {

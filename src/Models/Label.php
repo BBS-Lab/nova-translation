@@ -16,12 +16,8 @@ class Label extends Model implements IsTranslatable
 {
     use Traits\Translatable;
 
-    const TYPE_TEXT = 'text';
-    const TYPE_UPLOAD = 'upload';
-
-    protected $table = 'labels';
-
     protected $fillable = [
+        'id',
         'type',
         'key',
         'value',
@@ -30,5 +26,11 @@ class Label extends Model implements IsTranslatable
     protected $nonTranslatable = [
         'type',
         'key',
+    ];
+
+    protected $onCreateTranslatable = [
+        'type',
+        'key',
+        'value',
     ];
 }

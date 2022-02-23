@@ -6,63 +6,41 @@ use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Translation as TranslationModel;
 use BBSLab\NovaTranslation\NovaTranslation;
-use BBSLab\NovaTranslation\NovaTranslationServiceProvider;
 use Laravel\Nova\Fields\Field;
 
 class Translation extends Field
 {
-    /**
-     * The field's component.
-     *
-     * @var string
-     */
     public $component = 'nova-translation-field';
 
-    public function __construct($name, $attribute = null, callable $resolveCallback = null)
+    public function __construct()
     {
-        $name = trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.field');
-        $attribute = 'translation';
+        $name = trans('nova-translation::lang.field');
 
-        parent::__construct($name, $attribute, $resolveCallback);
+        parent::__construct($name, 'translation');
 
         $this->withMeta([
             'locales' => $this->locales(),
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function resolve($resource, $attribute = null)
     {
         $this->withMeta([
             'translations' => $resource instanceof IsTranslatable ? $this->translations($resource) : [],
         ]);
-
-        parent::resolve($resource, $attribute);
     }
 
     /**
-     * Return all indexed locales.
-     *
-     * @return array
-     *
      * @throws \Exception
      */
-    protected function locales()
+    protected function locales(): array
     {
-        return NovaTranslation::locales()->mapWithKeys(function (Locale $locale) {
+        return nova_translation()->locales()->mapWithKeys(function (Locale $locale) {
             return [$locale->getKey() => $locale->toArray()];
         })->toArray();
     }
 
-    /**
-     * Return translations entries for given translatable model.
-     *
-     * @param  \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable  $resource
-     * @return array
-     */
-    protected function translations(IsTranslatable $resource)
+    protected function translations(IsTranslatable $resource): array
     {
         return $resource->translations->mapWithKeys(function (TranslationModel $translation) {
             return [

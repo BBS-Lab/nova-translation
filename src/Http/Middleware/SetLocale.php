@@ -17,9 +17,9 @@ class SetLocale
      */
     public function handle($request, $next)
     {
-        if (Session::has(NovaTranslation::localeSessionKey())) {
+        if (Session::has(nova_translation()->localeSessionKey())) {
             app()->setLocale(
-                Session::get(NovaTranslation::localeSessionKey())
+                Session::get(nova_translation()->localeSessionKey())
             );
         } else {
             $browserLocale = Locale::havingIso(
@@ -28,7 +28,7 @@ class SetLocale
             );
 
             $locale = $browserLocale ? $browserLocale->iso : config('app.locale');
-            Session::put(NovaTranslation::localeSessionKey(), $locale);
+            Session::put(nova_translation()->localeSessionKey(), $locale);
 
             app()->setLocale($locale);
         }

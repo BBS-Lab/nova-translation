@@ -7,6 +7,7 @@ use BBSLab\NovaTranslation\Models\Label;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Translation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class TranslationMatrixController
@@ -22,11 +23,9 @@ class TranslationMatrixController
     {
         $labels = $this->labels();
 
-        $locales = Locale::query()->select('id', 'iso', 'label')->get();
+        $locales = nova_translation()->locales();
 
-        $cloudinary = $this->cloudinaryMeta();
-
-        return response()->json(compact('labels', 'locales', 'cloudinary'), 200);
+        return response()->json(compact('labels', 'locales'));
     }
 
     /**
@@ -37,22 +36,49 @@ class TranslationMatrixController
      */
     public function save(Request $request)
     {
-        DB::connection()->getPdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 0);
-        DB::beginTransaction();
+        $raw = $request->input('labels', []);
 
-        Label::query()->truncate();
-        Translation::query()->where('translatable_type', '=', Label::class)->delete();
+        $labels = [];
+        $translations = [];
 
-        $labels = $request->input('labels', []);
-        foreach ($labels as $label) {
-            $this->createLabel($label);
+        $labelId = 1;
+        $translationId = 1;
+
+        foreach ($raw as $key => $items) {
+            $source = $labelId;
+            foreach ($items as $item) {
+                $labels[] = [
+                    'id' => $labelId,
+                    'type' => $item['type'],
+                    'key' => $key,
+                    'value' => $item['value'],
+                ];
+
+                $translations[] = [
+                    'locale_id' => $item['locale_id'],
+                    'translation_id' => $translationId,
+                    'translatable_id' => $labelId,
+                    'translatable_type' => nova_translation()->labelModel(),
+                    'translatable_source' => $source,
+                ];
+
+                $labelId++;
+            }
+
+            $translationId++;
         }
 
-        DB::commit();
+        DB::transaction(function () use ($labels, $translations) {
+            nova_translation()->labelModel()::query()->truncate();
+            Translation::query()->where('translatable_type', '=', nova_translation()->labelModel())->delete();
+
+            nova_translation()->labelModel()::query()->insert($labels);
+            Translation::query()->insert($translations);
+        });
 
         return response()->json([
-            'labels' => $labels,
-        ], 200);
+            'labels' => $this->labels(),
+        ]);
     }
 
     /**
@@ -65,7 +91,7 @@ class TranslationMatrixController
     {
         $locale = $request->input('locale', app()->getLocale());
 
-        $json = Label::query()
+        $json = nova_translation()->labelModel()::query()
             ->select('key', 'value')
             ->locale($locale)
             ->orderBy('key', 'asc')
@@ -79,18 +105,19 @@ class TranslationMatrixController
         return response()->download($path, $locale.'.json');
     }
 
-    /**
-     * Return all non-scoped labels.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    protected function labels()
+    protected function labels(): Collection
     {
-        return Label::query()
+        return nova_translation()->labelModel()::query()
             ->select('translations.locale_id', 'labels.type', 'labels.key', 'labels.value')
             ->join('translations', 'labels.id', '=', 'translations.translatable_id')
-            ->where('translations.translatable_type', '=', Label::class)
-            ->get();
+            ->where('translations.translatable_type', '=', nova_translation()->labelModel())
+            ->get()
+            ->groupBy(['key', 'locale_id'])
+            ->transform(function (Collection $localeCollection) {
+                return $localeCollection->transform(function (Collection $items) {
+                    return $items->first();
+                });
+            });
     }
 
     /**

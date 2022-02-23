@@ -22,8 +22,6 @@ use Illuminate\Support\Str;
  */
 class Locale extends Model
 {
-    protected $table = 'locales';
-
     protected $fillable = [
         'iso',
         'label',
@@ -36,6 +34,10 @@ class Locale extends Model
         'available_in_api' => 'boolean',
     ];
 
+    protected $attributes = [
+        'available_in_api' => true,
+    ];
+
     protected $appends = ['flag'];
 
     /**
@@ -45,9 +47,7 @@ class Locale extends Model
 
     public function scopeAvailableInApi(Builder $query, array $args = []): Builder
     {
-        $availableInApi = isset($args['available_in_api']) ? ! empty($args['available_in_api']) : true;
-
-        return $query->where('available_in_api', '=', $availableInApi);
+        return $query->where('available_in_api', '=', $args['available_in_api'] ?? false);
     }
 
     public function fallback(): BelongsTo
@@ -57,20 +57,16 @@ class Locale extends Model
 
     public static function havingIso(string $iso): ?Locale
     {
-        $iso = DB::connection()->getPdo()->quote(Str::lower($iso));
-
-        return static::query()->whereRaw('LOWER(`iso`) = '.$iso)->first();
+        return static::query()->where('iso', '=', $iso)->first();
     }
 
     public function getFlagAttribute(): ?string
     {
-        if (! isset($this->attributes['flag'])) {
-            $this->attributes['flag'] = static::$flagResolver
+        return once(function () {
+            return static::$flagResolver
                 ? call_user_func(static::$flagResolver, $this)
                 : $this->resolveFlag();
-        }
-
-        return $this->attributes['flag'];
+        });
     }
 
     protected function resolveFlag(): ?string

@@ -1,8 +1,25 @@
 <?php
 
 use BBSLab\NovaTranslation\Models\Label;
+use BBSLab\NovaTranslation\Models\Locale;
+use Laravel\Nova\Fields\Textarea;
 
 return [
+
+    'models' => [
+        'locale' => Locale::class,
+        'label' => Label::class,
+    ],
+
+    'map' => [
+        'text' => Textarea::make('value', 'value')
+            ->rules('required'),
+    ],
+
+    'cache' => [
+        'key' => env('NOVA_TRANSLATION_CACHE_KEY', 'nova-translation-locales'),
+        'ttl' => (int)env('NOVA_TRANSLATION_CACHE_TTL', 3600),
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -18,20 +35,6 @@ return [
     'auto_synced_models' => [
         Label::class,
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Use default Locale Nova resource
-    |--------------------------------------------------------------------------
-    |
-    | Here you must define if you want to use the provided Locale Nova resource
-    | and the group you want to use in the navigation bar.
-    |
-    */
-
-    'use_default_locale_resource' => true,
-
-    'default_locale_resource_group' => null,
 
     'locale_session_key' => 'nova_locale',
 

@@ -2,7 +2,6 @@
 
 namespace BBSLab\NovaTranslation\Resources;
 
-use BBSLab\NovaTranslation\NovaTranslationServiceProvider;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\ID;
@@ -12,51 +11,29 @@ use Laravel\Nova\Resource;
 
 class Locale extends Resource
 {
-    /**
-     * The model the resource corresponds to.
-     *
-     * @var string
-     */
     public static $model = 'BBSLab\\NovaTranslation\\Models\\Locale';
-
-    /**
-     * {@inheritdoc}
-     */
     public static $title = 'label';
-
-    /**
-     * {@inheritdoc}
-     */
     public static $search = [
+        'id',
         'iso',
         'label',
     ];
+    public static $with = [
+        'translation',
+        'translations.locale',
+    ];
 
-    /**
-     * {@inheritdoc}
-     */
-    public static $group = null;
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function label()
+    public static function label(): string
     {
-        return trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.locales.resources');
+        return trans('nova-translation::lang.locales.resources');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function singularLabel()
+    public static function singularLabel(): string
     {
-        return trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.locales.resource');
+        return trans('nova-translation::lang.locales.resource');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function fields(Request $request)
+    public function fields(Request $request): array
     {
         return [
             ID::make()->sortable(),
@@ -65,55 +42,24 @@ class Locale extends Resource
                 ->exceptOnForms()
                 ->withMeta(['indexName' => '']),
 
-            Text::make(trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.locales.iso'), 'iso')
+            Text::make(trans('nova-translation::lang.locales.iso'), 'iso')
                 ->sortable()
                 ->rules('required', 'max:255')
                 ->creationRules('unique:locales,iso')
                 ->updateRules('unique:locales,iso,{{resourceId}}'),
 
-            Text::make(trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.locales.label'), 'label')
+            Text::make(trans('nova-translation::lang.locales.label'), 'label')
                 ->sortable()
                 ->rules('required', 'max:255'),
 
-            Select::make(trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.locales.fallback_id'), 'fallback_id')
-                ->options($this->model()->query()->select('id', 'label')->orderBy('label', 'asc')->get()->pluck('label', 'id')->toArray())
+            Select::make(trans('nova-translation::lang.locales.fallback_id'), 'fallback_id')
+                ->options($this->model()->query()->select('id', 'label')->orderBy('label')->get()->pluck('label',
+                    'id')->toArray())
                 ->nullable()
                 ->hideFromIndex()
                 ->displayUsingLabels(),
 
-            Boolean::make(trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.locales.available_in_api'), 'available_in_api'),
+            Boolean::make(trans('nova-translation::lang.locales.available_in_api'), 'available_in_api'),
         ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function cards(Request $request)
-    {
-        return [];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function filters(Request $request)
-    {
-        return [];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function lenses(Request $request)
-    {
-        return [];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function actions(Request $request)
-    {
-        return [];
     }
 }
