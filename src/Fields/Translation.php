@@ -28,6 +28,8 @@ class Translation extends Field
         $this->withMeta([
             'translations' => $resource instanceof IsTranslatable ? $this->translations($resource) : [],
         ]);
+
+        parent::resolve($resource, $attribute);
     }
 
     /**
