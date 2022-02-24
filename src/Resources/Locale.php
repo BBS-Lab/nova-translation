@@ -18,10 +18,6 @@ class Locale extends Resource
         'iso',
         'label',
     ];
-    public static $with = [
-        'translation',
-        'translations.locale',
-    ];
 
     public static function label(): string
     {

@@ -47,7 +47,7 @@ class Locale extends Model
 
     public function scopeAvailableInApi(Builder $query, array $args = []): Builder
     {
-        return $query->where('available_in_api', '=', $args['available_in_api'] ?? false);
+        return $query->where('available_in_api', '=', $args['available_in_api'] ?? true);
     }
 
     public function fallback(): BelongsTo
