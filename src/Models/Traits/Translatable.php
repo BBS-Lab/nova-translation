@@ -7,7 +7,6 @@ use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Observers\TranslatableObserver;
 use BBSLab\NovaTranslation\Models\Translation;
 use BBSLab\NovaTranslation\Models\TranslationRelation;
-use BBSLab\NovaTranslation\NovaTranslation;
 use Exception;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -222,18 +221,18 @@ trait Translatable
         }
 
         $translation = $this->upsertTranslationEntry(
-            ($currentLocale = NovaTranslation::currentLocale())->getKey(),
+            ($currentLocale = nova_translation()->currentLocale())->getKey(),
             $this->getKey()
         );
 
-        if (! in_array(get_class($this), NovaTranslation::translatableModels())) {
+        if (! in_array(get_class($this), nova_translation()->translatableModels())) {
             return $this;
         }
 
         $attributes = $this->only(
             $this->getOnCreateTranslatable()
         );
-        $locales = NovaTranslation::otherLocales($currentLocale);
+        $locales = nova_translation()->otherLocales($currentLocale);
 
         $this::withoutEvents(function () use ($locales, $translation, $attributes) {
             $locales->each(function (Locale $locale) use ($translation, $attributes) {
@@ -254,7 +253,7 @@ trait Translatable
             return $this->initTranslation();
         }
 
-        $locales = NovaTranslation::otherLocales($currentLocale = NovaTranslation::currentLocale());
+        $locales = nova_translation()->otherLocales($currentLocale = nova_translation()->currentLocale());
         $related = $this->translatedParents($locales);
 
         static::withoutEvents(function () use ($related) {

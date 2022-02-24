@@ -6,7 +6,6 @@ use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Relations\BelongsToMany;
 use BBSLab\NovaTranslation\Models\Translation;
-use BBSLab\NovaTranslation\NovaTranslation;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -118,7 +117,7 @@ class TranslatablePivotObserver
             return;
         }
 
-        $others = $this->getTranslatedKeys($related, NovaTranslation::otherLocales());
+        $others = $this->getTranslatedKeys($related, nova_translation()->otherLocales());
 
         $parent->translations()->with(['locale', 'translatable'])
             ->get()

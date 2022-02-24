@@ -5,7 +5,6 @@ namespace BBSLab\NovaTranslation\Models\Observers;
 use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Translation;
-use BBSLab\NovaTranslation\NovaTranslation;
 
 class TranslatableObserver
 {
@@ -20,11 +19,11 @@ class TranslatableObserver
     public function created(IsTranslatable $translatable)
     {
         $translation = $translatable->upsertTranslationEntry(
-            ($currentLocale = NovaTranslation::currentLocale())->getKey(),
+            ($currentLocale = nova_translation()->currentLocale())->getKey(),
             $translatable->getKey()
         );
 
-        if (! in_array(get_class($translatable), NovaTranslation::translatableModels())) {
+        if (! in_array(get_class($translatable), nova_translation()->translatableModels())) {
             return;
         }
 
@@ -32,7 +31,7 @@ class TranslatableObserver
             $translatable->getOnCreateTranslatable()
         );
 
-        $locales = NovaTranslation::otherLocales($currentLocale);
+        $locales = nova_translation()->otherLocales($currentLocale);
         $related = $translatable->translatedParents($locales);
 
         $translatable::withoutEvents(function () use ($locales, $translatable, $translation, $attributes, $related) {
@@ -63,7 +62,7 @@ class TranslatableObserver
             $translatable->getNonTranslatable()
         );
 
-        $related = $translatable->translatedParents(NovaTranslation::otherLocales($translatable->translation->locale));
+        $related = $translatable->translatedParents(nova_translation()->otherLocales($translatable->translation->locale));
 
         $translatable::withoutEvents(function () use ($translatable, $attributes, $related) {
             $translatable->translations->each(function (Translation $translation) use ($attributes, $related) {
@@ -86,7 +85,7 @@ class TranslatableObserver
         $translatable->load('translations');
         $translatable->translation->delete();
 
-        if (! in_array(get_class($translatable), NovaTranslation::translatableModels())) {
+        if (! in_array(get_class($translatable), nova_translation()->translatableModels())) {
             return;
         }
 

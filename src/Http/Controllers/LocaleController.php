@@ -3,7 +3,6 @@
 namespace BBSLab\NovaTranslation\Http\Controllers;
 
 use BBSLab\NovaTranslation\Models\Locale;
-use BBSLab\NovaTranslation\NovaTranslation;
 use Illuminate\Http\Request;
 
 class LocaleController
@@ -12,7 +11,7 @@ class LocaleController
     {
         if (Locale::query()->where('iso', '=', $locale)->exists()) {
             $request->session()->put(
-                NovaTranslation::localeSessionKey(),
+                nova_translation()->localeSessionKey(),
                 $locale
             );
         }
