@@ -11,11 +11,6 @@ return [
         'label' => Label::class,
     ],
 
-    'map' => [
-        'text' => Textarea::make('value', 'value')
-            ->rules('required'),
-    ],
-
     'cache' => [
         'key' => env('NOVA_TRANSLATION_CACHE_KEY', 'nova-translation-locales'),
         'ttl' => (int)env('NOVA_TRANSLATION_CACHE_TTL', 3600),
