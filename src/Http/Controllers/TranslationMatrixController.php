@@ -68,13 +68,16 @@ class TranslationMatrixController
             $translationId++;
         }
 
-        DB::transaction(function () use ($labels, $translations) {
-            nova_translation()->labelModel()::query()->truncate();
-            Translation::query()->where('translatable_type', '=', nova_translation()->labelModel())->delete();
+        DB::connection()->getPdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 0);
+        DB::beginTransaction();
 
-            nova_translation()->labelModel()::query()->insert($labels);
-            Translation::query()->insert($translations);
-        });
+        nova_translation()->labelModel()::query()->truncate();
+        Translation::query()->where('translatable_type', '=', nova_translation()->labelModel())->delete();
+
+        nova_translation()->labelModel()::query()->insert($labels);
+        Translation::query()->insert($translations);
+
+        DB::commit();
 
         return response()->json([
             'labels' => $this->labels(),
