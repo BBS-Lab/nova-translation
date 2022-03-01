@@ -5,8 +5,6 @@ namespace BBSLab\NovaTranslation\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 /**
  * @property string $iso

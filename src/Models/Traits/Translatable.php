@@ -249,7 +249,7 @@ trait Translatable
 
     public function updateTranslationParents(): IsTranslatable
     {
-        if (!$this->translation) {
+        if (! $this->translation) {
             return $this->initTranslation();
         }
 

@@ -2,7 +2,6 @@
 
 use BBSLab\NovaTranslation\Models\Label;
 use BBSLab\NovaTranslation\Models\Locale;
-use Laravel\Nova\Fields\Textarea;
 
 return [
 
@@ -13,7 +12,7 @@ return [
 
     'cache' => [
         'key' => env('NOVA_TRANSLATION_CACHE_KEY', 'nova-translation-locales'),
-        'ttl' => (int)env('NOVA_TRANSLATION_CACHE_TTL', 3600),
+        'ttl' => (int) env('NOVA_TRANSLATION_CACHE_TTL', 3600),
     ],
 
     /*

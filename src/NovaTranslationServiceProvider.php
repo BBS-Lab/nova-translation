@@ -93,7 +93,7 @@ class NovaTranslationServiceProvider extends ServiceProvider
     protected function loadNovaTranslations(): void
     {
         $file = __DIR__.'/../resources/lang/'.app()->getLocale().'.json';
-        if (!file_exists($file)) {
+        if (! file_exists($file)) {
             $file = __DIR__.'/../resources/lang/en.json';
         }
 

@@ -5,7 +5,6 @@ namespace BBSLab\NovaTranslation\Fields;
 use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Translation as TranslationModel;
-use BBSLab\NovaTranslation\NovaTranslation;
 use Laravel\Nova\Fields\Field;
 
 class Translation extends Field

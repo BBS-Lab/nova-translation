@@ -2,7 +2,6 @@
 
 namespace BBSLab\NovaTranslation\Tools;
 
-use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Nova;
 use Laravel\Nova\Tool;
 

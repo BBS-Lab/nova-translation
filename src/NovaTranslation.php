@@ -48,7 +48,7 @@ class NovaTranslation
      */
     public function currentLocale(): Locale
     {
-        if (!isset($this->locales[$iso = app()->getLocale()])) {
+        if (! isset($this->locales[$iso = app()->getLocale()])) {
             $locale = $this->localeModel()::havingIso($iso);
 
             if (empty($locale)) {

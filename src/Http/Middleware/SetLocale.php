@@ -3,7 +3,6 @@
 namespace BBSLab\NovaTranslation\Http\Middleware;
 
 use BBSLab\NovaTranslation\Models\Locale;
-use BBSLab\NovaTranslation\NovaTranslation;
 use Illuminate\Support\Facades\Session;
 
 class SetLocale
