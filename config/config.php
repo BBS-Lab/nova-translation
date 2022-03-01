@@ -35,6 +35,19 @@ return [
 
     'locale_session_key' => 'nova_locale',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Cookies
+    |--------------------------------------------------------------------------
+    |
+    | When handling a locale change request, the package saves the selected
+    | locale to then use it for the subsequent requests.
+    |
+    | You can enable or disable saving the locale in a cookie.
+    */
+
+    'use_cookies' => false,
+
     'flags' => [
         'default' => '🏁',
         'AD' => '🇦🇩',
