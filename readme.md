@@ -64,7 +64,37 @@ public function buildSortQuery()
     return static::query()->locale();
 }
 ```
- 
+
+## Configration
+
+You can publish the default configuration by running the following command : 
+```bash
+php artisan vendor:publish --provider="BBSLab\NovaTranslation\NovaTranslationServiceProvider"
+```
+
+### Using Cookies
+By default, the locale is stored in the session upon change, but if you need to access it before the session is started, you can instruct the package to save it in the cookies by enabling it in the config : 
+```php
+'use_cookies' => true,
+```
+The cookie will hold the same name defined in `locale_session_key`
+
+💡 **NOTE:** The cookie will be encrypted by default, to have it excluded you can add it to your `EncryptCookies` middleware :
+```php
+class EncryptCookies extends Middleware
+{
+    public function __construct(EncrypterContract $encrypter)
+    {
+        parent::__construct($encrypter);
+
+        $this->except = array_merge($this->except, [
+            // ...
+            NovaTranslation::localeSessionKey(),
+        ]);
+    }
+}
+
+```
 ## Config Nova
 
 Add `SetLocale` middleware in application kernel.
