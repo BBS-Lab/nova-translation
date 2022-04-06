@@ -86,14 +86,21 @@ trait Translatable
         return $lastTranslation + 1;
     }
 
-    public function scopeLocale(EloquentBuilder $builder, ?string $iso = null): EloquentBuilder
+    public function scopeLocale(EloquentBuilder $builder, $iso = null): EloquentBuilder
     {
-        return $builder->join('translations', function (JoinClause $join) {
-            $join->on($this->getQualifiedKeyName(), '=', 'translations.translatable_id')
-                ->where('translations.translatable_type', '=', static::class);
+        if (is_array($iso)) {
+            $iso = null;
+        }
+
+        $prefix = Str::random(8);
+        $table = "{$prefix}_translations";
+
+        return $builder->join("translations as {$table}", function (JoinClause $join) use ($table) {
+            $join->on($this->getQualifiedKeyName(), '=', "{$table}.translatable_id")
+                ->where("{$table}.translatable_type", '=', static::class);
         })
-            ->join('locales', function (JoinClause $join) use ($iso) {
-                $join->on('locales.id', '=', 'translations.locale_id')
+            ->join('locales', function (JoinClause $join) use ($iso, $table) {
+                $join->on('locales.id', '=', "{$table}.locale_id")
                     ->where('locales.iso', '=', $iso ?? app()->getLocale());
             })
             ->select($this->qualifyColumn('*'));
