@@ -3,6 +3,7 @@
 namespace BBSLab\NovaTranslation\Http\Middleware;
 
 use BBSLab\NovaTranslation\Models\Locale;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Session;
 
 class SetLocale
@@ -20,18 +21,42 @@ class SetLocale
             app()->setLocale(
                 Session::get(nova_translation()->localeSessionKey())
             );
+
+            $this->whenUsingCookies(function () {
+                $locale = Cookie::get(nova_translation()->localeSessionKey());
+
+                if ($locale) {
+                    app()->setLocale($locale);
+                }
+            });
         } else {
             $browserLocale = Locale::havingIso(
-                // Take first 2 (as described flags in config)
+            // Take first 2 (as described flags in config)
                 substr($request->server('HTTP_ACCEPT_LANGUAGE'), 0, 2)
             );
 
-            $locale = $browserLocale ? $browserLocale->iso : config('app.locale');
+            $locale = $browserLocale->iso ?? config('app.locale');
+
             Session::put(nova_translation()->localeSessionKey(), $locale);
+
+            $this->whenUsingCookies(function () use ($locale) {
+                Cookie::queue(
+                    nova_translation()->localeSessionKey(),
+                    $locale,
+                    config('nova-translation.cookies_ttl', 60 * 24 * 120)
+                );
+            });
 
             app()->setLocale($locale);
         }
 
         return $next($request);
+    }
+
+    public function whenUsingCookies(callable $callback): void
+    {
+        if (config('nova-translation.use_cookies')) {
+            $callback();
+        }
     }
 }

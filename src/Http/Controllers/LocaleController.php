@@ -4,6 +4,7 @@ namespace BBSLab\NovaTranslation\Http\Controllers;
 
 use BBSLab\NovaTranslation\Models\Locale;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 
 class LocaleController
 {
@@ -14,8 +15,23 @@ class LocaleController
                 nova_translation()->localeSessionKey(),
                 $locale
             );
+
+            $this->whenUsingCookies(function () use ($locale) {
+                Cookie::queue(
+                    NovaTranslation::localeSessionKey(),
+                    $locale,
+                    config('nova-translation.cookies_ttl', 60 * 24 * 120)
+                );
+            });
         }
 
         return redirect()->back();
+    }
+
+    public function whenUsingCookies(callable $callback): void
+    {
+        if (config('nova-translation.use_cookies')) {
+            $callback();
+        }
     }
 }
