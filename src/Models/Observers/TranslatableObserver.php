@@ -5,7 +5,6 @@ namespace BBSLab\NovaTranslation\Models\Observers;
 use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Translation;
-use BBSLab\NovaTranslation\NovaTranslation;
 
 class TranslatableObserver
 {
@@ -14,16 +13,17 @@ class TranslatableObserver
      *
      * @param  \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable  $translatable
      * @return void
+     *
      * @throws \Exception
      */
     public function created(IsTranslatable $translatable)
     {
         $translation = $translatable->upsertTranslationEntry(
-            ($currentLocale = NovaTranslation::currentLocale())->getKey(),
+            ($currentLocale = nova_translation()->currentLocale())->getKey(),
             $translatable->getKey()
         );
 
-        if (! in_array(get_class($translatable), NovaTranslation::translatableModels())) {
+        if (! in_array(get_class($translatable), nova_translation()->translatableModels())) {
             return;
         }
 
@@ -31,10 +31,14 @@ class TranslatableObserver
             $translatable->getOnCreateTranslatable()
         );
 
-        $translatable::withoutEvents(function () use ($translatable, $translation, $currentLocale, $attributes) {
-            NovaTranslation::otherLocales($currentLocale)->each(function (Locale $locale) use (
-                $translatable, $translation, $attributes
+        $locales = nova_translation()->otherLocales($currentLocale);
+        $related = $translatable->translatedParents($locales);
+
+        $translatable::withoutEvents(function () use ($locales, $translatable, $translation, $attributes, $related) {
+            $locales->each(function (Locale $locale) use (
+                $translatable, $translation, $attributes, $related
             ) {
+                $attributes = array_merge($attributes, $related[$locale->iso] ?? []);
                 /** @var \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $model */
                 $model = $translatable->query()->create($attributes);
                 $model->upsertTranslationEntry(
@@ -49,6 +53,8 @@ class TranslatableObserver
      *
      * @param  \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable  $translatable
      * @return void
+     *
+     * @throws \Exception
      */
     public function updated(IsTranslatable $translatable)
     {
@@ -56,8 +62,11 @@ class TranslatableObserver
             $translatable->getNonTranslatable()
         );
 
-        $translatable::withoutEvents(function () use ($translatable, $attributes) {
-            $translatable->translations->each(function (Translation $translation) use ($attributes) {
+        $related = $translatable->translatedParents(nova_translation()->otherLocales($translatable->translation->locale));
+
+        $translatable::withoutEvents(function () use ($translatable, $attributes, $related) {
+            $translatable->translations->each(function (Translation $translation) use ($attributes, $related) {
+                $attributes = array_merge($attributes, $related[$translation->locale->iso] ?? []);
                 $translation->translatable->update($attributes);
             });
         });
@@ -68,6 +77,7 @@ class TranslatableObserver
      *
      * @param  \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable  $translatable
      * @return void
+     *
      * @throws \Exception
      */
     public function deleted(IsTranslatable $translatable)
@@ -75,7 +85,7 @@ class TranslatableObserver
         $translatable->load('translations');
         $translatable->translation->delete();
 
-        if (! in_array(get_class($translatable), NovaTranslation::translatableModels())) {
+        if (! in_array(get_class($translatable), nova_translation()->translatableModels())) {
             return;
         }
 

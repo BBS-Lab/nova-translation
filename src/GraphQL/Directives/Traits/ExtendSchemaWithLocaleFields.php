@@ -30,7 +30,7 @@ trait ExtendSchemaWithLocaleFields
                 $type->fields = ASTHelper::mergeUniqueNodeList($type->fields, [
                     $this->defineLocaleField(),
                     $this->defineTranslationIdField(),
-                ]);
+                ], true);
             }
         }
     }

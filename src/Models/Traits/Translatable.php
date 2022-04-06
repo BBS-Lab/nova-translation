@@ -2,17 +2,26 @@
 
 namespace BBSLab\NovaTranslation\Models\Traits;
 
+use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Observers\TranslatableObserver;
 use BBSLab\NovaTranslation\Models\Translation;
 use BBSLab\NovaTranslation\Models\TranslationRelation;
+use Exception;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+use ReflectionClass;
+use ReflectionMethod;
 
 /**
  * @property \BBSLab\NovaTranslation\Models\Translation $translation
  * @property \Illuminate\Database\Eloquent\Collection|\BBSLab\NovaTranslation\Models\Translation[] $translations
+ *
  * @method static \Illuminate\Database\Eloquent\Builder locale(?string $iso = null)
  */
 trait Translatable
@@ -20,22 +29,14 @@ trait Translatable
     protected $_deleting_translation = false;
     protected $_translating_relation = false;
 
-    /**
-     * {@inheritdoc}
-     */
     public static function bootTranslatable()
     {
         static::observe(TranslatableObserver::class);
     }
 
-    /**
-     * Get the list of non translatable fields.
-     *
-     * @return array
-     */
     public function getNonTranslatable(): array
     {
-        return isset($this->nonTranslatable) ? $this->nonTranslatable : [];
+        return $this->nonTranslatable ?? [];
     }
 
     /**
@@ -46,7 +47,7 @@ trait Translatable
      */
     public function getOnCreateTranslatable(): array
     {
-        return isset($this->onCreateTranslatable) ? $this->onCreateTranslatable : $this->getNonTranslatable();
+        return $this->onCreateTranslatable ?? $this->getNonTranslatable();
     }
 
     /**
@@ -59,28 +60,14 @@ trait Translatable
         return $this->morphOne(Translation::class, 'translatable');
     }
 
-    /**
-     * Return current item translations.
-     *
-     * @return \BBSLab\NovaTranslation\Models\TranslationRelation
-     */
     public function translations(): TranslationRelation
     {
         return new TranslationRelation($this);
     }
 
-    /**
-     * Create and return a translation entry for given locale ID.
-     *
-     * @param  int  $localeId
-     * @param  int  $sourceId
-     * @param  int  $translationId
-     * @return \BBSLab\NovaTranslation\Models\Translation
-     */
     public function upsertTranslationEntry(int $localeId, int $sourceId, int $translationId = 0): Translation
     {
-        /** @var \BBSLab\NovaTranslation\Models\Translation $translation */
-        $translation = Translation::query()
+        return Translation::query()
             ->firstOrCreate([
                 'locale_id' => $localeId,
                 'translation_id' => ! empty($translationId) ? $translationId : $this->freshTranslationId(),
@@ -88,15 +75,8 @@ trait Translatable
                 'translatable_type' => static::class,
                 'translatable_source' => $sourceId,
             ]);
-
-        return $translation;
     }
 
-    /**
-     * Return next fresh translation ID.
-     *
-     * @return int
-     */
     public function freshTranslationId(): int
     {
         $lastTranslation = Translation::query()
@@ -106,33 +86,114 @@ trait Translatable
         return $lastTranslation + 1;
     }
 
-    /**
-     * Scope a query to only retrieve items from given locale.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $builder
-     * @param  string  $iso
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeLocale(EloquentBuilder $builder, string $iso = null)
+    public function scopeLocale(EloquentBuilder $builder, $iso = null): EloquentBuilder
     {
-        return $builder->join('translations', function (JoinClause $join) {
-            $join->on($this->getQualifiedKeyName(), '=', 'translations.translatable_id')
-                ->where('translations.translatable_type', '=', static::class);
+        if (is_array($iso)) {
+            $iso = null;
+        }
+
+        $prefix = Str::random(8);
+        $table = "{$prefix}_translations";
+
+        return $builder->join("translations as {$table}", function (JoinClause $join) use ($table) {
+            $join->on($this->getQualifiedKeyName(), '=', "{$table}.translatable_id")
+                ->where("{$table}.translatable_type", '=', static::class);
         })
-            ->join('locales', function (JoinClause $join) use ($iso) {
-                $join->on('locales.id', '=', 'translations.locale_id')
+            ->join('locales', function (JoinClause $join) use ($iso, $table) {
+                $join->on('locales.id', '=', "{$table}.locale_id")
                     ->where('locales.iso', '=', $iso ?? app()->getLocale());
             })
             ->select($this->qualifyColumn('*'));
     }
 
-    /**
-     * Translate model to given locale and return translated model.
-     *
-     * @param  \BBSLab\NovaTranslation\Models\Locale  $locale
-     * @return \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable
-     */
-    public function translate(Locale $locale)
+    public function translatedParents(Collection $locales): array
+    {
+        try {
+            $class = new ReflectionClass($this);
+        } catch (Exception $exception) {
+            return [];
+        }
+
+        $related = $locales->mapWithKeys(function (Locale $locale) {
+            return [$locale->iso => []];
+        })->toArray();
+
+        Collection::make($class->getMethods())->filter(function (ReflectionMethod $method) {
+            if (! $type = $method->getReturnType()) {
+                return false;
+            }
+
+            if (! method_exists($type, 'getName')) {
+                return false;
+            }
+
+            return in_array($type->getName(), [BelongsTo::class, MorphTo::class]);
+        })->each(function (ReflectionMethod $method) use (&$related, $locales) {
+            switch ($method->getReturnType()->getName()) {
+                case BelongsTo::class: $this->relatedBelongsTo($method, $related, $locales); break;
+                case MorphTo::class: $this->relatedMorphTo($method, $related, $locales); break;
+                default: break;
+            }
+        });
+
+        return $related;
+    }
+
+    protected function relatedBelongsTo(ReflectionMethod $method, array &$related, Collection $locales): void
+    {
+        $foreignKey = $this->{$method->getName()}()->getForeignKeyName();
+
+        /** @var \Illuminate\Database\Eloquent\Model|null $parent */
+        $parent = $this->{$method->getName()};
+
+        if (empty($parent) || ! $parent instanceof IsTranslatable) {
+            $locales->each(function (Locale $locale) use (&$related, $parent, $foreignKey) {
+                $related[$locale->iso][$foreignKey] = optional($parent)->getKey();
+            });
+
+            return;
+        }
+
+        $parent->load('translation.locale', 'translations');
+        $translations = $parent->translations->mapWithKeys(function (Translation $translation) {
+            return [$translation->locale->iso => $translation->translatable_id];
+        });
+
+        $locales->each(function (Locale $locale) use (&$related, $translations, $foreignKey, $parent) {
+            $related[$locale->iso][$foreignKey] = $translations->get($locale->iso) ?? $parent->translate($locale)->getKey();
+        });
+    }
+
+    protected function relatedMorphTo(ReflectionMethod $method, array &$related, Collection $locales): void
+    {
+        $foreignKey = $this->{$method->getName()}()->getForeignKeyName();
+        $morphType = $this->{$method->getName()}()->getMorphType();
+        $attribute = Str::snake($method->getName());
+
+        /** @var \Illuminate\Database\Eloquent\Model|null $parent */
+        $parent = $this->{$attribute};
+
+        if (empty($parent) || ! $parent instanceof IsTranslatable) {
+            $locales->each(function (Locale $locale) use (&$related, $parent, $foreignKey, $morphType) {
+                $related[$locale->iso][$foreignKey] = optional($parent)->getKey();
+                $related[$locale->iso][$morphType] = $parent ? get_class($parent) : null;
+            });
+
+            return;
+        }
+
+        $parent->load('translation.locale', 'translations');
+        $translations = $parent->translations->mapWithKeys(function (Translation $translation) {
+            return [$translation->locale->iso => $translation->translatable_id];
+        });
+
+        $locales->each(function (Locale $locale) use (&$related, $translations, $foreignKey, $morphType, $parent) {
+            $related[$locale->iso][$foreignKey] = $translations->get($locale->iso) ?? $parent->translate($locale)->getKey();
+            $related[$locale->iso][$morphType] = get_class($parent);
+        });
+    }
+
+    public function translate(Locale $locale): IsTranslatable
     {
         /** @var \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $translated */
         $translated = optional(
@@ -143,13 +204,15 @@ trait Translatable
         )->translatable;
 
         return $translated ?? static::withoutEvents(function () use ($locale) {
-            /** @var self $translated */
-            $translated = $this->newQuery()->create(
-                $this->only(
-                    $this->getOnCreateTranslatable()
-                )
+            $parents = $this->translatedParents(collect([$locale]));
+
+            $attributes = array_merge(
+                $this->only($this->getOnCreateTranslatable()),
+                $parents[$locale->iso] ?? []
             );
 
+            /** @var \BBSLab\NovaTranslation\Models\Traits\Translatable $translated */
+            $translated = $this->newQuery()->create($attributes);
             $translated->upsertTranslationEntry(
                 $locale->getKey(), $this->getKey(), $this->translation->translation_id
             );
@@ -158,41 +221,72 @@ trait Translatable
         });
     }
 
-    /**
-     * Set deleting translation state.
-     *
-     * @return void
-     */
+    public function initTranslation(): IsTranslatable
+    {
+        if ($this->translation) {
+            return $this;
+        }
+
+        $translation = $this->upsertTranslationEntry(
+            ($currentLocale = nova_translation()->currentLocale())->getKey(),
+            $this->getKey()
+        );
+
+        if (! in_array(get_class($this), nova_translation()->translatableModels())) {
+            return $this;
+        }
+
+        $attributes = $this->only(
+            $this->getOnCreateTranslatable()
+        );
+        $locales = nova_translation()->otherLocales($currentLocale);
+
+        $this::withoutEvents(function () use ($locales, $translation, $attributes) {
+            $locales->each(function (Locale $locale) use ($translation, $attributes) {
+                /** @var \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $model */
+                $model = $this->newQuery()->create($attributes);
+                $model->upsertTranslationEntry(
+                    $locale->getkey(), $this->getKey(), $translation->translation_id
+                );
+            });
+        });
+
+        return $this;
+    }
+
+    public function updateTranslationParents(): IsTranslatable
+    {
+        if (! $this->translation) {
+            return $this->initTranslation();
+        }
+
+        $locales = nova_translation()->otherLocales($currentLocale = nova_translation()->currentLocale());
+        $related = $this->translatedParents($locales);
+
+        static::withoutEvents(function () use ($related) {
+            $this->translations->each(function (Translation $translation) use ($related) {
+                $translation->translatable->update($related[$translation->locale->iso] ?? []);
+            });
+        });
+
+        return $this;
+    }
+
     public function deletingTranslation(): void
     {
         $this->_deleting_translation = true;
     }
 
-    /**
-     * Determine is the model currently in a delete translation process.
-     *
-     * @return bool
-     */
     public function isDeletingTranslation(): bool
     {
         return $this->_deleting_translation;
     }
 
-    /**
-     * Set translating relation state.
-     *
-     * @return void
-     */
     public function translatingRelation(): void
     {
         $this->_translating_relation = true;
     }
 
-    /**
-     * Determine is the model currently translating a relation.
-     *
-     * @return bool
-     */
     public function isTranslatingRelation(): bool
     {
         return $this->_translating_relation;

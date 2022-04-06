@@ -30,9 +30,6 @@ class TranslationRelation extends Relation
         parent::__construct(Translation::query(), $parent);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function addConstraints()
     {
         if (static::$constraints) {
@@ -49,9 +46,6 @@ class TranslationRelation extends Relation
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function addEagerConstraints(array $models)
     {
         $ids = collect($models)->pluck($this->parent->getKeyName());
@@ -68,10 +62,7 @@ class TranslationRelation extends Relation
             });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function initRelation(array $models, $relation)
+    public function initRelation(array $models, $relation): array
     {
         foreach ($models as $model) {
             /** @var \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable $model */
@@ -81,10 +72,7 @@ class TranslationRelation extends Relation
         return $models;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function match(array $models, Collection $results, $relation)
+    public function match(array $models, Collection $results, $relation): array
     {
         if ($results->isEmpty()) {
             return $models;
@@ -104,9 +92,6 @@ class TranslationRelation extends Relation
         return $models;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getResults()
     {
         return ! is_null($this->getParent()->getKey())

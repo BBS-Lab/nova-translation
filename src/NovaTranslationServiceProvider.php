@@ -4,18 +4,15 @@ namespace BBSLab\NovaTranslation;
 
 use BBSLab\NovaTranslation\Http\Middleware\Authorize;
 use BBSLab\NovaTranslation\Http\View\Composers\LocaleComposer;
-use BBSLab\NovaTranslation\Models\Locale;
-use BBSLab\NovaTranslation\Models\Observers\LocaleObserver;
 use BBSLab\NovaTranslation\Models\Observers\TranslatablePivotObserver;
-use BBSLab\NovaTranslation\Resources\Locale as LocaleResource;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Illuminate\Support\ServiceProvider;
 use Laravel\Nova\Events\ServingNova;
 use Laravel\Nova\Nova;
 
-class NovaTranslationServiceProvider extends BaseServiceProvider
+class NovaTranslationServiceProvider extends ServiceProvider
 {
     /**
      * Package ID.
@@ -31,93 +28,69 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
      */
     public function boot()
     {
-        $this->bootPackage();
+        $this->publishes([
+            __DIR__.'/../config/config.php' => $this->app->configPath('nova-translation.php'),
+        ], ['nova-translation', 'nova-translation-config']);
 
-        Locale::observe(LocaleObserver::class);
+        $this->publishes([
+            __DIR__.'/../resources/lang' => $this->app->resourcePath('lang/vendor/nova-translation'),
+        ], ['nova-translation', 'nova-translation-lang']);
+
+        $this->publishes([
+            __DIR__.'/../resources/views' => $this->app->resourcePath('views/vendor/nova-translation'),
+        ], ['nova-translation', 'nova-translation-views']);
+
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'nova-translation');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'nova-translation');
+
+        View::composer('nova-translation::locale-dropdown', LocaleComposer::class);
+
+        Pivot::observe(TranslatablePivotObserver::class);
 
         if ($this->isNovaInstalled()) {
             $this->app->booted(function () {
-                $this->bootRoutes();
+                $this->loadRoutes();
             });
 
-            if (config('nova-translation.use_default_locale_resource', false) === true) {
-                LocaleResource::$group = config('nova-translation.default_locale_resource_group');
-                Nova::resources([LocaleResource::class]);
-            }
+            Nova::serving(function (ServingNova $event) {
+                $this->loadNovaTranslations();
 
-            $this->serveNova();
+                Nova::provideToScript([
+                    'locale' => app()->getLocale(),
+                ]);
+            });
         }
     }
 
-    /**
-     * Boot Laravel package.
-     *
-     * @return void
-     */
-    protected function bootPackage()
+    public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/config.php', static::PACKAGE_ID);
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', static::PACKAGE_ID);
-        $this->loadViewsFrom(__DIR__.'/../resources/views', static::PACKAGE_ID);
+        $this->mergeConfigFrom(
+            __DIR__.'/../config/config.php', 'nova-translation'
+        );
 
-        View::composer(static::PACKAGE_ID.'::locale-dropdown', LocaleComposer::class);
-
-        $this->publishes([
-            __DIR__.'/../config/config.php' => config_path(static::PACKAGE_ID.'.php'),
-        ]);
-
-        Pivot::observe(TranslatablePivotObserver::class);
+        $this->app->singleton(NovaTranslation::class, function ($app) {
+            return new NovaTranslation($app['config']['nova-translation']);
+        });
     }
 
-    /**
-     * Check if Laravel Nova is installed.
-     *
-     * @return bool
-     */
-    protected function isNovaInstalled()
+    protected function isNovaInstalled(): bool
     {
         return class_exists('Laravel\Nova\Nova');
     }
 
-    /**
-     * Register the tool's routes.
-     *
-     * @return void
-     */
-    protected function bootRoutes()
+    protected function loadRoutes(): void
     {
         if ($this->app->routesAreCached()) {
             return;
         }
 
         Route::middleware(['nova', Authorize::class])
-            ->prefix('nova-vendor/'.static::PACKAGE_ID)
+            ->prefix('nova-vendor/nova-translation')
             ->group(__DIR__.'/../routes/api.php');
     }
 
-    /**
-     * Serve Laravel Nova.
-     *
-     * @return void
-     */
-    protected function serveNova()
-    {
-        Nova::serving(function (ServingNova $event) {
-            $this->loadNovaTranslations();
-
-            Nova::provideToScript([
-                'locale' => app()->getLocale(),
-            ]);
-        });
-    }
-
-    /**
-     * Load prefixed Nova translations.
-     *
-     * @return void
-     */
-    protected function loadNovaTranslations()
+    protected function loadNovaTranslations(): void
     {
         $file = __DIR__.'/../resources/lang/'.app()->getLocale().'.json';
         if (! file_exists($file)) {
@@ -126,9 +99,9 @@ class NovaTranslationServiceProvider extends BaseServiceProvider
 
         $translations = json_decode(file_get_contents($file), true);
         $translations = collect($translations)->mapWithKeys(function ($value, $key) {
-            return [static::PACKAGE_ID.'::'.$key => $value];
+            return ["nova-translation::{$key}" => $value];
         })->toArray();
 
-        \Laravel\Nova\Nova::translations($translations);
+        Nova::translations($translations);
     }
 }

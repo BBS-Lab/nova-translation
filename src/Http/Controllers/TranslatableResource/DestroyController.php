@@ -14,9 +14,6 @@ class DestroyController extends ResourceDestroyController
 {
     use Traits\TranslatableController;
 
-    /**
-     * {@inheritdoc}
-     */
     public function handle(DeleteResourceRequest $request)
     {
         if (! $this->isTranslatableResource($request)) {
@@ -47,6 +44,7 @@ class DestroyController extends ResourceDestroyController
      * @param  \Laravel\Nova\Http\Requests\DeleteResourceRequest  $request
      * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return void
+     *
      * @throws \Exception
      */
     protected function deleteSingleModel(DeleteResourceRequest $request, Model $model)

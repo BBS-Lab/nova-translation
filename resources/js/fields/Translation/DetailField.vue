@@ -1,5 +1,5 @@
 <template>
-  <div class="flex border-b border-40">
+  <div class="flex border-b border-40 -mx-6 px-6">
     <div class="w-1/4 py-4">
       <h4 class="font-normal text-80">{{ trans('Language') }}</h4>
     </div>

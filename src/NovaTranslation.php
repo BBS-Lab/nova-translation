@@ -8,70 +8,84 @@ use Illuminate\Support\Facades\Cache;
 
 class NovaTranslation
 {
-    const LOCALES_CACHE_KEY = 'nova-translation-locales';
+    protected $config = [];
 
-    /**
-     * Forget caches locales.
-     *
-     * @return void
-     */
-    public static function forgetLocales(): void
+    protected $locales = [];
+
+    public function __construct(array $config)
     {
-        Cache::forget(static::LOCALES_CACHE_KEY);
+        $this->config = $config;
+    }
+
+    protected function cacheKey(): string
+    {
+        return $this->config['cache']['key'];
+    }
+
+    protected function cacheTtl(): int
+    {
+        return $this->config['cache']['ttl'];
+    }
+
+    public function forgetLocales(): void
+    {
+        Cache::forget($this->cacheKey());
+        $this->locales = [];
+    }
+
+    public function localeModel(): string
+    {
+        return $this->config['models']['locale'];
+    }
+
+    public function labelModel(): string
+    {
+        return $this->config['models']['label'];
     }
 
     /**
-     * @return \BBSLab\NovaTranslation\Models\Locale
-     *
      * @throws \Exception
      */
-    public static function currentLocale(): Locale
+    public function currentLocale(): Locale
     {
-        $locale = Locale::havingIso($iso = app()->getLocale());
+        if (! isset($this->locales[$iso = app()->getLocale()])) {
+            $locale = $this->localeModel()::havingIso($iso);
 
-        if (empty($locale)) {
-            throw new \Exception("No such locale [{$iso}]");
+            if (empty($locale)) {
+                throw new \Exception("No such locale [{$iso}]");
+            }
+
+            $this->locales[$iso] = $locale;
         }
 
-        return $locale;
+        return $this->locales[$iso];
     }
 
-    /**
-     * @return \Illuminate\Support\Collection
-     */
-    public static function locales(): Collection
+    public function locales(): Collection
     {
-        return Cache::rememberForever(static::LOCALES_CACHE_KEY, function () {
-            return Locale::query()
+        return Cache::remember($this->cacheKey(), $this->cacheTtl(), function () {
+            return $this->localeModel()::query()
                 ->orderBy('label')
                 ->get();
         });
     }
 
-    /**
-     * @param  \BBSLab\NovaTranslation\Models\Locale|null  $current
-     * @return \Illuminate\Support\Collection
-     * @throws \Exception
-     */
-    public static function otherLocales(?Locale $current = null): Collection
+    public function otherLocales(?Locale $current = null): Collection
     {
-        $current = $current ?? static::currentLocale();
+        $current = $current ?? $this->currentLocale();
 
-        return static::locales()->reject(function (Locale $locale) use ($current) {
+        return $this->locales()->reject(function (Locale $locale) use ($current) {
             return $locale->is($current);
         });
     }
 
-    public static function translatableModels(): array
+    public function translatableModels(): array
     {
-        return config(NovaTranslationServiceProvider::PACKAGE_ID.'.auto_synced_models', []) ?? [];
+        return $this->config['auto_synced_models'] ?? [];
     }
 
-    /**
-     * @return string
-     */
-    public static function localeSessionKey(): string
+    public function localeSessionKey(): string
     {
-        return config('nova-translation.locale_session_key');
+        return $this->config['locale_session_key'];
     }
 }

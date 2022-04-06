@@ -5,7 +5,6 @@ namespace BBSLab\NovaTranslation\Models\Relations;
 use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Translation;
-use BBSLab\NovaTranslation\NovaTranslation;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany as Relation;
 use Illuminate\Support\Collection;
 
@@ -25,13 +24,14 @@ class BelongsToMany extends Relation
      * @param  array  $attributes
      * @param  bool  $touch
      * @return void
+     *
      * @throws \Exception
      */
     public function attach($id, array $attributes = [], $touch = true)
     {
         parent::attach($id, $attributes, $touch);
 
-        if (! in_array(get_class($this->parent), NovaTranslation::translatableModels())) {
+        if (! in_array(get_class($this->parent), nova_translation()->translatableModels())) {
             return;
         }
 
@@ -39,7 +39,7 @@ class BelongsToMany extends Relation
             return;
         }
 
-        $keys = $this->getTranslatedKeys($this->parseIds($id), $locales = NovaTranslation::otherLocales());
+        $keys = $this->getTranslatedKeys($this->parseIds($id), $locales = nova_translation()->otherLocales());
 
         $this->parent->translations()
             ->with(['locale', 'translatable'])
@@ -59,7 +59,7 @@ class BelongsToMany extends Relation
     {
         $result = parent::detach($ids, $touch);
 
-        if (! in_array(get_class($this->parent), NovaTranslation::translatableModels())) {
+        if (! in_array(get_class($this->parent), nova_translation()->translatableModels())) {
             return $result;
         }
 
@@ -67,7 +67,7 @@ class BelongsToMany extends Relation
             return $result;
         }
 
-        $keys = $this->getTranslatedKeys($this->parseIds($ids), NovaTranslation::otherLocales());
+        $keys = $this->getTranslatedKeys($this->parseIds($ids), nova_translation()->otherLocales());
 
         $this->parent->translations()
             ->with(['locale', 'translatable'])
@@ -85,7 +85,7 @@ class BelongsToMany extends Relation
     {
         $changes = parent::sync($ids, $detaching);
 
-        if (! in_array(get_class($this->parent), NovaTranslation::translatableModels())) {
+        if (! in_array(get_class($this->parent), nova_translation()->translatableModels())) {
             return $changes;
         }
 
@@ -94,7 +94,7 @@ class BelongsToMany extends Relation
         }
 
         $ids = $this->parseIds($ids);
-        $keys = $this->getTranslatedKeys($ids, NovaTranslation::otherLocales());
+        $keys = $this->getTranslatedKeys($ids, nova_translation()->otherLocales());
 
         $this->parent->translations()
             ->with(['locale', 'translatable'])

@@ -26,6 +26,10 @@ trait LocaleFilters
             }
         }
 
+        if (empty($isos)) {
+            $isos[] = app()->getLocale();
+        }
+
         return $isos;
     }
 

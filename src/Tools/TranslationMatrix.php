@@ -2,18 +2,14 @@
 
 namespace BBSLab\NovaTranslation\Tools;
 
-use BBSLab\NovaTranslation\NovaTranslationServiceProvider;
 use Laravel\Nova\Nova;
 use Laravel\Nova\Tool;
 
 class TranslationMatrix extends Tool
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function boot()
+    public function boot(): void
     {
-        Nova::script(NovaTranslationServiceProvider::PACKAGE_ID, __DIR__.'/../../dist/js/'.NovaTranslationServiceProvider::PACKAGE_ID.'.js');
-        Nova::style(NovaTranslationServiceProvider::PACKAGE_ID, __DIR__.'/../../dist/css/'.NovaTranslationServiceProvider::PACKAGE_ID.'.css');
+        Nova::script('nova-translation', __DIR__.'/../../dist/js/nova-translation.js');
+        Nova::style('nova-translation', __DIR__.'/../../dist/css/nova-translation.css');
     }
 }

@@ -13,8 +13,7 @@ abstract class TranslatableResource extends Resource
     public static function indexQuery(NovaRequest $request, $query)
     {
         return $query
-            ->locale()
-            ->with('translation');
+            ->locale();
     }
 
     /**
