@@ -18,7 +18,7 @@ class LocaleController
 
             $this->whenUsingCookies(function () use ($locale) {
                 Cookie::queue(
-                    NovaTranslation::localeSessionKey(),
+                    nova_translation()->localeSessionKey(),
                     $locale,
                     config('nova-translation.cookies_ttl', 60 * 24 * 120)
                 );
