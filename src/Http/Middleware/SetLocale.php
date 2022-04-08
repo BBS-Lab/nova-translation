@@ -40,11 +40,15 @@ class SetLocale
             Session::put(nova_translation()->localeSessionKey(), $locale);
 
             $this->whenUsingCookies(function () use ($locale) {
-                Cookie::queue(
-                    nova_translation()->localeSessionKey(),
-                    $locale,
-                    config('nova-translation.cookies_ttl', 60 * 24 * 120)
-                );
+                if (!Cookie::has(nova_translation()->localeSessionKey())) {
+                    Cookie::queue(
+                        Cookie::make(
+                            nova_translation()->localeSessionKey(),
+                            $locale,
+                            config('nova-translation.cookies_ttl')
+                        )
+                    );
+                }
             });
 
             app()->setLocale($locale);
