@@ -72,7 +72,7 @@ trait Translatable
                 'locale_id' => $localeId,
                 'translation_id' => ! empty($translationId) ? $translationId : $this->freshTranslationId(),
                 'translatable_id' => $this->getKey(),
-                'translatable_type' => static::class,
+                'translatable_type' => $this->getMorphClass(),
                 'translatable_source' => $sourceId,
             ]);
     }
@@ -80,7 +80,7 @@ trait Translatable
     public function freshTranslationId(): int
     {
         $lastTranslation = Translation::query()
-            ->where('translatable_type', '=', static::class)
+            ->where('translatable_type', '=', $this->getMorphClass())
             ->max('translation_id') ?? 0;
 
         return $lastTranslation + 1;
@@ -97,7 +97,7 @@ trait Translatable
 
         return $builder->join("translations as {$table}", function (JoinClause $join) use ($table) {
             $join->on($this->getQualifiedKeyName(), '=', "{$table}.translatable_id")
-                ->where("{$table}.translatable_type", '=', static::class);
+                ->where("{$table}.translatable_type", '=', $this->getMorphClass());
         })
             ->join('locales', function (JoinClause $join) use ($iso, $table) {
                 $join->on('locales.id', '=', "{$table}.locale_id")
@@ -176,7 +176,7 @@ trait Translatable
         if (empty($parent) || ! $parent instanceof IsTranslatable) {
             $locales->each(function (Locale $locale) use (&$related, $parent, $foreignKey, $morphType) {
                 $related[$locale->iso][$foreignKey] = optional($parent)->getKey();
-                $related[$locale->iso][$morphType] = $parent ? get_class($parent) : null;
+                $related[$locale->iso][$morphType] = $parent ? $parent->getMorphClass() : null;
             });
 
             return;
@@ -189,7 +189,7 @@ trait Translatable
 
         $locales->each(function (Locale $locale) use (&$related, $translations, $foreignKey, $morphType, $parent) {
             $related[$locale->iso][$foreignKey] = $translations->get($locale->iso) ?? $parent->translate($locale)->getKey();
-            $related[$locale->iso][$morphType] = get_class($parent);
+            $related[$locale->iso][$morphType] = $parent->getMorphClass();
         });
     }
 
@@ -232,7 +232,7 @@ trait Translatable
             $this->getKey()
         );
 
-        if (! in_array(get_class($this), nova_translation()->translatableModels())) {
+        if (! in_array($this->getMorphClass(), nova_translation()->translatableModels())) {
             return $this;
         }
 

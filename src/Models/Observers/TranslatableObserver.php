@@ -23,7 +23,7 @@ class TranslatableObserver
             $translatable->getKey()
         );
 
-        if (! in_array(get_class($translatable), nova_translation()->translatableModels())) {
+        if (! in_array($translatable->getMorphClass(), nova_translation()->translatableModels())) {
             return;
         }
 
@@ -85,7 +85,7 @@ class TranslatableObserver
         $translatable->load('translations');
         $translatable->translation->delete();
 
-        if (! in_array(get_class($translatable), nova_translation()->translatableModels())) {
+        if (! in_array($translatable->getMorphClass(), nova_translation()->translatableModels())) {
             return;
         }
 

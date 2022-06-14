@@ -50,7 +50,7 @@ class Locale extends Model
 
     public function fallback(): BelongsTo
     {
-        return $this->belongsTo(static::class, 'fallback_id');
+        return $this->belongsTo($this->getMorphClass(), 'fallback_id');
     }
 
     public static function havingIso(string $iso): ?Locale
