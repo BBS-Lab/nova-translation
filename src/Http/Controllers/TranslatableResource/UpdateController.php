@@ -48,7 +48,7 @@ class UpdateController extends ResourceUpdateController
         $translations = Translation::query()
             ->select('translatable_id')
             ->where('translation_id', '=', $model->translation->translation_id)
-            ->where('translatable_type', '=', get_class($model))
+            ->where('translatable_type', '=', $model->getMorphClass())
             ->get();
         foreach ($translations as $translation) {
             $translatedModel = $resource::newModel()->find($translation->translatable_id);

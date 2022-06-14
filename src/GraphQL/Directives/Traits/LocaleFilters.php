@@ -49,7 +49,7 @@ trait LocaleFilters
             ->select($table.'.*', 'locales.iso AS locale', 'translations.translation_id')
             ->join('translations', $table.'.'.$model->getKeyName(), '=', 'translations.translatable_id')
             ->join('locales', 'translations.locale_id', '=', 'locales.id')
-            ->where('translations.translatable_type', '=', get_class($model))
+            ->where('translations.translatable_type', '=', $model->getMorphClass())
             ->where('locales.available_in_api', '=', true);
 
         if (! empty($isos)) {

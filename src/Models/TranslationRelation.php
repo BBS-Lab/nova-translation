@@ -35,13 +35,13 @@ class TranslationRelation extends Relation
         if (static::$constraints) {
             $this->query
                 ->where('translatable_id', '<>', $this->parent->getKey())
-                ->where('translatable_type', '=', get_class($this->parent))
+                ->where('translatable_type', '=', $this->parent->getMorphClass())
                 ->whereExists(function (Builder $query) {
                     $query->select(DB::raw(1))
                         ->from('translations as original')
                         ->whereRaw('original.translation_id = translations.translation_id')
                         ->where('original.translatable_id', '=', $this->parent->getKey())
-                        ->where('original.translatable_type', '=', get_class($this->parent));
+                        ->where('original.translatable_type', '=', $this->parent->getMorphClass());
                 });
         }
     }
@@ -52,13 +52,13 @@ class TranslationRelation extends Relation
 
         $this->query
             ->whereNotIn('translatable_id', $ids)
-            ->where('translatable_type', '=', get_class($this->parent))
+            ->where('translatable_type', '=', $this->parent->getMorphClass())
             ->whereExists(function (Builder $query) use ($ids) {
                 $query->select(DB::raw(1))
                     ->from('translations as original')
                     ->whereRaw('translations.translation_id = original.translation_id')
                     ->whereIn('original.translatable_id', $ids)
-                    ->where('original.translatable_type', '=', get_class($this->parent));
+                    ->where('original.translatable_type', '=', $this->parent->getMorphClass());
             });
     }
 

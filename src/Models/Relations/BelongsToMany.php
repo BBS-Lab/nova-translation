@@ -31,7 +31,7 @@ class BelongsToMany extends Relation
     {
         parent::attach($id, $attributes, $touch);
 
-        if (! in_array(get_class($this->parent), nova_translation()->translatableModels())) {
+        if (! in_array($parent->getMorphClass(), nova_translation()->translatableModels())) {
             return;
         }
 
@@ -59,7 +59,7 @@ class BelongsToMany extends Relation
     {
         $result = parent::detach($ids, $touch);
 
-        if (! in_array(get_class($this->parent), nova_translation()->translatableModels())) {
+        if (! in_array($parent->getMorphClass(), nova_translation()->translatableModels())) {
             return $result;
         }
 
@@ -85,7 +85,7 @@ class BelongsToMany extends Relation
     {
         $changes = parent::sync($ids, $detaching);
 
-        if (! in_array(get_class($this->parent), nova_translation()->translatableModels())) {
+        if (! in_array($parent->getMorphClass(), nova_translation()->translatableModels())) {
             return $changes;
         }
 
