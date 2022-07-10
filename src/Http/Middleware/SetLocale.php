@@ -21,14 +21,12 @@ class SetLocale
             app()->setLocale(
                 Session::get(nova_translation()->localeSessionKey())
             );
+        } elseif (Cookie::has(nova_translation()->localeSessionKey())) {
+            $locale = Cookie::get(nova_translation()->localeSessionKey());
 
-            $this->whenUsingCookies(function () {
-                $locale = Cookie::get(nova_translation()->localeSessionKey());
-
-                if ($locale) {
-                    app()->setLocale($locale);
-                }
-            });
+            if ($locale) {
+                app()->setLocale($locale);
+            }
         } else {
             $browserLocale = Locale::havingIso(
             // Take first 2 (as described flags in config)
@@ -55,12 +53,5 @@ class SetLocale
         }
 
         return $next($request);
-    }
-
-    public function whenUsingCookies(callable $callback): void
-    {
-        if (config('nova-translation.use_cookies')) {
-            $callback();
-        }
     }
 }
