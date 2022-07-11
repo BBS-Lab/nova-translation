@@ -54,4 +54,11 @@ class SetLocale
 
         return $next($request);
     }
+    
+    public function whenUsingCookies(callable $callback): void
+    {
+        if (config('nova-translation.use_cookies')) {
+            $callback();
+        }
+    }
 }
