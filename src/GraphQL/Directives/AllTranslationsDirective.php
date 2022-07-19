@@ -8,22 +8,13 @@ use GraphQL\Type\Definition\ResolveInfo;
 use Nuwave\Lighthouse\Schema\AST\DocumentAST;
 use Nuwave\Lighthouse\Schema\Directives\BaseDirective;
 use Nuwave\Lighthouse\Schema\Values\FieldValue;
-use Nuwave\Lighthouse\Support\Contracts\DefinedDirective;
 use Nuwave\Lighthouse\Support\Contracts\FieldManipulator;
 use Nuwave\Lighthouse\Support\Contracts\FieldResolver;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
-class AllTranslationsDirective extends BaseDirective implements FieldResolver, FieldManipulator, DefinedDirective
+class AllTranslationsDirective extends BaseDirective implements FieldResolver, FieldManipulator
 {
     use Traits\ExtendSchemaWithLocaleFields, Traits\LocaleFilters;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function name(): string
-    {
-        return 'allTranslations';
-    }
 
     /**
      * {@inheritdoc}
