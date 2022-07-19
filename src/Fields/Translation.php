@@ -21,7 +21,7 @@ class Translation extends Field
     /**
      * {@inheritdoc}
      */
-    public function __construct(string $name = '', ?string $attribute = null, ?mixed $resolveCallback = null)
+    public function __construct(string $name = '', ?string $attribute = null, mixed $resolveCallback = null)
     {
         $name = trans(NovaTranslationServiceProvider::PACKAGE_ID.'::lang.field');
         $attribute = 'translation';
