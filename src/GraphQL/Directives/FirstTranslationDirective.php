@@ -54,7 +54,16 @@ SDL;
                     throw new Exception('Multiple locales cannot be queried on a single returned instance! You have to only use "locale" filter on your "localeFilters" parameter.');
                 }
 
-                return $this->localeFilters($this->getModelClass(), $args)->first();
+                $locale = $args['locale'] ?? app()->getLocale();
+            
+                return $resolveInfo
+                    ->argumentSet
+                    ->enhanceBuilder(
+                        $this->getModelClass()::query()
+                            ->whereRelation('translation.locale', 'iso', '=', $locale),
+                        []
+                    )
+                    ->first();
             }
         );
     }
