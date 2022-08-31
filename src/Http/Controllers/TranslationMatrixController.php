@@ -37,6 +37,7 @@ class TranslationMatrixController
      */
     public function save(Request $request)
     {
+        DB::connection()->getPdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 0);
         DB::beginTransaction();
 
         Label::query()->truncate();
