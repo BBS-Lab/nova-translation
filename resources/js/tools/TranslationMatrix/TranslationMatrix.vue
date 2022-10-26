@@ -161,6 +161,7 @@
 
       deleteKey(key) {
         delete this.labels[key]
+        this.labels =_(this.labels).toPairs().sortBy(0).fromPairs().value()
       },
     },
   }
