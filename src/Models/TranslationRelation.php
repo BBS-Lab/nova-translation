@@ -2,6 +2,7 @@
 
 namespace BBSLab\NovaTranslation\Models;
 
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -28,6 +29,14 @@ class TranslationRelation extends Relation
     public function __construct(Model $parent)
     {
         parent::__construct(Translation::query(), $parent);
+    }
+
+    public function getRelationExistenceQuery(EloquentBuilder $query, EloquentBuilder $parentQuery, $columns = ['*'])
+    {
+        return $query
+            ->select($columns)
+            ->whereColumn('translations.translatable_id', '=', $this->getQualifiedParentKeyName())
+            ->where('translations.translatable_type', '=', $this->parent->getMorphClass());
     }
 
     public function addConstraints()
