@@ -1,13 +1,12 @@
-Nova.booting((Vue, router, store) => {
-  router.addRoutes([
-    {
-      name: 'nova-translation',
-      path: '/nova-translation',
-      component: require('./tools/TranslationMatrix/TranslationMatrix.vue').default
-    }
-  ])
+import Tool from '@/tools/TranslationMatrix/TranslationMatrix'
+import IndexField from '@/fields/Translation/IndexField'
+import DetailField from '@/fields/Translation/DetailField'
+import FormField from '@/fields/Translation/FormField'
 
-  Vue.component('index-nova-translation-field', require('./fields/Translation/IndexField').default)
-  Vue.component('detail-nova-translation-field', require('./fields/Translation/DetailField').default)
-  Vue.component('form-nova-translation-field', require('./fields/Translation/FormField').default)
+Nova.booting(app => {
+  Nova.inertia('TranslationMatrix', Tool)
+
+  app.component('index-nova-translation-field', IndexField)
+  app.component('detail-nova-translation-field', DetailField)
+  app.component('form-nova-translation-field', FormField)
 })

@@ -10,23 +10,14 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Nova\Events\ServingNova;
+use Laravel\Nova\Http\Middleware\Authenticate;
 use Laravel\Nova\Nova;
 
 class NovaTranslationServiceProvider extends ServiceProvider
 {
-    /**
-     * Package ID.
-     *
-     * @var string
-     */
     const PACKAGE_ID = 'nova-translation';
 
-    /**
-     * Bootstrap Kernel.
-     *
-     * @return void
-     */
-    public function boot()
+    public function boot(): void
     {
         $this->publishes([
             __DIR__.'/../config/config.php' => $this->app->configPath('nova-translation.php'),
@@ -50,7 +41,7 @@ class NovaTranslationServiceProvider extends ServiceProvider
 
         if ($this->isNovaInstalled()) {
             $this->app->booted(function () {
-                $this->loadRoutes();
+                $this->routes();
             });
 
             Nova::serving(function (ServingNova $event) {
@@ -79,11 +70,14 @@ class NovaTranslationServiceProvider extends ServiceProvider
         return class_exists('Laravel\Nova\Nova');
     }
 
-    protected function loadRoutes(): void
+    protected function routes(): void
     {
         if ($this->app->routesAreCached()) {
             return;
         }
+
+        Nova::router(['nova', Authenticate::class, Authorize::class], '{{ name }}')
+            ->group(__DIR__.'/../routes/inertia.php');
 
         Route::middleware(['nova', Authorize::class])
             ->prefix('nova-vendor/nova-translation')

@@ -49,25 +49,25 @@ export default {
 }
 </script>
 
-<style lang="scss">
-  .nova-translation-field_index {
-    display: flex;
-    align-items: center;
+<!--<style lang="scss">-->
+<!--  .nova-translation-field_index {-->
+<!--    display: flex;-->
+<!--    align-items: center;-->
 
-    div {
-      margin-left: .2rem;
+<!--    div {-->
+<!--      margin-left: .2rem;-->
 
-      &:first-child {
-        margin-left: 0;
-      }
+<!--      &:first-child {-->
+<!--        margin-left: 0;-->
+<!--      }-->
 
-      &:not(:last-child):after {
-        content: "|";
-      }
+<!--      &:not(:last-child):after {-->
+<!--        content: "|";-->
+<!--      }-->
 
-      a {
-        text-decoration: none;
-      }
-    }
-  }
-</style>
+<!--      a {-->
+<!--        text-decoration: none;-->
+<!--      }-->
+<!--    }-->
+<!--  }-->
+<!--</style>-->

@@ -21,11 +21,11 @@
   "require": {
     "php": "^7.2|^8.0",
     "ext-json": "*",
-    "bbs-lab/nova-cloudinary-field": "^0.3",
     "illuminate/contracts": "^6.2|^7.0|^8.0|^9.0",
     "illuminate/database": "^6.2|^7.0|^8.0|^9.0",
     "illuminate/support": "^6.2|^7.0|^8.0|^9.0",
-    "laravel/framework": "^6.2|^7.0|^8.0|^9.0"
+    "laravel/framework": "^6.2|^7.0|^8.0|^9.0",
+    "nova-kit/nova-packages-tool": "^1.3.1"
   },
   "require-dev": {
     "nuwave/lighthouse": "^4|^5.0"

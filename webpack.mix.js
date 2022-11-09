@@ -1,7 +1,18 @@
 const mix = require('laravel-mix')
+const postcssImport = require('postcss-import')
+const tailwindcss = require('tailwindcss')
+
+require('./nova.mix')
+const config = require('./webpack.config')
 
 mix
+  .disableNotifications()
   .setPublicPath('dist')
   .js('resources/js/nova-translation.js', 'js')
-  .vue()
-  .sass('resources/sass/nova-translation.scss', 'css')
+  .vue({ version: 3 })
+  .postCss('resources/css/tool.css', 'css', [postcssImport(), tailwindcss('tailwind.config.js')])
+  .options({
+    processCssUrls: false,
+  })
+  .webpackConfig(config)
+  .nova('bbs-lab/nova-translation')
