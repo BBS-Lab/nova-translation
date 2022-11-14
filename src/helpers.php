@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use BBSLab\NovaTranslation\NovaTranslation;
 
 if (! function_exists('nova_translation')) {

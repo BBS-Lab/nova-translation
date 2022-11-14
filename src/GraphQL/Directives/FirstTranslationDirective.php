@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BBSLab\NovaTranslation\GraphQL\Directives;
 
 use Exception;
@@ -55,7 +57,7 @@ SDL;
                 }
 
                 $locale = $args['locale'] ?? app()->getLocale();
-            
+
                 return $resolveInfo
                     ->argumentSet
                     ->enhanceBuilder(

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BBSLab\NovaTranslation\Models\Relations;
 
 use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;

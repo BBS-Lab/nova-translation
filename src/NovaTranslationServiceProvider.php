@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BBSLab\NovaTranslation;
 
 use BBSLab\NovaTranslation\Http\Middleware\Authorize;
@@ -76,7 +78,7 @@ class NovaTranslationServiceProvider extends ServiceProvider
             return;
         }
 
-        Nova::router(['nova', Authenticate::class, Authorize::class], '{{ name }}')
+        Nova::router(['nova', Authenticate::class, Authorize::class], 'nova-translation')
             ->group(__DIR__.'/../routes/inertia.php');
 
         Route::middleware(['nova', Authorize::class])

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BBSLab\NovaTranslation\Http\Middleware;
 
 use BBSLab\NovaTranslation\Tools\TranslationMatrix;

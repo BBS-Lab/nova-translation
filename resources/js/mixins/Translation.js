@@ -1,7 +1,7 @@
 export default {
   computed: {
     locale() {
-      let id = _.findKey(this.locales, l => l.iso === Nova.config.locale)
+      let id = _.findKey(this.locales, l => l.iso === Nova.config('locale'))
 
       return this.locales.hasOwnProperty(id) ? this.locales[id] : null
     },

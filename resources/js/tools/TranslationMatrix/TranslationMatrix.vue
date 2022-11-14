@@ -1,50 +1,88 @@
 <template>
-  <div>
-    <heading>{{ trans('Translations Matrix') }}</heading>
+  <div class="nova-translation">
+    <Heading level="1" class="mb-3">{{ trans('Translations Matrix') }}</Heading>
 
-    <loading-view v-if="loading"/>
-
-    <div v-else>
-      <div class="mb-6 text-right">
-        <button class="btn btn-link dim cursor-pointer text-80" @click.prevent="promptKeyModalOpened = true">{{ trans('Add key') }}</button>
-        <button class="ml-3 btn btn-default btn-primary text-white cursor-pointer text-80" @click="saveLabels">{{ trans('Save') }}</button>
+    <LoadingView :loading="loading">
+      <div class="flex">
+        <div class="w-full flex items-center mb-6"><!-- Create / Attach Button -->
+          <div class="flex-shrink-0 ml-auto"><!-- Attach Related Models --><!-- Create Related Models -->
+            <button
+                size="md"
+                class="flex-shrink-0 shadow rounded focus:outline-none ring-primary-200 dark:ring-gray-600 focus:ring bg-primary-500 hover:bg-primary-400 active:bg-primary-600 text-white dark:text-gray-800 inline-flex items-center font-bold px-4 h-9 text-sm flex-shrink-0"
+                @click.prevent="openPromptKeyModal"
+            >
+              <span class="hidden md:inline-block">{{ trans('Add key') }}</span>
+              <span class="inline-block md:hidden">{{ trans('Add key') }}</span>
+            </button>
+            <button
+                size="md"
+                class="flex-shrink-0 shadow rounded focus:outline-none ring-primary-200 dark:ring-gray-600 focus:ring bg-primary-500 hover:bg-primary-400 active:bg-primary-600 text-white dark:text-gray-800 inline-flex items-center font-bold px-4 h-9 text-sm flex-shrink-0 ml-3"
+                @click.prevent="saveLabels"
+            >
+              <span class="hidden md:inline-block">{{ trans('Save') }}</span>
+              <span class="inline-block md:hidden">{{ trans('Save') }}</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <card>
-        <div class="rounded overflow-hidden overflow-x-scroll overflow-y-scroll relative">
-          <div class="translation-matrix">
-            <table class="table relative w-full border-separate">
-              <thead>
+        <div class="rounded overflow-hidden">
+          <div class="overflow-x-auto overflow-y-auto max-h-[70vh]">
+            <table class="table overflow-x-scroll overflow-y-scroll relative w-full relative border-separate border-spacing-0">
+              <thead class="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th class="text-center sticky top-0 left-0 border-r z-20">{{ trans('Label') }}</th>
-                <th v-for="locale in locales" :key="locale.id" class="text-center sticky top-0 border-b">
+                <th
+                    class="bg-gray-50 dark:bg-gray-800 text-left px-2 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-2 border-r border-b border-gray-200 sticky top-0 left-0 z-30"
+                >
+                  {{ trans('Label') }}
+                </th>
+                <th
+                    v-for="(locale, index) in locales"
+                    :key="locale.id" class="bg-gray-50 dark:bg-gray-800  text-left px-2 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-2 border-b border-gray-200 sticky top-0"
+                    :class="{
+                      'border-l': index !== 0
+                    }"
+                >
                   {{ locale.label }} ({{locale.iso}})
                 </th>
-                <th class="sticky top-0 border-b">&nbsp;</th>
+                <th class="bg-gray-50 dark:bg-gray-800 text-left px-2 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-2 border-b border-l border-gray-200 sticky top-0 z-30 right-0">
+                  {{ trans('Actions') }}
+                </th>
               </tr>
               </thead>
-              <tbody>
-              <tr class="p-3" v-for="(keyI18n, key) in labels" :key="key" :id="`tr__${key}`">
-                <th class="sticky left-0 border-r z-10 no-uppercase">{{ key }}</th>
-                <td v-for="locale in locales" :key="`${key}__${locale.id}`">
-                  <div v-if="(keyI18n[locale.id] && (keyI18n[locale.id].type === 'text'))" class="py-1">
+              <tbody class="">
+              <tr class="p-3 border-t" v-for="(keyI18n, key) in labels" :key="key" :id="`tr__${key}`">
+                <th
+                    class="bg-white text-left px-2 whitespace-nowrap text-gray-500 text-xxs tracking-wide py-2 no-uppercase border-r sticky left-0 z-20"
+                >
+                  {{ key }}
+                </th>
+                <td
+                    v-for="(locale, index) in locales"
+                    :key="`${key}__${locale.id}`"
+                    class="border-gray-200 overflow-hidden hover:bg-gray-50"
+                    :class="{
+                      'border-l': index !== 0
+                    }"
+                >
+                  <div class="w-full h-full overflow-hidden focus-within:outline-3 focus-within:outline">
                     <textarea
-                      class="w-full h-auto form-control form-input form-input-bordered py-2"
-                      rows="2"
-                      cols="3"
-                      @input="updateLabel(key, locale.id, $event.target.value)"
-                      :id="`textarea__${key}__${locale.id}`" v-if="keyI18n[locale.id]"
-                      v-html="keyI18n[locale.id].value"
+                        class="w-full h-full focus:outline-none p-2 border-none bg-transparent"
+                        @input="updateLabel(key, locale.id, $event.target.value)"
+                        :id="`textarea__${key}__${locale.id}`"
+                        v-html="keyI18n[locale.id]?.value"
                     />
                   </div>
+
                 </td>
-                <td class="td-fit text-right pr-6 align-middle">
+                <td class="border-l border-gray-200 align-middle text-center p-3 bg-white z-20 sticky right-0">
                   <button
-                    class="inline-flex appearance-none cursor-pointer text-70 hover:text-primary mr-3"
-                    v-tooltip.click="trans('Delete')"
-                    @click.prevent="deleteKey(key)"
+                      class="inline-flex appearance-none cursor-pointer text-70 hover:text-primary"
+                      v-tooltip.click="trans('Delete')"
+                      @click.prevent="deleteKey(key)"
                   >
-                    <icon />
+                    <Icon type="trash" />
                   </button>
                 </td>
               </tr>
@@ -53,146 +91,115 @@
           </div>
         </div>
       </card>
-    </div>
 
-    <portal to="modals" transition="fade-transition">
-      <prompt-key-modal v-if="promptKeyModalOpened" @confirm="addKey" @close="promptKeyModalOpened = false"/>
-    </portal>
+      <PromptKeyModal
+          v-if="promptKeyModalOpened"
+          :show="promptKeyModalOpened"
+          @confirm="addKey"
+          @close="closePromptKeyModal"
+      />
+    </LoadingView>
   </div>
 </template>
 
-<script>
-  import I18n from '../../mixins/I18n'
+<script setup>
+import { useLocalization } from '@/hooks'
+import PromptKeyModal from '@/tools/TranslationMatrix/PromptKeyModal'
+import { nextTick, onMounted, ref } from 'vue'
 
-  export default {
-    mixins: [
-      I18n,
-    ],
+const { trans } = useLocalization()
 
-    components: {
-      PromptKeyModal: require('./PromptKeyModal.vue').default,
-    },
+const labels = ref([])
+const locales = ref([])
+const loading = ref(true)
+const currentEdit = ref({})
+const promptKeyModalOpened = ref(false)
 
-    data: () => ({
-      labels: [],
-      locales: [],
-      loading: true,
-      currentEdit: {},
-      promptKeyModalOpened: false,
-    }),
 
-    mounted() {
-      this.hydrate()
-    },
+const hydrate = () => {
+  Nova.request().get('/nova-vendor/nova-translation/translation-matrix').then((response) => {
+    console.log(response.data)
+    labels.value = response.data.labels
+    locales.value = response.data.locales
+    loading.value = false
+  }).catch((error) => {
+    console.error(error)
+    loading.value = false
+  })
+}
 
-    methods: {
-      hydrate() {
-        Nova.request().get('/nova-vendor/nova-translation/translation-matrix').then((response) => {
-          console.log(response.data)
-          this.labels = response.data.labels
-          this.locales = response.data.locales
-          this.loading = false
-        }).catch((error) => {
-          console.error(error)
-          this.loading = false
-        })
-      },
+const updateLabel = (key, localeId, value) => {
+  labels.value[key][localeId].value = value;
+}
 
-      updateLabel(key, localeId, value) {
-        this.labels[key][localeId].value = value;
-      },
+const saveLabels = () => {
+  loading.value = true
 
-      saveLabels() {
-        this.loading = true
+  Nova.request().post('/nova-vendor/nova-translation/translation-matrix', { labels: labels.value }).then((response) => {
+    labels.value = response.data.labels
+    Nova.success(trans('The translations have been successfully saved!'))
+  }).catch((error) => {
+    console.error(error)
+    Nova.error(trans('An error occurred while saving the translations!'))
+  }).finally(() => {
+    loading.value = false
+  })
+}
 
-        Nova.request().post('/nova-vendor/nova-translation/translation-matrix', { labels: this.labels }).then((response) => {
-          this.labels = response.data.labels
-          this.$toasted.show(this.trans('The translations have been successfully saved!'), { type: 'success' })
-        }).catch((error) => {
-          this.$toasted.show(this.trans('An error occurred while saving the translations!'), { type: 'error' })
-        }).finally(() => {
-          this.loading = false
-        })
-      },
+// ------------------------------------------------------------------------------
 
-      // ------------------------------------------------------------------------------
+const setCurrentEdit = (currentEdit) => {
+  currentEdit.value = currentEdit
+}
 
-      setCurrentEdit(currentEdit) {
-        this.currentEdit = currentEdit
-      },
+// ------------------------------------------------------------------------------
 
-      // ------------------------------------------------------------------------------
+const openPromptKeyModal = () => promptKeyModalOpened.value = true
+const closePromptKeyModal = () => promptKeyModalOpened.value = false
 
-      addKey(options) {
-        this.promptKeyModalOpened = false
+const addKey = (options) => {
+  promptKeyModalOpened.value = false
 
-        if (! this.keyExists(options.key)) {
-          this.addI18nKey(options.key, options.type)
-        } else {
-          this.$toasted.show(this.trans('The key you try to add already exists!'), { type: 'error' })
-        }
-
-        this.$nextTick(() => {
-          const textarea = document.querySelector(`#textarea__${options.key}__${this.locales[0].id}`)
-          if (textarea) {
-            textarea.focus()
-          }
-        })
-      },
-
-      keyExists(key) {
-        return key in this.labels
-      },
-
-      addI18nKey(key, type) {
-        this.labels[key] = {}
-
-        for (let i = 0 ; i < this.locales.length ; i++) {
-          this.labels[key][this.locales[i].id] = {
-            key: key,
-            type: type,
-            value: '',
-            locale_id: this.locales[i].id
-          }
-        }
-
-        this.labels =_(this.labels).toPairs().sortBy(0).fromPairs().value()
-      },
-
-      deleteKey(key) {
-        delete this.labels[key]
-        this.labels =_(this.labels).toPairs().sortBy(0).fromPairs().value()
-      },
-    },
+  if (! keyExists(options.key)) {
+    addI18nKey(options.key, options.type)
+  } else {
+    Nova.error(trans('The key you try to add already exists!'))
   }
+
+  nextTick(() => {
+    const textarea = document.querySelector(`#textarea__${options.key}__${locales.value[0].id}`)
+    if (textarea) {
+      textarea.focus()
+    }
+  })
+}
+
+const keyExists = (key) => key in labels.value
+
+const addI18nKey = (key, type) => {
+  labels.value[key] = {}
+
+  for (let i = 0 ; i < locales.value.length ; i++) {
+    labels.value[key][locales.value[i].id] = {
+      key: key,
+      type: type,
+      value: '',
+      locale_id: locales.value[i].id
+    }
+  }
+
+  labels.value =_(labels.value).toPairs().sortBy(0).fromPairs().value()
+}
+
+const deleteKey = (key) => {
+  delete labels.value[key]
+  labels.value =_(labels.value).toPairs().sortBy(0).fromPairs().value()
+}
+
+onMounted(() => hydrate())
 </script>
 
 <style scoped>
-  .modal {
-    background-color: rgba(0, 0, 0, 0.6);
-  }
-
-  .translation-matrix {
-    max-height: calc(95vh - 150px);
-  }
-
-  .top-0 {
-    top: 0 !important;
-  }
-
-  .left-0 {
-    left: 0 !important;
-  }
-
-  th.no-uppercase {
-    text-transform: none !important;
-  }
-
-  td {
-    border-top: none !important;
-    border-bottom-width: 2px !important;
-  }
-
   .table tbody tr th {
     max-width: 15rem !important;
     overflow-wrap: break-word;
@@ -201,4 +208,11 @@
   .table tbody tr td:not(:last-child) {
     min-width: 20rem;
   }
+
+  .table tbody tr:not(:last-child) td, .table tbody tr:not(:last-child) th {
+    border-bottom-width: 1px;
+    --tw-border-opacity: 1;
+    border-color: rgb(229 231 235 / var(--tw-border-opacity));
+  }
+
 </style>
