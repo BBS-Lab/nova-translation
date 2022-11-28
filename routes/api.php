@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use BBSLab\NovaTranslation\Http\Controllers\LocaleController;
 use BBSLab\NovaTranslation\Http\Controllers\TranslateController;
 use BBSLab\NovaTranslation\Http\Controllers\TranslationMatrixController;

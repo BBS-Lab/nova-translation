@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BBSLab\NovaTranslation\Http\View\Composers;
 
 use Illuminate\View\View;

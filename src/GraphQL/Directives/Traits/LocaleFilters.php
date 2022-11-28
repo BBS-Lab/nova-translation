@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BBSLab\NovaTranslation\GraphQL\Directives\Traits;
 
 use Illuminate\Database\Eloquent\Builder;

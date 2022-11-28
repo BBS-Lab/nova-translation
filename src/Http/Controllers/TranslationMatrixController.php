@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BBSLab\NovaTranslation\Http\Controllers;
 
-use BBSLab\CloudinaryField\HasCloudinaryField;
 use BBSLab\NovaTranslation\Models\Label;
 use BBSLab\NovaTranslation\Models\Locale;
 use BBSLab\NovaTranslation\Models\Translation;
@@ -12,8 +13,6 @@ use Illuminate\Support\Facades\DB;
 
 class TranslationMatrixController
 {
-    use HasCloudinaryField;
-
     /**
      * Setup labels matrix endpoint.
      *
@@ -117,9 +116,31 @@ class TranslationMatrixController
             ->get()
             ->groupBy(['key', 'locale_id'])
             ->transform(function (Collection $localeCollection) {
-                return $localeCollection->transform(function (Collection $items) {
+                $localeCollection = $localeCollection->transform(function (Collection $items) {
                     return $items->first();
                 });
+
+                $missingLocales = nova_translation()->locales()->reject(function (Locale $locale) use ($localeCollection) {
+                    return $localeCollection->contains('locale_id', '=', $locale->getKey());
+                });
+
+                if ($missingLocales->isNotEmpty()) {
+                    $original = $localeCollection->first();
+
+                    foreach ($missingLocales as $locale) {
+                        $label = nova_translation()->labelModel()::make([
+                            'type' => $original?->type,
+                            'key' => $original?->key,
+                            'value' => null,
+                        ]);
+
+                        $label->locale_id = $locale->getKey();
+
+                        $localeCollection->push($label);
+                    }
+                }
+
+                return $localeCollection;
             });
     }
 

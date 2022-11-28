@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BBSLab\NovaTranslation\GraphQL\Directives;
 
 use GraphQL\Language\AST\FieldDefinitionNode;
@@ -76,7 +78,7 @@ SDL;
         return $fieldValue->setResolver(
             function ($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo): LengthAwarePaginator {
                 $paginationArgs = PaginationArgs::extractArgs($args, $this->paginationType(), $this->paginateMaxCount());
-                
+
                 $first = $paginationArgs->first;
                 $page = $paginationArgs->page;
 

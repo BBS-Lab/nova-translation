@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BBSLab\NovaTranslation\Http\Controllers\TranslatableResource\Traits;
 
 use BBSLab\NovaTranslation\Resources\TranslatableResource;

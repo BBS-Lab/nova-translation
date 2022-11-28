@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BBSLab\NovaTranslation;
 
 use BBSLab\NovaTranslation\Models\Locale;

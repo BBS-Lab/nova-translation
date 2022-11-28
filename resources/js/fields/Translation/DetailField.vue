@@ -1,50 +1,56 @@
 <template>
-  <div class="flex border-b border-40 -mx-6 px-6">
-    <div class="w-1/4 py-4">
-      <h4 class="font-normal text-80">{{ trans('Language') }}</h4>
-    </div>
-    <div class="w-3/4 py-4 break-words flex">
-      <p class="text-90 font-bold">
-        {{ field.locales[field.value.locale_id].label }}
-      </p>
-      <div class="flex items-center ml-auto">
-        <dropdown class="ml-auto h-6 flex items-center dropdown-right">
-          <dropdown-trigger class="h-6 flex items-center text-xs bg-40 px-2 rounded active:outline-none active:shadow-outline focus:outline-none focus:shadow-outline">
-            <span class="text-90">{{ trans('Translations') }}</span>
-          </dropdown-trigger>
+  <div class="nova-translation">
+    <div class="flex flex-col md:flex-row -mx-6 px-6 py-2 md:py-0 space-y-2 md:space-y-0">
+      <div class="md:w-1/4 md:py-3 flex items-center">
+        <h4 class="font-normal text-80">{{ trans('Language') }}</h4>
+      </div>
+      <div class="md:w-3/4 md:py-3 break-all lg:break-words flex items-center">
+        <p class="text-90 font-bold">
+          {{ field.locales[field.value.locale_id].label }}
+        </p>
+        <div class="flex items-center ml-auto">
+          <Dropdown placement="bottom-end">
+            <DropdownTrigger
+                :show-arrow="true"
+                class="hover:bg-gray-100 dark:hover:bg-gray-700 h-10 focus:outline-none focus:ring rounded-lg flex items-center text-sm font-semibold text-gray-600 dark:text-gray-400 px-3"
+                role="navigation"
+            >
+              <span class="text-90">{{ trans('Translations') }}</span>
+            </DropdownTrigger>
+            <template #menu>
+              <DropdownMenu>
+                <div class="flex flex-col py-1">
+                  <template v-for="locale in otherLocales" :key="`locale_${locale.id}`">
+                    <template v-if="isTranslated[locale?.id] ?? false">
+                      <DropdownMenuItem
+                          as="link"
+                          method="GET"
+                          class="flex hover:bg-gray-100 py-1"
+                          :href="translatedDetailRoute(locale)"
+                      >
+                        <Icon :solid="true" type="check-circle" class="text-green-500" />
+                        <span class="ml-2">{{ locale.label }}</span>
+                      </DropdownMenuItem>
+                    </template>
+                    <template v-else>
+                      <DropdownMenuItem
+                          as="link"
+                          method="GET"
+                          class="flex text-gray-400 hover:bg-gray-100 py-1"
+                          :href="createTranslationRoute(locale)"
+                      >
+                        <Icon :solid="true" type="x-circle" class="text-red-500" />
+                        <span class="ml-2">{{ locale.label }}</span>
+                      </DropdownMenuItem>
+                    </template>
+                  </template>
+                </div>
+              </DropdownMenu>
+            </template>
+          </Dropdown>
 
-          <dropdown-menu slot="menu" width="200" direction="rtl">
-            <ul class="list-reset">
-              <li
-                v-for="locale in otherLocales"
-                :key="`locale_${locale.id}`"
-              >
-                <router-link
-                  v-if="isTranslated[locale.id]"
-                  class="block p-3 cursor-pointer no-underline text-90 hover:bg-30"
-                  :to="{
-                name: 'detail',
-                params: {
-                  resourceName,
-                  resourceId: translations[locale.id].translatable_id,
-                },
-              }"
-                  :title="__(`View in ${locale.label}`)"
-                >
-              <span class="nova-translation--flag">
-                {{ locale.label }}
-              </span>
-                </router-link>
-                <create-translation-link
-                  v-else
-                  :resource-name="resourceName"
-                  :resource-id="resourceId"
-                  :target-locale="locale"
-                />
-              </li>
-            </ul>
-          </dropdown-menu>
-        </dropdown>
+
+        </div>
       </div>
     </div>
   </div>
@@ -71,5 +77,14 @@ export default {
     'resourceId',
     'resourceName',
   ],
+
+  methods: {
+    translatedDetailRoute(locale) {
+      return `${Nova.config('base')}/resources/${this.resourceName}/${this.translations[locale.id].translatable_id}`
+    },
+    createTranslationRoute(locale) {
+      return `/nova-vendor/nova-translation/translate/${this.resourceName}/${this.resourceId}/locale-${locale.id}`
+    },
+  }
 }
 </script>
