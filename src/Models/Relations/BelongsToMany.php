@@ -85,7 +85,7 @@ class BelongsToMany extends Relation
     {
         $changes = parent::sync($ids, $detaching);
 
-        if (! in_array($parent->getMorphClass(), nova_translation()->translatableModels())) {
+        if (! in_array($this->parent->getMorphClass(), nova_translation()->translatableModels())) {
             return $changes;
         }
 
