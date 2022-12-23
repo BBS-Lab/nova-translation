@@ -107,4 +107,9 @@ class TranslationRelation extends Relation
             ? $this->query->get()
             : $this->related->newCollection();
     }
+
+    public function getExistenceCompareKey()
+    {
+        return 'translatable_id';
+    }
 }
