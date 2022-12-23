@@ -76,7 +76,7 @@ SDL;
         return $fieldValue->setResolver(
             function ($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo): LengthAwarePaginator {
                 $paginationArgs = PaginationArgs::extractArgs($args, $this->paginationType(), $this->paginateMaxCount());
-                
+
                 $first = $paginationArgs->first;
                 $page = $paginationArgs->page;
 

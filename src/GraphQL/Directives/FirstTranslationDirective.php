@@ -55,7 +55,7 @@ SDL;
                 }
 
                 $locale = $args['locale'] ?? app()->getLocale();
-            
+
                 return $resolveInfo
                     ->argumentSet
                     ->enhanceBuilder(
