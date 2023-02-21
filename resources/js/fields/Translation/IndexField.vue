@@ -33,7 +33,7 @@ export default {
 
   methods: {
     translatedDetailRoute(locale) {
-      return `${Nova.config('base')}/resources/${this.resourceName}/${this.translations[locale.id].translatable_id}`
+      return `${Nova.config('base')}/resources/${this.resourceName}/${this.translations[locale.id].translatable_id}`.replace('//', '/')
     }
   },
 
