@@ -31,7 +31,7 @@ class SetLocale
             }
         } else {
             $browserLocale = Locale::havingIso(
-            // Take first 2 (as described flags in config)
+                // Take first 2 (as described flags in config)
                 substr($request->server('HTTP_ACCEPT_LANGUAGE'), 0, 2) ?? ''
             );
 
@@ -40,7 +40,7 @@ class SetLocale
             Session::put(nova_translation()->localeSessionKey(), $locale);
 
             $this->whenUsingCookies(function () use ($locale) {
-                if (!Cookie::has(nova_translation()->localeSessionKey())) {
+                if (! Cookie::has(nova_translation()->localeSessionKey())) {
                     Cookie::queue(
                         Cookie::make(
                             nova_translation()->localeSessionKey(),
