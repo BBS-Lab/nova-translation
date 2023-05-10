@@ -32,7 +32,7 @@ class SetLocale
         } else {
             $browserLocale = Locale::havingIso(
                 // Take first 2 (as described flags in config)
-                substr($request->server('HTTP_ACCEPT_LANGUAGE') ? '', 0, 2)
+                substr($request->server('HTTP_ACCEPT_LANGUAGE') ?? '', 0, 2)
             );
 
             $locale = $browserLocale->iso ?? config('app.locale');
