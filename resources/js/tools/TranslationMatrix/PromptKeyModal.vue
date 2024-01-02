@@ -60,7 +60,7 @@
 
       <ModalFooter>
         <div class="flex items-center ml-auto">
-          <CancelButton
+          <DangerButton
               component="button"
               type="button"
               dusk="cancel-action-button"
@@ -68,7 +68,7 @@
               @click="handleClose"
           >
             {{ trans('Cancel', {}) }}
-          </CancelButton>
+          </DangerButton>
 
           <LoadingButton
               type="submit"
@@ -87,6 +87,8 @@
 <script setup>
 import { useLocalization } from '@/hooks'
 import { onMounted, ref } from 'vue'
+import LoadingButton from "@/components/LoadingButton.vue";
+import DangerButton from "@/components/DangerButton.vue";
 
 const emit = defineEmits()
 const { trans } = useLocalization()
