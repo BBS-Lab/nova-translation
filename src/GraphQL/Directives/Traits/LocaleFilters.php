@@ -9,13 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 trait LocaleFilters
 {
-    /**
-     * Get ISOS from GraphQL args.
-     *
-     * @param  array  $args
-     * @return array
-     */
-    public function isosFromLocaleFilters(array $args)
+    public function isosFromLocaleFilters(array $args): array
     {
         $isos = [];
 
@@ -35,15 +29,7 @@ trait LocaleFilters
         return $isos;
     }
 
-    /**
-     * Filter locales query builder.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  array  $isos
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function filterLocalesQuery(Builder $query, Model $model, array $isos = [])
+    public function filterLocalesQuery(Builder $query, Model $model, array $isos = []): Builder
     {
         $table = $model->getTable();
 
@@ -61,14 +47,7 @@ trait LocaleFilters
         return $query;
     }
 
-    /**
-     * Filter model by locale filters.
-     *
-     * @param  string  $modelClass
-     * @param  array  $args
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    protected function localeFilters(string $modelClass, array $args)
+    protected function localeFilters(string $modelClass, array $args): Builder
     {
         /** @var \Illuminate\Database\Eloquent\Model $model */
         $model = new $modelClass;

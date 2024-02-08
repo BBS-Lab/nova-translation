@@ -17,14 +17,7 @@ use Nuwave\Lighthouse\Schema\AST\DocumentAST;
 
 trait ExtendSchemaWithLocaleFields
 {
-    /**
-     * Extend GraphQL schema for given type with "locales" fields.
-     *
-     * @param  \Nuwave\Lighthouse\Schema\AST\DocumentAST  $documentAST
-     * @param  string  $typeToExtend
-     * @return void
-     */
-    protected function extendSchemaWithLocaleFields(DocumentAST &$documentAST, string $typeToExtend)
+    protected function extendSchemaWithLocaleFields(DocumentAST &$documentAST, string $typeToExtend): void
     {
         foreach ($documentAST->types as &$type) {
             if ($type->name->value === $typeToExtend) {
@@ -37,12 +30,7 @@ trait ExtendSchemaWithLocaleFields
         }
     }
 
-    /**
-     * Setup "locale" field definition.
-     *
-     * @return \GraphQL\Language\AST\FieldDefinitionNode
-     */
-    protected function defineLocaleField()
+    protected function defineLocaleField(): FieldDefinitionNode
     {
         return new FieldDefinitionNode([
             'name' => new NameNode(['value' => 'locale']),
@@ -53,12 +41,7 @@ trait ExtendSchemaWithLocaleFields
         ]);
     }
 
-    /**
-     * Setup "translationId" field definition.
-     *
-     * @return \GraphQL\Language\AST\FieldDefinitionNode
-     */
-    protected function defineTranslationIdField()
+    protected function defineTranslationIdField(): FieldDefinitionNode
     {
         return new FieldDefinitionNode([
             'name' => new NameNode(['value' => 'translationId']),

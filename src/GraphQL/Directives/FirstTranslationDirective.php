@@ -6,6 +6,7 @@ namespace BBSLab\NovaTranslation\GraphQL\Directives;
 
 use Exception;
 use GraphQL\Language\AST\FieldDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Type\Definition\ResolveInfo;
 use Nuwave\Lighthouse\Schema\AST\DocumentAST;
@@ -15,13 +16,12 @@ use Nuwave\Lighthouse\Support\Contracts\FieldManipulator;
 use Nuwave\Lighthouse\Support\Contracts\FieldResolver;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
+/** @deprecated */
 class FirstTranslationDirective extends BaseDirective implements FieldResolver, FieldManipulator
 {
-    use Traits\ExtendSchemaWithLocaleFields, Traits\LocaleFilters;
+    use Traits\ExtendSchemaWithLocaleFields;
+    use Traits\LocaleFilters;
 
-    /**
-     * {@inheritdoc}
-     */
     public static function definition(): string
     {
         return /* @lang GraphQL */ <<<'SDL'
@@ -34,10 +34,11 @@ directive @firstTranslation(
 SDL;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function manipulateFieldDefinition(DocumentAST &$documentAST, FieldDefinitionNode &$fieldDefinition, ObjectTypeDefinitionNode &$parentType): void
+    public function manipulateFieldDefinition(
+        DocumentAST &$documentAST,
+        FieldDefinitionNode &$fieldDefinition,
+        ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode &$parentType,
+    ): void
     {
         $this->extendSchemaWithLocaleFields(
             $documentAST,
@@ -45,28 +46,22 @@ SDL;
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function resolveField(FieldValue $fieldValue): FieldValue
+    public function resolveField(FieldValue $fieldValue): callable
     {
-        return $fieldValue->setResolver(
-            function ($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo) {
-                if (isset($args['localeFilters']) && ! empty($args['localeFilters']['locales'])) {
-                    throw new Exception('Multiple locales cannot be queried on a single returned instance! You have to only use "locale" filter on your "localeFilters" parameter.');
-                }
-
-                $locale = $args['locale'] ?? app()->getLocale();
-
-                return $resolveInfo
-                    ->argumentSet
-                    ->enhanceBuilder(
-                        $this->getModelClass()::query()
-                            ->whereRelation('translation.locale', 'iso', '=', $locale),
-                        []
-                    )
-                    ->first();
+        return function (mixed $root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo) {
+            if (isset($args['localeFilters']) && ! empty($args['localeFilters']['locales'])) {
+                throw new Exception('Multiple locales cannot be queried on a single returned instance! You have to only use "locale" filter on your "localeFilters" parameter.');
             }
-        );
+
+            $locale = $args['locale'] ?? app()->getLocale();
+
+            return $resolveInfo
+                ->enhanceBuilder(
+                    $this->getModelClass()::query()->whereRelation('translation.locale', 'iso', '=', $locale),
+                    [],
+                    $root, $args, $context, $resolveInfo,
+                )
+                ->first();
+        };
     }
 }

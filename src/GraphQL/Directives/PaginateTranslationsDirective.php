@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BBSLab\NovaTranslation\GraphQL\Directives;
 
 use GraphQL\Language\AST\FieldDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Type\Definition\ResolveInfo;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -17,21 +18,16 @@ use Nuwave\Lighthouse\Schema\AST\DocumentAST;
 use Nuwave\Lighthouse\Schema\Values\FieldValue;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
+/** @deprecated */
 class PaginateTranslationsDirective extends PaginateDirective
 {
     use Traits\LocaleFilters;
 
-    /**
-     * {@inheritdoc}
-     */
     public function name(): string
     {
         return 'paginateTranslations';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public static function definition(): string
     {
         return /* @lang GraphQL */ <<<'SDL'
@@ -52,10 +48,11 @@ directive @paginateTranslations(
 SDL;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function manipulateFieldDefinition(DocumentAST &$documentAST, FieldDefinitionNode &$fieldDefinition, ObjectTypeDefinitionNode &$parentType): void
+    public function manipulateFieldDefinition(
+        DocumentAST &$documentAST,
+        FieldDefinitionNode &$fieldDefinition,
+        ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode &$parentType,
+    ): void
     {
         $paginationManipulator = new PaginationManipulator($documentAST);
 
@@ -70,32 +67,27 @@ SDL;
             );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function resolveField(FieldValue $fieldValue): FieldValue
+    public function resolveField(FieldValue $fieldValue): callable
     {
-        return $fieldValue->setResolver(
-            function ($root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo): LengthAwarePaginator {
-                $paginationArgs = PaginationArgs::extractArgs($args, $this->paginationType(), $this->paginateMaxCount());
+        return function (mixed $root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo): LengthAwarePaginator {
+            $paginationArgs = PaginationArgs::extractArgs($args, $this->paginationType(), $this->paginateMaxCount());
 
-                $first = $paginationArgs->first;
-                $page = $paginationArgs->page;
+            $first = $paginationArgs->first;
+            $page = $paginationArgs->page;
 
-                $query = $resolveInfo
-                    ->argumentSet
-                    ->enhanceBuilder(
-                        $this->localeFilters($this->getModelClass(), $args),
-                        $this->directiveArgValue('scopes', [])
-                    );
+            $query = $resolveInfo
+                ->enhanceBuilder(
+                    $this->localeFilters($this->getModelClass(), $args),
+                    $this->directiveArgValue('scopes', []),
+                    $root, $args, $context, $resolveInfo,
+                );
 
-                if ($query instanceof ScoutBuilder) {
-                    return $query->paginate($first, 'page', $page);
-                }
-
-                return $query->paginate($first, ['*'], 'page', $page);
+            if ($query instanceof ScoutBuilder) {
+                return $query->paginate($first, 'page', $page);
             }
-        );
+
+            return $query->paginate($first, ['*'], 'page', $page);
+        };
     }
 
     protected function paginationType(): PaginationType
