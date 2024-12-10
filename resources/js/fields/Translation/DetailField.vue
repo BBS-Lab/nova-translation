@@ -18,7 +18,7 @@
               <span class="text-90">{{ trans('Translations') }}</span>
             </DropdownTrigger>
             <template #menu>
-              <DropdownMenu>
+              <DropdownMenu width="auto">
                 <div class="flex flex-col py-1">
                   <template v-for="locale in otherLocales" :key="`locale_${locale.id}`">
                     <template v-if="isTranslated[locale?.id] ?? false">
