@@ -13,7 +13,6 @@ class TranslatableObserver
     /**
      * Handle the Translatable "created" event.
      *
-     * @param  \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable  $translatable
      * @return void
      *
      * @throws \Exception
@@ -25,7 +24,7 @@ class TranslatableObserver
             $translatable->getKey()
         );
 
-        if (! in_array($translatable->getMorphClass(), nova_translation()->translatableModels())) {
+        if (!in_array($translatable->getMorphClass(), nova_translation()->translatableModels())) {
             return;
         }
 
@@ -53,7 +52,6 @@ class TranslatableObserver
     /**
      * Handle the Translatable "updated" event.
      *
-     * @param  \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable  $translatable
      * @return void
      *
      * @throws \Exception
@@ -77,7 +75,6 @@ class TranslatableObserver
     /**
      * Handle the Translatable "deleted" event.
      *
-     * @param  \BBSLab\NovaTranslation\Models\Contracts\IsTranslatable  $translatable
      * @return void
      *
      * @throws \Exception
@@ -87,7 +84,7 @@ class TranslatableObserver
         $translatable->load('translations');
         $translatable->translation->delete();
 
-        if (! in_array($translatable->getMorphClass(), nova_translation()->translatableModels())) {
+        if (!in_array($translatable->getMorphClass(), nova_translation()->translatableModels())) {
             return;
         }
 

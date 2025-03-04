@@ -17,7 +17,7 @@ use Nuwave\Lighthouse\Support\Contracts\FieldResolver;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 /** @deprecated */
-class FirstTranslationDirective extends BaseDirective implements FieldResolver, FieldManipulator
+class FirstTranslationDirective extends BaseDirective implements FieldManipulator, FieldResolver
 {
     use Traits\ExtendSchemaWithLocaleFields;
     use Traits\LocaleFilters;
@@ -38,8 +38,7 @@ SDL;
         DocumentAST &$documentAST,
         FieldDefinitionNode &$fieldDefinition,
         ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode &$parentType,
-    ): void
-    {
+    ): void {
         $this->extendSchemaWithLocaleFields(
             $documentAST,
             $this->directiveArgValue('type', class_basename($this->getModelClass()))
@@ -49,7 +48,7 @@ SDL;
     public function resolveField(FieldValue $fieldValue): callable
     {
         return function (mixed $root, array $args, GraphQLContext $context, ResolveInfo $resolveInfo) {
-            if (isset($args['localeFilters']) && ! empty($args['localeFilters']['locales'])) {
+            if (isset($args['localeFilters']) && !empty($args['localeFilters']['locales'])) {
                 throw new Exception('Multiple locales cannot be queried on a single returned instance! You have to only use "locale" filter on your "localeFilters" parameter.');
             }
 

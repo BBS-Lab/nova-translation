@@ -18,7 +18,7 @@ class DestroyController extends ResourceDestroyController
 
     public function handle(DeleteResourceRequest $request)
     {
-        if (! $this->isTranslatableResource($request)) {
+        if (!$this->isTranslatableResource($request)) {
             return parent::handle($request);
         }
 
@@ -43,8 +43,6 @@ class DestroyController extends ResourceDestroyController
     /**
      * Delete a single model (based on parent::handle() behavior).
      *
-     * @param  \Laravel\Nova\Http\Requests\DeleteResourceRequest  $request
-     * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return void
      *
      * @throws \Exception

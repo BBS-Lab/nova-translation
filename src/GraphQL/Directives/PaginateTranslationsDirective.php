@@ -52,8 +52,7 @@ SDL;
         DocumentAST &$documentAST,
         FieldDefinitionNode &$fieldDefinition,
         ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode &$parentType,
-    ): void
-    {
+    ): void {
         $paginationManipulator = new PaginationManipulator($documentAST);
 
         $paginationManipulator

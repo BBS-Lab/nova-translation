@@ -19,7 +19,7 @@ class StoreController extends ResourceStoreController
      */
     public function handle(CreateResourceRequest $request)
     {
-        if (! $this->isTranslatableResource($request)) {
+        if (!$this->isTranslatableResource($request)) {
             return parent::handle($request);
         }
 

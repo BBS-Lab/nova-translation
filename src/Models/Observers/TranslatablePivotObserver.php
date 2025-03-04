@@ -36,7 +36,7 @@ class TranslatablePivotObserver
                     return false;
                 }
 
-                if (! method_exists($type = $method->getReturnType(), 'getName')) {
+                if (!method_exists($type = $method->getReturnType(), 'getName')) {
                     return false;
                 }
 
@@ -44,7 +44,7 @@ class TranslatablePivotObserver
                     return false;
                 }
 
-                return $pivot->pivotParent->{$method->getName()}()->getTable() === $pivot->getTable();
+                return $pivot->getTable() === $pivot->pivotParent->{$method->getName()}()->getTable();
             })->first();
 
         if (empty($method)) {
@@ -56,7 +56,7 @@ class TranslatablePivotObserver
 
     protected function getTranslatedKeys(Model $related, Collection $locales): array
     {
-        if (! $related instanceof IsTranslatable) {
+        if (!$related instanceof IsTranslatable) {
             return $locales->mapWithKeys(function (Locale $locale) use ($related) {
                 return [$locale->iso => $related->getKey()];
             })->toArray();
@@ -73,7 +73,6 @@ class TranslatablePivotObserver
     /**
      * Handle the Translatable "created" event.
      *
-     * @param  \Illuminate\Database\Eloquent\Relations\Pivot  $pivot
      * @return void
      *
      * @throws \Exception
@@ -86,7 +85,6 @@ class TranslatablePivotObserver
     /**
      * Handle the Translatable "deleted" event.
      *
-     * @param  \Illuminate\Database\Eloquent\Relations\Pivot  $pivot
      * @return void
      *
      * @throws \Exception
@@ -98,7 +96,7 @@ class TranslatablePivotObserver
 
     protected function handlePivot(Pivot $pivot, $method = 'save')
     {
-        if (! $this->isPivotParentTranslatable($pivot)) {
+        if (!$this->isPivotParentTranslatable($pivot)) {
             return;
         }
 

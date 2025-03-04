@@ -24,7 +24,7 @@ class Translation extends Field
         ]);
     }
 
-    public function resolve($resource, $attribute = null)
+    public function resolve($resource, ?string $attribute = null): void
     {
         $this->withMeta([
             'translations' => $resource instanceof IsTranslatable ? $this->translations($resource) : [],

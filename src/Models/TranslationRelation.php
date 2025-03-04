@@ -105,7 +105,7 @@ class TranslationRelation extends Relation
 
     public function getResults()
     {
-        return ! is_null($this->getParent()->getKey())
+        return !is_null($this->getParent()->getKey())
             ? $this->query->get()
             : $this->related->newCollection();
     }

@@ -14,7 +14,9 @@ use Laravel\Nova\Resource;
 class Locale extends Resource
 {
     public static $model = 'BBSLab\\NovaTranslation\\Models\\Locale';
+
     public static $title = 'label';
+
     public static $search = [
         'id',
         'iso',

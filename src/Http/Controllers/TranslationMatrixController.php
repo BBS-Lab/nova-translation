@@ -30,7 +30,6 @@ class TranslationMatrixController
     /**
      * Save all labels provided in payload.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function save(Request $request)
@@ -86,7 +85,6 @@ class TranslationMatrixController
     /**
      * Download labels in JSON key-value format for given locale.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function exportLocale(Request $request)
@@ -147,7 +145,6 @@ class TranslationMatrixController
     /**
      * Create label and associated translation.
      *
-     * @param  array  $data
      * @return void
      */
     protected function createLabel(array $data)
@@ -160,14 +157,14 @@ class TranslationMatrixController
             ->where('labels.key', '=', $data['key'])
             ->first();
 
-        $translationId = ! empty($keyTranslation) ? $keyTranslation->translation_id : (new Label)->freshTranslationId();
+        $translationId = !empty($keyTranslation) ? $keyTranslation->translation_id : (new Label)->freshTranslationId();
 
         /** @var \BBSLab\NovaTranslation\Models\Label $label */
         $label = Label::withoutEvents(function () use ($data) {
             return Label::query()->create([
                 'type' => $data['type'],
                 'key' => $data['key'],
-                'value' => ! empty($data['value']) ? $data['value'] : '',
+                'value' => !empty($data['value']) ? $data['value'] : '',
             ]);
         });
 

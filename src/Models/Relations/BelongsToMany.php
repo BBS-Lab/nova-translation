@@ -23,7 +23,6 @@ class BelongsToMany extends Relation
      * Attach a model to the parent.
      *
      * @param  mixed  $id
-     * @param  array  $attributes
      * @param  bool  $touch
      * @return void
      *
@@ -33,7 +32,7 @@ class BelongsToMany extends Relation
     {
         parent::attach($id, $attributes, $touch);
 
-        if (! in_array($this->parent->getMorphClass(), nova_translation()->translatableModels())) {
+        if (!in_array($this->parent->getMorphClass(), nova_translation()->translatableModels())) {
             return;
         }
 
@@ -61,7 +60,7 @@ class BelongsToMany extends Relation
     {
         $result = parent::detach($ids, $touch);
 
-        if (! in_array($this->parent->getMorphClass(), nova_translation()->translatableModels())) {
+        if (!in_array($this->parent->getMorphClass(), nova_translation()->translatableModels())) {
             return $result;
         }
 
@@ -87,7 +86,7 @@ class BelongsToMany extends Relation
     {
         $changes = parent::sync($ids, $detaching);
 
-        if (! in_array($this->parent->getMorphClass(), nova_translation()->translatableModels())) {
+        if (!in_array($this->parent->getMorphClass(), nova_translation()->translatableModels())) {
             return $changes;
         }
 
@@ -112,7 +111,7 @@ class BelongsToMany extends Relation
 
     public function getTranslatedKeys(array $keys, Collection $locales): array
     {
-        if (! $this->related instanceof IsTranslatable) {
+        if (!$this->related instanceof IsTranslatable) {
             return $locales->mapWithKeys(function (Locale $locale) use ($keys) {
                 return [$locale->iso => $keys];
             })->toArray();

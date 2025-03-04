@@ -29,6 +29,7 @@ use ReflectionMethod;
 trait Translatable
 {
     protected $_deleting_translation = false;
+
     protected $_translating_relation = false;
 
     public static function bootTranslatable()
@@ -44,8 +45,6 @@ trait Translatable
     /**
      * Get the list of fields to duplicate on create.
      * (Other fields MUST BE nullable in database).
-     *
-     * @return array
      */
     public function getOnCreateTranslatable(): array
     {
@@ -54,8 +53,6 @@ trait Translatable
 
     /**
      * Translation relationship.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
     public function translation(): MorphOne
     {
@@ -72,7 +69,7 @@ trait Translatable
         return Translation::query()
             ->firstOrCreate([
                 'locale_id' => $localeId,
-                'translation_id' => ! empty($translationId) ? $translationId : $this->freshTranslationId(),
+                'translation_id' => !empty($translationId) ? $translationId : $this->freshTranslationId(),
                 'translatable_id' => $this->getKey(),
                 'translatable_type' => $this->getMorphClass(),
                 'translatable_source' => $sourceId,
@@ -121,19 +118,23 @@ trait Translatable
         })->toArray();
 
         Collection::make($class->getMethods())->filter(function (ReflectionMethod $method) {
-            if (! $type = $method->getReturnType()) {
+            if (!$type = $method->getReturnType()) {
                 return false;
             }
 
-            if (! method_exists($type, 'getName')) {
+            if (!method_exists($type, 'getName')) {
                 return false;
             }
 
             return in_array($type->getName(), [BelongsTo::class, MorphTo::class]);
         })->each(function (ReflectionMethod $method) use (&$related, $locales) {
             switch ($method->getReturnType()->getName()) {
-                case BelongsTo::class: $this->relatedBelongsTo($method, $related, $locales); break;
-                case MorphTo::class: $this->relatedMorphTo($method, $related, $locales); break;
+                case BelongsTo::class: $this->relatedBelongsTo($method, $related, $locales);
+
+                    break;
+                case MorphTo::class: $this->relatedMorphTo($method, $related, $locales);
+
+                    break;
                 default: break;
             }
         });
@@ -148,7 +149,7 @@ trait Translatable
         /** @var \Illuminate\Database\Eloquent\Model|null $parent */
         $parent = $this->{$method->getName()};
 
-        if (empty($parent) || ! $parent instanceof IsTranslatable) {
+        if (empty($parent) || !$parent instanceof IsTranslatable) {
             $locales->each(function (Locale $locale) use (&$related, $parent, $foreignKey) {
                 $related[$locale->iso][$foreignKey] = optional($parent)->getKey();
             });
@@ -175,7 +176,7 @@ trait Translatable
         /** @var \Illuminate\Database\Eloquent\Model|null $parent */
         $parent = $this->{$attribute};
 
-        if (empty($parent) || ! $parent instanceof IsTranslatable) {
+        if (empty($parent) || !$parent instanceof IsTranslatable) {
             $locales->each(function (Locale $locale) use (&$related, $parent, $foreignKey, $morphType) {
                 $related[$locale->iso][$foreignKey] = optional($parent)->getKey();
                 $related[$locale->iso][$morphType] = $parent ? $parent->getMorphClass() : null;
@@ -234,7 +235,7 @@ trait Translatable
             $this->getKey()
         );
 
-        if (! in_array($this->getMorphClass(), nova_translation()->translatableModels())) {
+        if (!in_array($this->getMorphClass(), nova_translation()->translatableModels())) {
             return $this;
         }
 
@@ -258,7 +259,7 @@ trait Translatable
 
     public function updateTranslationParents(): IsTranslatable
     {
-        if (! $this->translation) {
+        if (!$this->translation) {
             return $this->initTranslation();
         }
 

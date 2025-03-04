@@ -16,7 +16,7 @@ use Nuwave\Lighthouse\Support\Contracts\FieldResolver;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 /** @deprecated */
-class AllTranslationsDirective extends BaseDirective implements FieldResolver, FieldManipulator
+class AllTranslationsDirective extends BaseDirective implements FieldManipulator, FieldResolver
 {
     use Traits\ExtendSchemaWithLocaleFields;
     use Traits\LocaleFilters;

@@ -15,7 +15,7 @@ class TranslateController
     {
         $model = Nova::modelInstanceForKey($resource);
 
-        if (empty($model) || ! ($model instanceof IsTranslatable)) {
+        if (empty($model) || !($model instanceof IsTranslatable)) {
             return redirect()->back();
         }
 
@@ -43,7 +43,7 @@ class TranslateController
     {
         $resource = Nova::resourceForModel($translatable);
 
-        if (! is_subclass_of($resource, Resource::class)) {
+        if (!is_subclass_of($resource, Resource::class)) {
             throw new \BadMethodCallException("{$resource} is not a valid Nova resource");
         }
 

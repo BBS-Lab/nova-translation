@@ -1,6 +1,6 @@
 <template>
   <div class="nova-translation">
-    <div :class="`text-${field.textAlign}`" class="flex space-x-1 divide-x" v-if="field.value">
+    <div :class="`text-${field.textAlign}`" class="flex space-x-1 divide-x divide-gray-400 dark:divide-gray-700" v-if="field.value">
       <template
           v-for="(otherLocale) in otherLocales"
           :key="`translation_${otherLocale?.id}`"

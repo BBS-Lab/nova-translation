@@ -13,12 +13,15 @@ use Laravel\Nova\Fields\Textarea;
 class Label extends TranslatableResource
 {
     public static $model = 'BBSLab\\NovaTranslation\\Models\\Label';
+
     public static $title = 'key';
+
     public static $search = [
         'id',
         'key',
         'value',
     ];
+
     public static $with = [
         'translation',
         'translations.locale',

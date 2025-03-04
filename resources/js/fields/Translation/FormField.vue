@@ -1,8 +1,8 @@
 <template>
   <div class="nova-translation">
     <div class="px-6 md:px-8 mt-2 md:mt-0 w-full py-2">
-      <heading level="3" v-if="isCreate">{{ locale.label }}</heading>
-      <heading level="3" v-else-if="field.value">{{ field.locales[field.value.locale_id].label }}</heading>
+      <Heading level="3" v-if="isCreate">{{ locale.label }}</Heading>
+      <Heading level="3" v-else-if="field.value">{{ field.locales[field.value.locale_id].label }}</Heading>
     </div>
   </div>
 </template>
@@ -10,8 +10,13 @@
 <script>
 import TranslationMixin from '../../mixins/Translation'
 import { FormField, HandlesValidationErrors } from 'laravel-nova'
+import { Heading } from 'laravel-nova-ui'
 
 export default {
+  components: {
+    Heading,
+  },
+
   mixins: [
     TranslationMixin,
     FormField,
@@ -26,7 +31,7 @@ export default {
 
   computed: {
     isCreate() {
-      return this.$inertia.page.component === 'Nova.Create'
+      return !!!this.field.value?.locale_id
     },
   },
 

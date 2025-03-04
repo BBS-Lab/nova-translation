@@ -19,7 +19,7 @@ class UpdateController extends ResourceUpdateController
      */
     public function handle(UpdateResourceRequest $request)
     {
-        if (! $this->isTranslatableResource($request)) {
+        if (!$this->isTranslatableResource($request)) {
             return parent::handle($request);
         }
 

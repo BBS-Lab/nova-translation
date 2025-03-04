@@ -40,7 +40,7 @@ trait LocaleFilters
             ->where('translations.translatable_type', '=', $model->getMorphClass())
             ->where('locales.available_in_api', '=', true);
 
-        if (! empty($isos)) {
+        if (!empty($isos)) {
             $query = $query->whereIn('locales.iso', $isos);
         }
 

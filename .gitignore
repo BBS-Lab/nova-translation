@@ -4,3 +4,5 @@
 composer.lock
 package-lock.json
 auth.json
+.env
+/build

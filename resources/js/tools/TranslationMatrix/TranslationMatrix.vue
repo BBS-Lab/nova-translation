@@ -29,39 +29,39 @@
       <card>
         <div class="rounded overflow-hidden">
           <div class="overflow-x-auto overflow-y-auto max-h-[70vh]">
-            <table class="table overflow-x-scroll overflow-y-scroll relative w-full relative border-separate border-spacing-0">
+            <table class="table overflow-x-scroll overflow-y-scroll relative w-full relative border-separate border-spacing-0 dark:border-gray-700">
               <thead class="bg-gray-50 dark:bg-gray-800">
               <tr>
                 <th
-                    class="bg-gray-50 dark:bg-gray-800 text-left px-2 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-2 border-r border-b border-gray-200 sticky top-0 left-0 z-30"
+                    class="bg-gray-50 dark:bg-gray-800 text-left px-2 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-2 border-r border-b border-gray-200 dark:border-gray-700 sticky top-0 left-0 z-30"
                 >
                   {{ trans('Label') }}
                 </th>
                 <th
                     v-for="(locale, index) in locales"
-                    :key="locale.id" class="bg-gray-50 dark:bg-gray-800  text-left px-2 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-2 border-b border-gray-200 sticky top-0"
+                    :key="locale.id" class="bg-gray-50 dark:bg-gray-800  text-left px-2 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-2 border-b border-gray-200 dark:border-gray-700 sticky top-0"
                     :class="{
                       'border-l': index !== 0
                     }"
                 >
                   {{ locale.label }} ({{locale.iso}})
                 </th>
-                <th class="bg-gray-50 dark:bg-gray-800 text-left px-2 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-2 border-b border-l border-gray-200 sticky top-0 z-30 right-0">
+                <th class="bg-gray-50 dark:bg-gray-800 text-left px-2 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-2 border-b border-l border-gray-200 dark:border-gray-700 sticky top-0 z-30 right-0">
                   {{ trans('Actions') }}
                 </th>
               </tr>
               </thead>
               <tbody class="">
-              <tr class="p-3 border-t" v-for="(keyI18n, key) in labels" :key="key" :id="`tr__${key}`">
+              <tr class="p-3 border-t dark:border-gray-700" v-for="(keyI18n, key) in labels" :key="key" :id="`tr__${key}`">
                 <th
-                    class="bg-white text-left px-2 whitespace-nowrap text-gray-500 text-xxs tracking-wide py-2 no-uppercase border-r sticky left-0 z-20"
+                    class="bg-white dark:bg-gray-800 text-left px-2 whitespace-nowrap text-gray-500 dark:text-gray-400 text-xxs tracking-wide py-2 no-uppercase border-r dark:border-gray-700 sticky left-0 z-20"
                 >
                   {{ key }}
                 </th>
                 <td
                     v-for="(locale, index) in locales"
                     :key="`${key}__${locale.id}`"
-                    class="border-gray-200 overflow-hidden hover:bg-gray-50"
+                    class="border-gray-200 dark:border-gray-700 overflow-hidden"
                     :class="{
                       'border-l': index !== 0
                     }"
@@ -76,13 +76,13 @@
                   </div>
 
                 </td>
-                <td class="border-l border-gray-200 align-middle text-center p-3 bg-white z-20 sticky right-0">
+                <td class="border-l border-gray-200 dark:border-gray-700 dark:text-gray-400 align-middle text-center p-3 bg-white dark:bg-gray-800 z-20 sticky right-0">
                   <button
                       class="inline-flex appearance-none cursor-pointer text-70 hover:text-primary"
                       v-tooltip.click="trans('Delete')"
                       @click.prevent="deleteKey(key)"
                   >
-                    <Icon type="trash" />
+                    <Icon name="trash" class="!w-4 !h-4" />
                   </button>
                 </td>
               </tr>
@@ -106,6 +106,8 @@
 import { useLocalization } from '@/hooks'
 import PromptKeyModal from '@/tools/TranslationMatrix/PromptKeyModal'
 import { nextTick, onMounted, ref } from 'vue'
+import _ from 'lodash'
+import { Icon } from 'laravel-nova-ui'
 
 const { trans } = useLocalization()
 
@@ -118,7 +120,6 @@ const promptKeyModalOpened = ref(false)
 
 const hydrate = () => {
   Nova.request().get('/nova-vendor/nova-translation/translation-matrix').then((response) => {
-    console.log(response.data)
     labels.value = response.data.labels
     locales.value = response.data.locales
     loading.value = false
@@ -212,7 +213,6 @@ onMounted(() => hydrate())
   .table tbody tr:not(:last-child) td, .table tbody tr:not(:last-child) th {
     border-bottom-width: 1px;
     --tw-border-opacity: 1;
-    border-color: rgb(229 231 235 / var(--tw-border-opacity));
   }
 
 </style>

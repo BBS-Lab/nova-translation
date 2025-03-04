@@ -12,7 +12,6 @@ trait TranslatableController
     /**
      * Return if current requested resource is Translatable.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @return bool
      */
     protected function isTranslatableResource(NovaRequest $request)

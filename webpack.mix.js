@@ -2,7 +2,7 @@ const mix = require('laravel-mix')
 const postcssImport = require('postcss-import')
 const tailwindcss = require('tailwindcss')
 
-require('./nova.mix')
+mix.extend('nova', new require('laravel-nova-devtool'))
 const config = require('./webpack.config')
 
 mix
