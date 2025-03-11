@@ -8,6 +8,7 @@ use BBSLab\NovaTranslation\Models\Contracts\IsTranslatable;
 use Closure;
 use Exception;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use TypeError;
 
 class ChangeLocale
 {
@@ -52,7 +53,8 @@ class ChangeLocale
             }
 
             app()->setLocale($model->translation->locale->iso);
-        } catch (Exception $exception) {
+        } catch (Exception|TypeError $exception) {
+            //
         }
     }
 }
