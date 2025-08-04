@@ -82,7 +82,10 @@ class TranslatableObserver
     public function deleted(IsTranslatable $translatable)
     {
         $translatable->load('translations');
-        $translatable->translation->delete();
+        
+        if ($translatable->translation) {
+            $translatable->translation->delete();
+        }
 
         if (!in_array($translatable->getMorphClass(), nova_translation()->translatableModels())) {
             return;

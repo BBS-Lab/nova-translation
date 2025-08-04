@@ -129,10 +129,6 @@ class TranslationMatrixController
             $labels = nova_translation()->labelModel()::where('key', $key)->get();
             
             foreach ($labels as $label) {
-                Translation::where('translatable_id', $label->id)
-                    ->where('translatable_type', nova_translation()->labelModel())
-                    ->delete();
-                
                 $label->delete();
             }
 
