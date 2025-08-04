@@ -15,25 +15,16 @@ import I18nMixin from '../../mixins/I18n'
 import TranslationMixin from '../../mixins/Translation'
 
 export default {
-  mixins: [
-    I18nMixin,
-    TranslationMixin
-  ],
+  mixins: [I18nMixin, TranslationMixin],
 
-  props: [
-    'resourceName',
-    'resourceId',
-    'targetLocale',
-  ],
+  props: ['resourceName', 'resourceId', 'targetLocale'],
 
   computed: {
     url() {
       return `/nova-vendor/nova-translation/translate/${this.resourceName}/${this.resourceId}/locale-${this.targetLocale.id}`
-    }
-  }
+    },
+  },
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

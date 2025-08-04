@@ -5,11 +5,11 @@ export default {
     locale() {
       let id = _.findKey(this.locales, l => l.iso === Nova.config('locale'))
 
-      return this.locales.hasOwnProperty(id) ? this.locales[id] : null
+      return Object.prototype.hasOwnProperty.call(this.locales, id) ? this.locales[id] : null
     },
 
     locales() {
-      if (! this.field || ! this.field.locales) {
+      if (!this.field || !this.field.locales) {
         return {}
       }
 
@@ -21,7 +21,7 @@ export default {
     },
 
     translation() {
-      if (! this.field || ! this.field.value) {
+      if (!this.field || !this.field.value) {
         return null
       }
 
@@ -29,7 +29,7 @@ export default {
     },
 
     translations() {
-      if (! this.field || ! this.field.translations) {
+      if (!this.field || !this.field.translations) {
         return {}
       }
 
@@ -42,7 +42,7 @@ export default {
 
     isTranslated() {
       return _.mapValues(this.locales, l => {
-        if (this.translations.hasOwnProperty(l.id)) {
+        if (Object.prototype.hasOwnProperty.call(this.translations, l.id)) {
           return true
         }
 
@@ -62,6 +62,6 @@ export default {
       }
 
       return false
-    }
+    },
   },
 }

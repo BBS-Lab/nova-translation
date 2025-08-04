@@ -4,23 +4,17 @@
 
     <LoadingView :loading="loading">
       <div class="flex">
-        <div class="w-full flex items-center mb-6"><!-- Create / Attach Button -->
-          <div class="flex-shrink-0 ml-auto"><!-- Attach Related Models --><!-- Create Related Models -->
+        <div class="w-full flex items-center mb-6">
+          <!-- Create / Attach Button -->
+          <div class="flex-shrink-0 ml-auto">
+            <!-- Attach Related Models --><!-- Create Related Models -->
             <button
-                size="md"
-                class="flex-shrink-0 shadow rounded focus:outline-none ring-primary-200 dark:ring-gray-600 focus:ring bg-primary-500 hover:bg-primary-400 active:bg-primary-600 text-white dark:text-gray-800 inline-flex items-center font-bold px-4 h-9 text-sm flex-shrink-0"
-                @click.prevent="openPromptKeyModal"
+              size="md"
+              class="flex-shrink-0 shadow rounded focus:outline-none ring-primary-200 dark:ring-gray-600 focus:ring bg-primary-500 hover:bg-primary-400 active:bg-primary-600 text-white dark:text-gray-800 inline-flex items-center font-bold px-4 h-9 text-sm flex-shrink-0"
+              @click.prevent="openPromptKeyModal"
             >
               <span class="hidden md:inline-block">{{ trans('Add key') }}</span>
               <span class="inline-block md:hidden">{{ trans('Add key') }}</span>
-            </button>
-            <button
-                size="md"
-                class="flex-shrink-0 shadow rounded focus:outline-none ring-primary-200 dark:ring-gray-600 focus:ring bg-primary-500 hover:bg-primary-400 active:bg-primary-600 text-white dark:text-gray-800 inline-flex items-center font-bold px-4 h-9 text-sm flex-shrink-0 ml-3"
-                @click.prevent="saveLabels"
-            >
-              <span class="hidden md:inline-block">{{ trans('Save') }}</span>
-              <span class="inline-block md:hidden">{{ trans('Save') }}</span>
             </button>
           </div>
         </div>
@@ -29,63 +23,92 @@
       <card>
         <div class="rounded overflow-hidden">
           <div class="overflow-x-auto overflow-y-auto max-h-[70vh]">
-            <table class="table overflow-x-scroll overflow-y-scroll relative w-full relative border-separate border-spacing-0 dark:border-gray-700">
+            <table
+              class="table overflow-x-scroll overflow-y-scroll relative w-full relative border-separate border-spacing-0 dark:border-gray-700"
+            >
               <thead class="bg-gray-50 dark:bg-gray-800">
-              <tr>
-                <th
+                <tr>
+                  <th
                     class="bg-gray-50 dark:bg-gray-800 text-left px-2 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-2 border-r border-b border-gray-200 dark:border-gray-700 sticky top-0 left-0 z-30"
-                >
-                  {{ trans('Label') }}
-                </th>
-                <th
+                  >
+                    {{ trans('Label') }}
+                  </th>
+                  <th
                     v-for="(locale, index) in locales"
-                    :key="locale.id" class="bg-gray-50 dark:bg-gray-800  text-left px-2 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-2 border-b border-gray-200 dark:border-gray-700 sticky top-0"
+                    :key="locale.id"
+                    class="bg-gray-50 dark:bg-gray-800 text-left px-2 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-2 border-b border-gray-200 dark:border-gray-700 sticky top-0"
                     :class="{
-                      'border-l': index !== 0
+                      'border-l': index !== 0,
                     }"
-                >
-                  {{ locale.label }} ({{locale.iso}})
-                </th>
-                <th class="bg-gray-50 dark:bg-gray-800 text-left px-2 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-2 border-b border-l border-gray-200 dark:border-gray-700 sticky top-0 z-30 right-0">
-                  {{ trans('Actions') }}
-                </th>
-              </tr>
+                  >
+                    {{ locale.label }} ({{ locale.iso }})
+                  </th>
+                  <th
+                    class="bg-gray-50 dark:bg-gray-800 text-left px-2 whitespace-nowrap uppercase text-gray-500 text-xxs tracking-wide py-2 border-b border-l border-gray-200 dark:border-gray-700 sticky top-0 z-30 right-0"
+                  >
+                    {{ trans('Actions') }}
+                  </th>
+                </tr>
               </thead>
               <tbody class="">
-              <tr class="p-3 border-t dark:border-gray-700" v-for="(keyI18n, key) in labels" :key="key" :id="`tr__${key}`">
-                <th
-                    class="bg-white dark:bg-gray-800 text-left px-2 whitespace-nowrap text-gray-500 dark:text-gray-400 text-xxs tracking-wide py-2 no-uppercase border-r dark:border-gray-700 sticky left-0 z-20"
+                <tr
+                  class="p-3 border-t dark:border-gray-700"
+                  v-for="(keyI18n, key) in labels"
+                  :key="key"
+                  :id="`tr__${key}`"
                 >
-                  {{ key }}
-                </th>
-                <td
+                  <th
+                    class="bg-white dark:bg-gray-800 text-left px-2 whitespace-nowrap text-gray-500 dark:text-gray-400 text-xxs tracking-wide py-2 no-uppercase border-r dark:border-gray-700 sticky left-0 z-20"
+                  >
+                    {{ key }}
+                  </th>
+                  <td
                     v-for="(locale, index) in locales"
                     :key="`${key}__${locale.id}`"
                     class="border-gray-200 dark:border-gray-700 overflow-hidden"
                     :class="{
-                      'border-l': index !== 0
+                      'border-l': index !== 0,
                     }"
-                >
-                  <div class="w-full h-full overflow-hidden focus-within:outline-3 focus-within:outline">
-                    <textarea
-                        class="w-full h-full focus:outline-none p-2 border-none bg-transparent"
-                        @input="updateLabel(key, locale.id, $event.target.value)"
-                        :id="`textarea__${key}__${locale.id}`"
-                        v-html="keyI18n[locale.id]?.value"
-                    />
-                  </div>
-
-                </td>
-                <td class="border-l border-gray-200 dark:border-gray-700 dark:text-gray-400 align-middle text-center p-3 bg-white dark:bg-gray-800 z-20 sticky right-0">
-                  <button
+                  >
+                    <div class="relative w-full h-full">
+                      <div
+                        class="w-full h-full overflow-hidden focus-within:outline-3 focus-within:outline"
+                      >
+                        <textarea
+                          class="w-full h-full focus:outline-none p-2 border-none bg-transparent"
+                          @input="updateLabel(key, locale.id, $event.target.value)"
+                          :id="`textarea__${key}__${locale.id}`"
+                          v-html="keyI18n[locale.id]?.value"
+                        />
+                      </div>
+                      <div class="absolute top-1 right-1" v-if="keyI18n[locale.id]?.isDirty">
+                        <button
+                          class="flex-shrink-0 shadow rounded focus:outline-none ring-primary-200 dark:ring-gray-600 focus:ring bg-primary-500 hover:bg-primary-400 active:bg-primary-600 text-white dark:text-gray-800 inline-flex items-center font-bold px-2 h-6 text-xs"
+                          @click.prevent="saveLabel(key, locale.id)"
+                          :disabled="keyI18n[locale.id]?.isSaving"
+                        >
+                          <Icon
+                            v-if="keyI18n[locale.id]?.isSaving"
+                            type="loader"
+                            class="animate-spin h-3 w-3 mr-1"
+                          />
+                          <span>{{ trans('Save') }}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                  <td
+                    class="border-l border-gray-200 dark:border-gray-700 dark:text-gray-400 align-middle text-center p-3 bg-white dark:bg-gray-800 z-20 sticky right-0"
+                  >
+                    <button
                       class="inline-flex appearance-none cursor-pointer text-70 hover:text-primary"
                       v-tooltip.click="trans('Delete')"
                       @click.prevent="deleteKey(key)"
-                  >
-                    <Icon name="trash" class="!w-4 !h-4" />
-                  </button>
-                </td>
-              </tr>
+                    >
+                      <Icon name="trash" class="!w-4 !h-4" />
+                    </button>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -93,10 +116,10 @@
       </card>
 
       <PromptKeyModal
-          v-if="promptKeyModalOpened"
-          :show="promptKeyModalOpened"
-          @confirm="addKey"
-          @close="closePromptKeyModal"
+        v-if="promptKeyModalOpened"
+        :show="promptKeyModalOpened"
+        @confirm="addKey"
+        @close="closePromptKeyModal"
       />
     </LoadingView>
   </div>
@@ -114,54 +137,76 @@ const { trans } = useLocalization()
 const labels = ref([])
 const locales = ref([])
 const loading = ref(true)
-const currentEdit = ref({})
 const promptKeyModalOpened = ref(false)
 
-
 const hydrate = () => {
-  Nova.request().get('/nova-vendor/nova-translation/translation-matrix').then((response) => {
-    labels.value = response.data.labels
-    locales.value = response.data.locales
-    loading.value = false
-  }).catch((error) => {
-    console.error(error)
-    loading.value = false
-  })
+  Nova.request()
+    .get('/nova-vendor/nova-translation/translation-matrix')
+    .then(response => {
+      labels.value = response.data.labels
+      locales.value = response.data.locales
+      loading.value = false
+    })
+    .catch(error => {
+      console.error(error)
+      loading.value = false
+    })
 }
 
 const updateLabel = (key, localeId, value) => {
-  labels.value[key][localeId].value = value;
+  if (!labels.value[key][localeId].isDirty) {
+    labels.value[key][localeId] = {
+      ...labels.value[key][localeId],
+      isDirty: true,
+      isSaving: false,
+    }
+  }
+  labels.value[key][localeId].value = value
 }
 
-const saveLabels = () => {
-  loading.value = true
+const saveLabel = async (key, localeId) => {
+  const label = labels.value[key][localeId]
 
-  Nova.request().post('/nova-vendor/nova-translation/translation-matrix', { labels: labels.value }).then((response) => {
-    labels.value = response.data.labels
-    Nova.success(trans('The translations have been successfully saved!'))
-  }).catch((error) => {
+  if (!label || !label.isDirty) return
+
+  label.isSaving = true
+
+  try {
+    const response = await Nova.request().post('/nova-vendor/nova-translation/translation-matrix', {
+      key: key,
+      type: label.type,
+      value: label.value,
+      locale_id: localeId,
+    })
+
+    // Mise à jour du label avec la réponse
+    if (response.data.label) {
+      labels.value[key][localeId] = {
+        ...response.data.label,
+        isDirty: false,
+        isSaving: false,
+      }
+    }
+
+    Nova.success(trans('Translation saved successfully!'))
+  } catch (error) {
     console.error(error)
-    Nova.error(trans('An error occurred while saving the translations!'))
-  }).finally(() => {
-    loading.value = false
-  })
+    Nova.error(trans('Failed to save translation'))
+    label.isSaving = false
+  }
 }
 
 // ------------------------------------------------------------------------------
 
-const setCurrentEdit = (currentEdit) => {
-  currentEdit.value = currentEdit
-}
-
 // ------------------------------------------------------------------------------
 
-const openPromptKeyModal = () => promptKeyModalOpened.value = true
-const closePromptKeyModal = () => promptKeyModalOpened.value = false
+const openPromptKeyModal = () => (promptKeyModalOpened.value = true)
+const closePromptKeyModal = () => (promptKeyModalOpened.value = false)
 
-const addKey = (options) => {
+const addKey = options => {
   promptKeyModalOpened.value = false
 
-  if (! keyExists(options.key)) {
+  if (!keyExists(options.key)) {
     addI18nKey(options.key, options.type)
   } else {
     Nova.error(trans('The key you try to add already exists!'))
@@ -175,44 +220,46 @@ const addKey = (options) => {
   })
 }
 
-const keyExists = (key) => key in labels.value
+const keyExists = key => key in labels.value
 
 const addI18nKey = (key, type) => {
   labels.value[key] = {}
 
-  for (let i = 0 ; i < locales.value.length ; i++) {
+  for (let i = 0; i < locales.value.length; i++) {
     labels.value[key][locales.value[i].id] = {
       key: key,
       type: type,
       value: '',
-      locale_id: locales.value[i].id
+      locale_id: locales.value[i].id,
+      isDirty: false,
+      isSaving: false,
     }
   }
 
-  labels.value =_(labels.value).toPairs().sortBy(0).fromPairs().value()
+  labels.value = _(labels.value).toPairs().sortBy(0).fromPairs().value()
 }
 
-const deleteKey = (key) => {
+const deleteKey = key => {
   delete labels.value[key]
-  labels.value =_(labels.value).toPairs().sortBy(0).fromPairs().value()
+  labels.value = _(labels.value).toPairs().sortBy(0).fromPairs().value()
 }
 
 onMounted(() => hydrate())
 </script>
 
 <style scoped>
-  .table tbody tr th {
-    max-width: 15rem !important;
-    overflow-wrap: break-word;
-  }
+.table tbody tr th {
+  max-width: 15rem !important;
+  overflow-wrap: break-word;
+}
 
-  .table tbody tr td:not(:last-child) {
-    min-width: 20rem;
-  }
+.table tbody tr td:not(:last-child) {
+  min-width: 20rem;
+}
 
-  .table tbody tr:not(:last-child) td, .table tbody tr:not(:last-child) th {
-    border-bottom-width: 1px;
-    --tw-border-opacity: 1;
-  }
-
+.table tbody tr:not(:last-child) td,
+.table tbody tr:not(:last-child) th {
+  border-bottom-width: 1px;
+  --tw-border-opacity: 1;
+}
 </style>

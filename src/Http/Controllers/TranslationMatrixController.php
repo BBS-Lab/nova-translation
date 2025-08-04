@@ -32,49 +32,83 @@ class TranslationMatrixController
      *
      * @return \Illuminate\Http\JsonResponse
      */
+    /**
+     * Save a single translation entry.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function save(Request $request)
     {
-        $raw = $request->input('labels', []);
+        $key = $request->input('key');
+        $type = $request->input('type');
+        $value = $request->input('value');
+        $localeId = $request->input('locale_id');
 
-        DB::beginTransaction();
+        if (empty($key) || empty($type) || !isset($value) || empty($localeId)) {
+            return response()->json(['error' => 'Missing required fields'], 422);
+        }
 
         try {
-            nova_translation()->labelModel()::query()->truncate();
-            Translation::query()->where('translatable_type', '=', nova_translation()->labelModel())->delete();
+            $existingTranslation = Translation::query()
+                ->select('translations.translation_id', 'translations.translatable_source')
+                ->join('labels', 'translations.translatable_id', '=', 'labels.id')
+                ->where('translations.translatable_type', '=', nova_translation()->labelModel())
+                ->where('labels.key', '=', $key)
+                ->first();
 
-            $translationId = 1;
+            DB::beginTransaction();
 
-            foreach ($raw as $key => $items) {
-                $sourceId = null;
+            $label = nova_translation()->labelModel()::query()
+                ->where('key', $key)
+                ->where(function ($query) use ($localeId) {
+                    $query->whereHas('translations', function ($q) use ($localeId) {
+                        $q->where('locale_id', $localeId);
+                    });
+                })
+                ->first();
 
-                foreach ($items as $item) {
-                    $label = nova_translation()->labelModel()::create([
-                        'type' => $item['type'],
-                        'key' => $key,
-                        'value' => $item['value'],
-                    ]);
+            if (!$label) {
+                $label = nova_translation()->labelModel()::create([
+                    'type' => $type,
+                    'key' => $key,
+                    'value' => $value,
+                ]);
+            } else {
+                $label->update([
+                    'value' => $value,
+                ]);
+            }
 
-                    if ($sourceId === null) {
-                        $sourceId = $label->id;
-                    }
-
-                    Translation::create([
-                        'locale_id' => $item['locale_id'],
-                        'translation_id' => $translationId,
+            if ($existingTranslation) {
+                Translation::updateOrCreate(
+                    [
                         'translatable_id' => $label->id,
                         'translatable_type' => nova_translation()->labelModel(),
-                        'translatable_source' => $sourceId,
-                    ]);
-                }
-
-                $translationId++;
+                        'locale_id' => $localeId,
+                    ],
+                    [
+                        'translation_id' => $existingTranslation->translation_id,
+                        'translatable_source' => $existingTranslation->translatable_source,
+                    ]
+                );
+            } else {
+                $translationId = (new Label)->freshTranslationId();
+                Translation::create([
+                    'locale_id' => $localeId,
+                    'translation_id' => $translationId,
+                    'translatable_id' => $label->id,
+                    'translatable_type' => nova_translation()->labelModel(),
+                    'translatable_source' => $label->id, // This label becomes the source
+                ]);
             }
 
             DB::commit();
 
             return response()->json([
-                'labels' => $this->labels(),
+                'success' => true,
+                'label' => $label,
             ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;

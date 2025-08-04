@@ -1,6 +1,6 @@
 <template>
   <PanelItem :index="index" :field="field">
-    <h4 class="font-normal @sm/peekable:break-all ">
+    <h4 class="font-normal @sm/peekable:break-all">
       <span>{{ trans('Language') }}</span>
     </h4>
     <template #value>
@@ -25,7 +25,7 @@
                         class="flex items-center hover:bg-gray-100 py-1"
                         :href="translatedDetailRoute(locale)"
                       >
-                        <Icon type="solid" name="check-circle" class="text-green-500"/>
+                        <Icon type="solid" name="check-circle" class="text-green-500" />
                         <span class="ml-2">{{ locale.label }}</span>
                       </DropdownMenuItem>
                     </template>
@@ -36,7 +36,7 @@
                         class="flex items-center text-gray-400 hover:bg-gray-100 py-1"
                         :href="createTranslationRoute(locale)"
                       >
-                        <Icon type="solid" name="x-circle" class="text-red-500"/>
+                        <Icon type="solid" name="x-circle" class="text-red-500" />
                         <span class="ml-2">{{ locale.label }}</span>
                       </DropdownMenuItem>
                     </template>
@@ -54,30 +54,29 @@
 <script>
 import I18nMixin from '../../mixins/I18n'
 import TranslationMixin from '../../mixins/Translation'
-import CreateTranslationLink from './CreateTranslationLink'
-import {Icon, PanelItem} from 'laravel-nova-ui'
+
+import { Icon } from 'laravel-nova-ui'
+import { PanelItem } from 'laravel-nova'
 
 export default {
   components: {
-    CreateTranslationLink,
     Icon,
     PanelItem,
   },
 
-  mixins: [
-    I18nMixin,
-    TranslationMixin,
-  ],
+  mixins: [I18nMixin, TranslationMixin],
 
   props: ['index', 'resource', 'resourceName', 'resourceId', 'field'],
 
   methods: {
     translatedDetailRoute(locale) {
-      return `${Nova.config('base')}/resources/${this.resourceName}/${this.translations[locale.id].translatable_id}`.replace('//', '/')
+      return `${Nova.config('base')}/resources/${this.resourceName}/${
+        this.translations[locale.id].translatable_id
+      }`.replace('//', '/')
     },
     createTranslationRoute(locale) {
       return `/nova-vendor/nova-translation/translate/${this.resourceName}/${this.resourceId}/locale-${locale.id}`
     },
-  }
+  },
 }
 </script>
