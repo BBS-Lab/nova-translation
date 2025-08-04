@@ -98,8 +98,10 @@ class TranslatableObserver
 
         $translatable->translations->each(function (Translation $translation) {
             $translatable = $translation->translatable;
-            $translatable->deletingTranslation();
-            $translatable->delete();
+            if ($translatable) {
+                $translatable->deletingTranslation();
+                $translatable->delete();
+            }
         });
     }
 }
