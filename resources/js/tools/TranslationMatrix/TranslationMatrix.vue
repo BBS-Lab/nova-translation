@@ -248,7 +248,7 @@ const deleteKey = async key => {
     loading.value = true
 
     await Nova.request().post(
-      `/nova-vendor/nova-translation/translation-matrix/delete/${encodeURIComponent(key)}`
+      `/nova-vendor/nova-translation/translation-matrix/delete/${encodeURI(key)}`
     )
 
     delete labels.value[key]
