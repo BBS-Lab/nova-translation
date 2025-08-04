@@ -36,50 +36,49 @@ class TranslationMatrixController
     {
         $raw = $request->input('labels', []);
 
-        $labels = [];
-        $translations = [];
-
-        $labelId = 1;
-        $translationId = 1;
-
-        foreach ($raw as $key => $items) {
-            $source = $labelId;
-            foreach ($items as $item) {
-                $labels[] = [
-                    'id' => $labelId,
-                    'type' => $item['type'],
-                    'key' => $key,
-                    'value' => $item['value'],
-                ];
-
-                $translations[] = [
-                    'locale_id' => $item['locale_id'],
-                    'translation_id' => $translationId,
-                    'translatable_id' => $labelId,
-                    'translatable_type' => nova_translation()->labelModel(),
-                    'translatable_source' => $source,
-                ];
-
-                $labelId++;
-            }
-
-            $translationId++;
-        }
-
-        DB::connection()->getPdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 0);
         DB::beginTransaction();
 
-        nova_translation()->labelModel()::query()->truncate();
-        Translation::query()->where('translatable_type', '=', nova_translation()->labelModel())->delete();
+        try {
+            nova_translation()->labelModel()::query()->truncate();
+            Translation::query()->where('translatable_type', '=', nova_translation()->labelModel())->delete();
 
-        nova_translation()->labelModel()::query()->insert($labels);
-        Translation::query()->insert($translations);
+            $translationId = 1;
 
-        DB::commit();
+            foreach ($raw as $key => $items) {
+                $sourceId = null;
 
-        return response()->json([
-            'labels' => $this->labels(),
-        ]);
+                foreach ($items as $item) {
+                    $label = nova_translation()->labelModel()::create([
+                        'type' => $item['type'],
+                        'key' => $key,
+                        'value' => $item['value'],
+                    ]);
+
+                    if ($sourceId === null) {
+                        $sourceId = $label->id;
+                    }
+
+                    Translation::create([
+                        'locale_id' => $item['locale_id'],
+                        'translation_id' => $translationId,
+                        'translatable_id' => $label->id,
+                        'translatable_type' => nova_translation()->labelModel(),
+                        'translatable_source' => $sourceId,
+                    ]);
+                }
+
+                $translationId++;
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'labels' => $this->labels(),
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     /**
