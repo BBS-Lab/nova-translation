@@ -75,7 +75,7 @@
                         class="w-full h-full overflow-hidden focus-within:outline-3 focus-within:outline"
                       >
                         <textarea
-                          class="w-full h-full focus:outline-none p-2 border-none bg-transparent"
+                          class="w-full h-full focus:outline-none p-2 pr-[100px] border-none bg-transparent"
                           @input="updateLabel(key, locale.id, $event.target.value)"
                           :id="`textarea__${key}__${locale.id}`"
                           v-html="keyI18n[locale.id]?.value"
