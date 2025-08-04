@@ -239,9 +239,28 @@ const addI18nKey = (key, type) => {
   labels.value = _(labels.value).toPairs().sortBy(0).fromPairs().value()
 }
 
-const deleteKey = key => {
-  delete labels.value[key]
-  labels.value = _(labels.value).toPairs().sortBy(0).fromPairs().value()
+const deleteKey = async key => {
+  if (!confirm(trans('Are you sure you want to delete this translation?'))) {
+    return
+  }
+
+  try {
+    loading.value = true
+    delete labels.value[key]
+    labels.value = _(labels.value).toPairs().sortBy(0).fromPairs().value()
+    
+    await Nova.request().post('/nova-vendor/nova-translation/translation-matrix', { 
+      labels: labels.value 
+    })
+    
+    Nova.success(trans('Translation deleted successfully!'))
+  } catch (error) {
+    console.error(error)
+    Nova.error(trans('Failed to delete translation'))
+    await hydrate()
+  } finally {
+    loading.value = false
+  }
 }
 
 onMounted(() => hydrate())
