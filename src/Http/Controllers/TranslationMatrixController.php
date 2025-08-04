@@ -116,10 +116,35 @@ class TranslationMatrixController
     }
 
     /**
-     * Download labels in JSON key-value format for given locale.
+     * Delete a translation key and all its translations.
      *
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @param string $key
+     * @return \Illuminate\Http\JsonResponse
      */
+    public function delete($key)
+    {
+        try {
+            DB::beginTransaction();
+
+            $labels = nova_translation()->labelModel()::where('key', $key)->get();
+            
+            foreach ($labels as $label) {
+                Translation::where('translatable_id', $label->id)
+                    ->where('translatable_type', nova_translation()->labelModel())
+                    ->delete();
+                
+                $label->delete();
+            }
+
+            DB::commit();
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
     public function exportLocale(Request $request)
     {
         $locale = $request->input('locale', app()->getLocale());

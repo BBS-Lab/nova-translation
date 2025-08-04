@@ -246,12 +246,11 @@ const deleteKey = async key => {
 
   try {
     loading.value = true
+    
+    await Nova.request().delete(`/nova-vendor/nova-translation/translation-matrix/${encodeURIComponent(key)}`)
+    
     delete labels.value[key]
     labels.value = _(labels.value).toPairs().sortBy(0).fromPairs().value()
-    
-    await Nova.request().post('/nova-vendor/nova-translation/translation-matrix', { 
-      labels: labels.value 
-    })
     
     Nova.success(trans('Translation deleted successfully!'))
   } catch (error) {
