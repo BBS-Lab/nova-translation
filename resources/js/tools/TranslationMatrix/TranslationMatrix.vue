@@ -247,6 +247,13 @@ const saveAllLabels = async () => {
       }
     )
 
+    translations.forEach(translation => {
+      if (labels.value[translation.key] && labels.value[translation.key][translation.locale_id]) {
+        labels.value[translation.key][translation.locale_id].isDirty = false
+        labels.value[translation.key][translation.locale_id].isSaving = false
+      }
+    })
+
     if (response.data.labels) {
       response.data.labels.forEach(savedLabel => {
         if (labels.value[savedLabel.key] && labels.value[savedLabel.key][savedLabel.locale_id]) {
