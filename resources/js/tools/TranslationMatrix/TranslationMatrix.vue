@@ -184,7 +184,7 @@ const updateLabel = (key, localeId, value) => {
   labels.value[key][localeId].value = value
 }
 
-const saveLabel = async (key, localeId) => {
+const saveLabel = async (key, localeId, silent = false) => {
   const label = labels.value[key][localeId]
 
   if (!label || !label.isDirty) return
@@ -199,7 +199,6 @@ const saveLabel = async (key, localeId) => {
       locale_id: localeId,
     })
 
-    // Mise à jour du label avec la réponse
     if (response.data.label) {
       labels.value[key][localeId] = {
         ...response.data.label,
@@ -208,11 +207,16 @@ const saveLabel = async (key, localeId) => {
       }
     }
 
-    Nova.success(trans('Translation saved successfully!'))
+    if (!silent) {
+      Nova.success(trans('Translation saved successfully!'))
+    }
   } catch (error) {
     console.error(error)
-    Nova.error(trans('Failed to save translation'))
+    if (!silent) {
+      Nova.error(trans('Failed to save translation'))
+    }
     label.isSaving = false
+    throw error
   }
 }
 
@@ -220,27 +224,50 @@ const saveAllLabels = async () => {
   if (!hasUnsavedChanges.value || isSavingAll.value) return
 
   isSavingAll.value = true
-  let hasError = false
 
   try {
+    const translations = []
     for (const [key, keyI18n] of Object.entries(labels.value)) {
       for (const [localeId, label] of Object.entries(keyI18n)) {
         if (label.isDirty) {
-          try {
-            await saveLabel(key, parseInt(localeId))
-          } catch (error) {
-            hasError = true
-          }
+          translations.push({
+            key,
+            type: label.type,
+            value: label.value,
+            locale_id: parseInt(localeId),
+          })
         }
       }
     }
 
-    if (!hasError) {
+    const response = await Nova.request().post(
+      '/nova-vendor/nova-translation/translation-matrix/save-all',
+      {
+        translations,
+      }
+    )
+
+    if (response.data.labels) {
+      response.data.labels.forEach(savedLabel => {
+        if (labels.value[savedLabel.key] && labels.value[savedLabel.key][savedLabel.locale_id]) {
+          labels.value[savedLabel.key][savedLabel.locale_id] = {
+            ...savedLabel,
+            isDirty: false,
+            isSaving: false,
+          }
+        }
+      })
+    }
+
+    if (response.data.errors && response.data.errors.length > 0) {
+      Nova.error(trans('Some translations failed to save'))
+      console.error('Save errors:', response.data.errors)
+    } else {
       Nova.success(trans('All translations saved successfully!'))
     }
   } catch (error) {
     console.error(error)
-    Nova.error(trans('Failed to save some translations'))
+    Nova.error(trans('Failed to save translations'))
   } finally {
     isSavingAll.value = false
   }
