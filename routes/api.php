@@ -11,6 +11,8 @@ Route::group(['prefix' => 'translation-matrix'], function () {
     Route::get('/export-locale', [TranslationMatrixController::class, 'exportLocale']);
 
     Route::post('/', [TranslationMatrixController::class, 'save']);
+    Route::post('/save-all', [TranslationMatrixController::class, 'saveAll']);
+    Route::post('/delete/{key}', [TranslationMatrixController::class, 'delete']);
     Route::get('/', [TranslationMatrixController::class, 'index']);
 });
 

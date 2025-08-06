@@ -4,6 +4,6 @@ export default {
       return Nova.config('translations')[`nova-translation::${key}`]
         ? this.__(`nova-translation::${key}`, replace)
         : key
-    }
-  }
+    },
+  },
 }

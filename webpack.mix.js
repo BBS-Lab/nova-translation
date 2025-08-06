@@ -1,9 +1,7 @@
 const mix = require('laravel-mix')
 const postcssImport = require('postcss-import')
 const tailwindcss = require('tailwindcss')
-
-mix.extend('nova', new require('laravel-nova-devtool'))
-const config = require('./webpack.config')
+const path = require('path')
 
 mix
   .disableNotifications()
@@ -14,5 +12,16 @@ mix
   .options({
     processCssUrls: false,
   })
-  .webpackConfig(config)
-  .nova('bbs-lab/nova-translation')
+  .webpackConfig({
+    externals: {
+      vue: 'Vue',
+    },
+    output: {
+      uniqueName: 'bbs-lab/nova-translation',
+    },
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, 'resources/js/'),
+      },
+    },
+  })

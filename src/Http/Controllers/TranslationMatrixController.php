@@ -32,61 +32,184 @@ class TranslationMatrixController
      *
      * @return \Illuminate\Http\JsonResponse
      */
+    /**
+     * Save a single translation entry.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function save(Request $request)
     {
-        $raw = $request->input('labels', []);
+        $key = $request->input('key');
+        $type = $request->input('type');
+        $value = $request->input('value');
+        $localeId = $request->input('locale_id');
 
-        $labels = [];
-        $translations = [];
-
-        $labelId = 1;
-        $translationId = 1;
-
-        foreach ($raw as $key => $items) {
-            $source = $labelId;
-            foreach ($items as $item) {
-                $labels[] = [
-                    'id' => $labelId,
-                    'type' => $item['type'],
-                    'key' => $key,
-                    'value' => $item['value'],
-                ];
-
-                $translations[] = [
-                    'locale_id' => $item['locale_id'],
-                    'translation_id' => $translationId,
-                    'translatable_id' => $labelId,
-                    'translatable_type' => nova_translation()->labelModel(),
-                    'translatable_source' => $source,
-                ];
-
-                $labelId++;
-            }
-
-            $translationId++;
+        if (empty($key) || empty($type) || !isset($value) || empty($localeId)) {
+            return response()->json(['error' => 'Missing required fields'], 422);
         }
 
-        DB::connection()->getPdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 0);
-        DB::beginTransaction();
+        try {
+            DB::beginTransaction();
+            
+            $label = $this->saveTranslation($key, $type, $value, $localeId);
+            
+            DB::commit();
 
-        nova_translation()->labelModel()::query()->truncate();
-        Translation::query()->where('translatable_type', '=', nova_translation()->labelModel())->delete();
-
-        nova_translation()->labelModel()::query()->insert($labels);
-        Translation::query()->insert($translations);
-
-        DB::commit();
-
-        return response()->json([
-            'labels' => $this->labels(),
-        ]);
+            return response()->json([
+                'success' => true,
+                'label' => $label,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     /**
-     * Download labels in JSON key-value format for given locale.
+     * Save multiple translations at once.
      *
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
+    public function saveAll(Request $request)
+    {
+        $translations = $request->input('translations', []);
+        $savedLabels = [];
+        $errors = [];
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($translations as $translation) {
+                if (empty($translation['key']) || empty($translation['type']) || !isset($translation['value']) || empty($translation['locale_id'])) {
+                    $errors[] = [
+                        'key' => $translation['key'] ?? 'unknown',
+                        'error' => 'Missing required fields'
+                    ];
+                    continue;
+                }
+
+                try {
+                    $label = $this->saveTranslation(
+                        $translation['key'],
+                        $translation['type'],
+                        $translation['value'],
+                        $translation['locale_id']
+                    );
+                    $savedLabels[] = $label;
+                } catch (\Exception $e) {
+                    $errors[] = [
+                        'key' => $translation['key'],
+                        'error' => $e->getMessage()
+                    ];
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => empty($errors),
+                'labels' => $savedLabels,
+                'errors' => $errors
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Save a single translation.
+     *
+     * @param string $key
+     * @param string $type
+     * @param string $value
+     * @param int $localeId
+     * @return Label
+     */
+    protected function saveTranslation($key, $type, $value, $localeId)
+    {
+        $existingTranslation = Translation::query()
+            ->select('translations.translation_id', 'translations.translatable_source')
+            ->join('labels', 'translations.translatable_id', '=', 'labels.id')
+            ->where('translations.translatable_type', '=', nova_translation()->labelModel())
+            ->where('labels.key', '=', $key)
+            ->first();
+
+        $label = nova_translation()->labelModel()::query()
+            ->where('key', $key)
+            ->where(function ($query) use ($localeId) {
+                $query->whereHas('translations', function ($q) use ($localeId) {
+                    $q->where('locale_id', $localeId);
+                });
+            })
+            ->first();
+
+        if (!$label) {
+            $label = nova_translation()->labelModel()::create([
+                'type' => $type,
+                'key' => $key,
+                'value' => $value,
+            ]);
+        } else {
+            $label->update([
+                'value' => $value,
+            ]);
+        }
+
+        if ($existingTranslation) {
+            Translation::updateOrCreate(
+                [
+                    'translatable_id' => $label->id,
+                    'translatable_type' => nova_translation()->labelModel(),
+                    'locale_id' => $localeId,
+                ],
+                [
+                    'translation_id' => $existingTranslation->translation_id,
+                    'translatable_source' => $existingTranslation->translatable_source,
+                ]
+            );
+        } else {
+            $translationId = (new Label)->freshTranslationId();
+            Translation::create([
+                'locale_id' => $localeId,
+                'translation_id' => $translationId,
+                'translatable_id' => $label->id,
+                'translatable_type' => nova_translation()->labelModel(),
+                'translatable_source' => $label->id,
+            ]);
+        }
+
+        return $label;
+    }
+
+    /**
+     * Delete a translation key and all its translations.
+     *
+     * @param string $key
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function delete($key)
+    {
+        try {
+            DB::beginTransaction();
+
+            $labels = nova_translation()->labelModel()::where('key', $key)->get();
+            
+            foreach ($labels as $label) {
+                $label->delete();
+            }
+
+            DB::commit();
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
     public function exportLocale(Request $request)
     {
         $locale = $request->input('locale', app()->getLocale());
