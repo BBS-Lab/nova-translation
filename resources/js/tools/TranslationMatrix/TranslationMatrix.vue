@@ -8,14 +8,27 @@
           <!-- Create / Attach Button -->
           <div class="flex-shrink-0 ml-auto">
             <!-- Attach Related Models --><!-- Create Related Models -->
-            <button
-              size="md"
-              class="flex-shrink-0 shadow rounded focus:outline-none ring-primary-200 dark:ring-gray-600 focus:ring bg-primary-500 hover:bg-primary-400 active:bg-primary-600 text-white dark:text-gray-800 inline-flex items-center font-bold px-4 h-9 text-sm flex-shrink-0"
-              @click.prevent="openPromptKeyModal"
-            >
-              <span class="hidden md:inline-block">{{ trans('Add key') }}</span>
-              <span class="inline-block md:hidden">{{ trans('Add key') }}</span>
-            </button>
+            <div class="flex gap-3">
+              <button
+                size="md"
+                class="flex-shrink-0 shadow rounded focus:outline-none ring-primary-200 dark:ring-gray-600 focus:ring bg-primary-500 hover:bg-primary-400 active:bg-primary-600 text-white dark:text-gray-800 inline-flex items-center font-bold px-4 h-9 text-sm flex-shrink-0"
+                @click.prevent="openPromptKeyModal"
+              >
+                <span class="hidden md:inline-block">{{ trans('Add key') }}</span>
+                <span class="inline-block md:hidden">{{ trans('Add key') }}</span>
+              </button>
+
+              <button
+                size="md"
+                class="flex-shrink-0 shadow rounded focus:outline-none ring-primary-200 dark:ring-gray-600 focus:ring bg-primary-500 hover:bg-primary-400 active:bg-primary-600 text-white dark:text-gray-800 inline-flex items-center font-bold px-4 h-9 text-sm flex-shrink-0"
+                @click.prevent="saveAllLabels"
+                :disabled="!hasUnsavedChanges || isSavingAll"
+              >
+                <Icon v-if="isSavingAll" type="loader" class="animate-spin h-4 w-4 mr-2" />
+                <span class="hidden md:inline-block">{{ trans('Save All') }}</span>
+                <span class="inline-block md:hidden">{{ trans('Save All') }}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -128,7 +141,7 @@
 <script setup>
 import { useLocalization } from '@/hooks'
 import PromptKeyModal from '@/tools/TranslationMatrix/PromptKeyModal'
-import { nextTick, onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref, computed } from 'vue'
 import _ from 'lodash'
 import { Icon } from 'laravel-nova-ui'
 
@@ -137,7 +150,14 @@ const { trans } = useLocalization()
 const labels = ref([])
 const locales = ref([])
 const loading = ref(true)
+const isSavingAll = ref(false)
 const promptKeyModalOpened = ref(false)
+
+const hasUnsavedChanges = computed(() => {
+  return Object.values(labels.value).some(keyI18n =>
+    Object.values(keyI18n).some(item => item.isDirty)
+  )
+})
 
 const hydrate = () => {
   Nova.request()
@@ -196,9 +216,35 @@ const saveLabel = async (key, localeId) => {
   }
 }
 
-// ------------------------------------------------------------------------------
+const saveAllLabels = async () => {
+  if (!hasUnsavedChanges.value || isSavingAll.value) return
 
-// ------------------------------------------------------------------------------
+  isSavingAll.value = true
+  let hasError = false
+
+  try {
+    for (const [key, keyI18n] of Object.entries(labels.value)) {
+      for (const [localeId, label] of Object.entries(keyI18n)) {
+        if (label.isDirty) {
+          try {
+            await saveLabel(key, parseInt(localeId))
+          } catch (error) {
+            hasError = true
+          }
+        }
+      }
+    }
+
+    if (!hasError) {
+      Nova.success(trans('All translations saved successfully!'))
+    }
+  } catch (error) {
+    console.error(error)
+    Nova.error(trans('Failed to save some translations'))
+  } finally {
+    isSavingAll.value = false
+  }
+}
 
 const openPromptKeyModal = () => (promptKeyModalOpened.value = true)
 const closePromptKeyModal = () => (promptKeyModalOpened.value = false)
