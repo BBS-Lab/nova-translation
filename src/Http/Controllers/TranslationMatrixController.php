@@ -50,9 +50,9 @@ class TranslationMatrixController
 
         try {
             DB::beginTransaction();
-            
+
             $label = $this->saveTranslation($key, $type, $value, $localeId);
-            
+
             DB::commit();
 
             return response()->json([
@@ -158,29 +158,6 @@ class TranslationMatrixController
             ]);
         }
 
-        if ($existingTranslation) {
-            Translation::updateOrCreate(
-                [
-                    'translatable_id' => $label->id,
-                    'translatable_type' => nova_translation()->labelModel(),
-                    'locale_id' => $localeId,
-                ],
-                [
-                    'translation_id' => $existingTranslation->translation_id,
-                    'translatable_source' => $existingTranslation->translatable_source,
-                ]
-            );
-        } else {
-            $translationId = (new Label)->freshTranslationId();
-            Translation::create([
-                'locale_id' => $localeId,
-                'translation_id' => $translationId,
-                'translatable_id' => $label->id,
-                'translatable_type' => nova_translation()->labelModel(),
-                'translatable_source' => $label->id,
-            ]);
-        }
-
         return $label;
     }
 
@@ -196,7 +173,7 @@ class TranslationMatrixController
             DB::beginTransaction();
 
             $labels = nova_translation()->labelModel()::where('key', $key)->get();
-            
+
             foreach ($labels as $label) {
                 $label->delete();
             }
