@@ -20,6 +20,8 @@ class Translation extends Field
         $this->withMeta([
             'locales' => $this->locales(),
         ]);
+
+        $this->readonly();
     }
 
     public function resolve($resource, $attribute = null)
