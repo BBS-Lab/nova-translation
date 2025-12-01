@@ -91,7 +91,7 @@
                           class="w-full h-full focus:outline-none p-2 pr-[100px] border-none bg-transparent"
                           @input="updateLabel(key, locale.id, $event.target.value)"
                           :id="`textarea__${key}__${locale.id}`"
-                          v-html="keyI18n[locale.id]?.value"
+                          :value="keyI18n[locale.id]?.value || ''"
                         />
                       </div>
                       <div class="absolute top-1 right-1" v-if="keyI18n[locale.id]?.isDirty">
@@ -163,7 +163,31 @@ const hydrate = () => {
   Nova.request()
     .get('/nova-vendor/nova-translation/translation-matrix')
     .then(response => {
-      labels.value = response.data.labels
+      // Normalize labels structure to ensure all locales have entries with required properties
+      const normalizedLabels = {}
+      for (const [key, localeCollection] of Object.entries(response.data.labels)) {
+        normalizedLabels[key] = {}
+        // Ensure localeCollection is an array
+        const collectionArray = Array.isArray(localeCollection) ? localeCollection : Object.values(localeCollection)
+        for (const locale of response.data.locales) {
+          const labelData = collectionArray.find(item => item && item.locale_id === locale.id)
+          normalizedLabels[key][locale.id] = labelData
+            ? {
+                ...labelData,
+                isDirty: false,
+                isSaving: false,
+              }
+            : {
+                key: key,
+                type: collectionArray[0]?.type || 'text',
+                value: null,
+                locale_id: locale.id,
+                isDirty: false,
+                isSaving: false,
+              }
+        }
+      }
+      labels.value = normalizedLabels
       locales.value = response.data.locales
       loading.value = false
     })
@@ -174,6 +198,19 @@ const hydrate = () => {
 }
 
 const updateLabel = (key, localeId, value) => {
+  // Initialize label if it doesn't exist (for new locales)
+  if (!labels.value[key][localeId]) {
+    labels.value[key][localeId] = {
+      key: key,
+      type: labels.value[key][Object.keys(labels.value[key])[0]]?.type || 'text',
+      value: value,
+      locale_id: localeId,
+      isDirty: false,
+      isSaving: false,
+    }
+  }
+
+  // Mark as dirty if value changed
   if (!labels.value[key][localeId].isDirty) {
     labels.value[key][localeId] = {
       ...labels.value[key][localeId],

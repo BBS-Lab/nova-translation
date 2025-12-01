@@ -82,7 +82,7 @@ class TranslatableObserver
     public function deleted(IsTranslatable $translatable)
     {
         $translatable->load('translations');
-        
+
         if ($translatable->translation) {
             $translatable->translation->delete();
         }
