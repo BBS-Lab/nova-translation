@@ -34,7 +34,9 @@ trait Translatable
 
     public static function bootTranslatable()
     {
-        static::observe(TranslatableObserver::class);
+        foreach (['created', 'updated', 'deleted'] as $event) {
+            static::registerModelEvent($event, TranslatableObserver::class.'@'.$event);
+        }
     }
 
     public function getNonTranslatable(): array
