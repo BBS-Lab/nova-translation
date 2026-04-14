@@ -34,7 +34,7 @@ trait Translatable
 
     public static function bootTranslatable()
     {
-        static::observe(TranslatableObserver::class);
+        static::whenBooted(fn () => static::observe(TranslatableObserver::class));
     }
 
     public function getNonTranslatable(): array
